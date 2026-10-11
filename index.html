@@ -7,6 +7,329 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
+            --bg-main: #0B0E14;
+            --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.9), rgba(11, 15, 25, 0.9));
+            --bg-inner: rgba(255, 255, 255, 0.03);
+            --primary: #38BDF8;
+            --primary-glow: rgba(56, 189, 248, 0.2);
+            --primary-dark: #0284C7;
+            --accent: #6366F1;
+            --text-main: #F8FAFC;
+            --text-muted: #64748B;
+            --border: 1px solid rgba(255, 255, 255, 0.05);
+            --border-highlight: 1px solid rgba(56, 189, 248, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            background-image: radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.15), transparent 50%);
+            color: var(--text-main); 
+            padding-bottom: 90px; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
+        .logo-icon { width: 32px; height: 32px; background: var(--bg-card); border: var(--border-highlight); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 10px var(--primary-glow); }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+
+        .container { padding: 0 20px; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content.active { display: block; }
+
+        .welcome-title { font-size: 24px; font-weight: 700; margin-top: 10px; margin-bottom: 5px; }
+        .welcome-sub { font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .badge-pro { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+
+        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.2s; }
+        .card:active { transform: scale(0.985); }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent); }
+
+        .btn-magic {
+            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+            color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
+            font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+            transition: 0.2s;
+        }
+        .btn-magic:active { transform: scale(0.96); }
+
+        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 15px; }
+        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; }
+        .tag-gray { border-color: var(--text-muted); color: var(--text-muted); }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; }
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: normal; margin-bottom: 10px; }
+        .stat-card .val { font-size: 20px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); }
+
+        .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 8px 12px; border-radius: 12px; transition: 0.3s; }
+        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-item.active { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
+        .nav-item.active svg { fill: rgba(56, 189, 248, 0.2); stroke: var(--primary); }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
+    <div class="header-actions">
+        <div class="header-btn">🔔</div>
+        <div class="header-btn">🇷🇺 RU ⌄</div>
+        <div class="header-btn">☰</div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- ==================== ГЛАВНАЯ (как раньше) ==================== -->
+    <div id="tab-home" class="tab-content active">
+        <h1 class="welcome-title" id="userName">Добро пожаловать!!</h1>
+        <div class="welcome-sub">Ваша подписка <span class="badge-pro">★ Кубик Пользователь</span></div>
+
+        <!-- Большая карточка трафика -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <span class="tag">НОРМА</span>
+                        <span class="tag tag-gray">✧ ПРОБНЫЙ ПЕРИОД</span>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 600;">Расход трафика</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 32px; font-weight: 700;">0<span style="font-size: 16px; color: var(--text-muted);">%</span></div>
+                    <div style="font-size: 11px; color: var(--text-muted);">0 МБ / 100.0 ГБ</div>
+                </div>
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width: 2%;"></div></div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 20px;">
+                <span>0 МБ</span><span>25 ГБ</span><span>50 ГБ</span><span>75 ГБ</span><span>100 ГБ</span>
+            </div>
+
+            <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                    <div>
+                        <div style="font-weight: 600;">Подключить устройство</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">0 из 1 подключено</div>
+                    </div>
+                </div>
+                <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                <div class="glass-box">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">ТАРИФ</div>
+                    <div style="font-weight: 600;">Кубик Лайт 🧊</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">до 20.10.2026</div>
+                </div>
+                <div class="glass-box">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">📅 ОСТАЛОСЬ</div>
+                    <div style="font-size: 22px; font-weight: 700; color: #FBBF24;">3 <span style="font-size: 14px; color: var(--text-muted);">дн.</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Баланс + Рефералы -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="arrow-right">›</div>
+                <h4>Баланс</h4>
+                <div class="val"><span style="font-size: 22px;">💳</span> 0.00 ₽</div>
+            </div>
+            <div class="stat-card">
+                <div class="arrow-right">›</div>
+                <h4>Рефералы</h4>
+                <div class="val"><span style="font-size: 22px;">👥</span> 0</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">+0.00 ₽</div>
+            </div>
+        </div>
+
+        <!-- Испытай удачу -->
+        <div class="card" style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 32px;">🎰</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; margin-bottom: 4px;">Испытай удачу!</div>
+                <div style="font-size: 12px; color: var(--text-muted);">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
+            </div>
+            <div style="color: var(--text-muted);">›</div>
+        </div>
+
+        <!-- Новости -->
+        <div style="font-size: 12px; color: var(--text-muted); letter-spacing: 1px; margin: 25px 0 12px 0;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
+        <div class="card">
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <span class="tag" style="color: #10B981; border-color: #10B981;">● НОВЫЕ ЛОКАЦИИ</span>
+            </div>
+            <div style="font-size: 17px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                Новая локация Россия — ещё более быстрое и стабильное подключение.
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ПОДПИСКА ==================== -->
+    <div id="tab-sub" class="tab-content">
+        <h1 class="welcome-title">Подписка</h1>
+
+        <!-- Состояние: НЕТ подписки -->
+        <div id="state-inactive">
+            <div class="card" style="text-align: center; padding: 50px 25px;">
+                <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.6;">🧊</div>
+                <h2 style="margin-bottom: 12px;">У вас нет активной подписки</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px; line-height: 1.5;">
+                    Активируйте пробный период или купите подписку,<br>чтобы пользоваться Кубик VPN
+                </p>
+                <button class="btn-magic" onclick="activateSub()">💎 Купить подписку</button>
+            </div>
+        </div>
+
+        <!-- Состояние: ЕСТЬ подписка (как на скрине) -->
+        <div id="state-active" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 12px; font-weight: 700;">
+                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);"></div>
+                        НОРМА
+                    </div>
+                    <div class="badge-pro">ПРОБНЫЙ ПЕРИОД</div>
+                </div>
+
+                <h2 style="font-size: 22px; margin-bottom: 20px;">Кубик Лайт 🧊</h2>
+
+                <div class="glass-box">
+                    <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+                        <div style="width: 36px; height: 36px; background: rgba(99,102,241,0.15); color: #818CF8; border-radius: 10px; display: flex; align-items: center; justify-content: center;">⏱</div>
+                        <div>
+                            <div style="color: #818CF8; font-weight: 600; margin-bottom: 4px;">Пробный период</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">Вы используете пробную версию сервиса</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; font-size: 13px;">
+                        <div><b style="color: #818CF8;">3</b> <span style="color: var(--text-muted);">дня</span></div>
+                        <div><b style="color: #818CF8;">∞</b> <span style="color: var(--text-muted);">ГБ</span></div>
+                        <div><b style="color: #818CF8;">1</b> <span style="color: var(--text-muted);">устройство</span></div>
+                    </div>
+                </div>
+
+                <div style="margin: 20px 0 10px 0; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                    <span>ТРАФИК</span>
+                    <span>0 МБ / ∞</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 5%;"></div></div>
+
+                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                        <div>
+                            <div style="font-weight: 600;">Подключить устройство</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">0 из 1 подключено</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <div style="flex: 1; background: #0B0E14; border: 1px solid #1E293B; border-radius: 10px; padding: 12px; font-size: 12px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                        vless://...@kybic.ru:443?security=reality...
+                    </div>
+                    <div onclick="copyLink()" style="width: 46px; height: 46px; background: #1E293B; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">📋</div>
+                </div>
+
+                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05);">
+                    <div style="color: #FBBF24; font-size: 12px; font-weight: 600; margin-bottom: 8px;">📅 ОСТАЛОСЬ</div>
+                    <div style="font-size: 26px; font-weight: 700; color: #FBBF24;" id="timer">2 дн. 23:44:14</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Заглушки остальных вкладок -->
+    <div id="tab-balance" class="tab-content"><h1 class="welcome-title">Баланс</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
+    <div id="tab-wheel" class="tab-content"><h1 class="welcome-title">Колесо удачи</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
+    <div id="tab-support" class="tab-content"><h1 class="welcome-title">Поддержка</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
+
+</div>
+
+<!-- Нижнее меню -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('tab-home', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Главная</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-sub', this)">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Подписка</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-balance', this)">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        <span>Баланс</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-wheel', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
+        <span>Колесо</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-support', this)">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <span>Поддержка</span>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.setHeaderColor('#0B0E14');
+    tg.setBackgroundColor('#0B0E14');
+
+    if (tg.initDataUnsafe?.user) {
+        document.getElementById('userName').innerText = "Добро пожаловать, " + tg.initDataUnsafe.user.first_name + " !!";
+    }
+
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function activateSub() {
+        document.getElementById('state-inactive').style.display = 'none';
+        document.getElementById('state-active').style.display = 'block';
+        tg.HapticFeedback.impactOccurred('medium');
+    }
+
+    function copyLink() {
+        tg.showAlert('Ссылка скопирована!');
+        tg.HapticFeedback.impactOccurred('light');
+    }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Кубик VPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
             --bg-main: #0B0E14; 
             --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.9), rgba(11, 15, 25, 0.9));
             --bg-inner: rgba(255, 255, 255, 0.03);
