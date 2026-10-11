@@ -13,26 +13,28 @@
             --primary: #38BDF8;
             --primary-glow: rgba(56, 189, 248, 0.25);
             --primary-dark: #0284C7;
+            --accent: #6366F1;
             --text-main: #F8FAFC;
             --text-muted: #64748B;
             --border: 1px solid rgba(255, 255, 255, 0.05);
             --border-highlight: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         
         html, body {
-            width: 100%; min-height: 100vh;
+            width: 100%; min-height: 100vh; min-height: 100dvh;
             background-color: var(--bg-main);
             background-image: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 100%);
             background-attachment: fixed; background-repeat: no-repeat; background-size: cover;
-            color: var(--text-main); padding-bottom: 95px;
+            color: var(--text-main); padding-bottom: 95px; -webkit-font-smoothing: antialiased;
         }
 
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
         .logo-icon { width: 34px; height: 34px; background: var(--bg-card); border: var(--border-highlight); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 12px var(--primary-glow); }
         .header-actions { display: flex; gap: 8px; align-items: center; }
         .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; cursor: pointer; }
@@ -44,40 +46,60 @@
         .welcome-title { font-size: 22px; font-weight: 700; margin-top: 14px; margin-bottom: 6px; }
         .welcome-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         .badge-pro { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
 
-        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; }
+        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden; transition: transform 0.2s; backdrop-filter: blur(10px); }
+        .card:active { transform: scale(0.985); }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent); }
 
         .btn-magic {
-            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7); background-size: 300% 300%;
-            color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
+            background-size: 300% 300%; animation: gradientShift 4s ease infinite;
+            color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
+            font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px rgba(56, 189, 248, 0.25);
+            transition: 0.2s;
         }
-        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-magic:active { transform: scale(0.96); }
+
+        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-blue:active { transform: scale(0.97); opacity: 0.9; }
 
         .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+        .tag-gray { border-color: var(--text-muted); color: var(--text-muted); }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; }
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
+        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
+
+        .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
+
         .input-box { width: 100%; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
 
-        /* ИНТЕРФЕЙС МЕССЕНДЖЕРА В ПОДДЕРЖКЕ */
-        .chat-container { display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; padding: 10px; background: #070A0F; border-radius: 16px; border: var(--border); margin-bottom: 12px; }
-        .msg-bubble { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; position: relative; word-break: break-word; }
-        
-        /* Мое сообщение (Справа) */
-        .msg-user { align-self: flex-end; background: #0284C7; color: #FFFFFF; border-bottom-right-radius: 4px; }
-        
-        /* Сообщение поддержки (Слева) */
-        .msg-support { align-self: flex-start; background: #1E273C; color: #F8FAFC; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px; }
-        
-        .msg-author { font-size: 10px; font-weight: 700; margin-bottom: 3px; opacity: 0.8; }
-        .msg-time { font-size: 9px; opacity: 0.6; text-align: right; margin-top: 4px; }
+        /* Виджет подписки */
+        .widget-sub-card { background: #1C1F26; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .widget-title { font-size: 18px; font-weight: 700; color: #FFFFFF; }
+        .widget-info { font-size: 11px; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px; }
+        .widget-pill { position: relative; background: #2D3139; height: 30px; border-radius: 15px; display: flex; align-items: center; padding: 0 12px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.03); }
+        .widget-pill-fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(56, 189, 248, 0.15); width: 0%; border-right: 2px solid var(--primary); transition: width 0.4s ease; }
+        .widget-pill-text { position: relative; z-index: 2; width: 100%; display: flex; justify-content: center; font-size: 12px; font-weight: 600; color: #FFFFFF; }
+        .widget-footer { display: flex; justify-content: space-between; align-items: center; }
+        .widget-expire { font-size: 12px; color: #FFFFFF; font-weight: 500; }
+        .widget-send-btn { color: #5B89F7; font-size: 18px; cursor: pointer; transition: transform 0.2s; }
+        .widget-send-btn:active { transform: scale(0.85); }
 
-        .ticket-item { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 15px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .ticket-item:active { background: rgba(56, 189, 248, 0.05); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-around; padding: 8px 6px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s ease; }
+        .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.08); }
+        .nav-item.active svg { stroke: var(--primary); transform: translateY(-1px); }
 
-        #adminPanelBtn { display: none; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #FBBF24; }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-around; padding: 8px 6px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 6px 0; }
-        .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
-        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.08); border-radius: 12px; }
+        .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 20px auto; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#0ea5e9 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #0ea5e9 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid var(--bg-card); box-shadow: 0 0 25px rgba(56, 189, 248, 0.25); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
     </style>
 </head>
 <body>
@@ -85,7 +107,7 @@
 <header class="header">
     <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
     <div class="header-actions">
-        <div class="header-btn" id="adminPanelBtn" onclick="switchTab('tab-admin')">👑 Обращения</div>
+        <div class="header-btn">🔔</div>
         <div class="header-btn">🇷🇺 RU ⌄</div>
     </div>
 </header>
@@ -95,64 +117,176 @@
     <!-- 1. ГЛАВНАЯ -->
     <div id="tab-home" class="tab-content active">
         <h1 class="welcome-title" id="userName">Добро пожаловать!!</h1>
-        <div class="welcome-sub">Ваша подписка <span class="badge-pro" id="badgeStatus">★ Кубик Пользователь</span></div>
+        <div class="welcome-sub">Ваша подписка <span class="badge-pro" id="badgeStatus">❌ Не активна</span></div>
 
         <div id="home-inactive">
             <div class="card" style="text-align: center; padding: 35px 20px;">
                 <div style="font-size: 45px; margin-bottom: 12px; opacity: 0.8;">🧊</div>
-                <h3 style="margin-bottom: 8px;">Подписка не подключена</h3>
-                <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
+                <h3 style="margin-bottom: 8px; font-size: 18px;">Подписка не подключена</h3>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 20px; line-height: 1.4;">
+                    Получите 3 дня бесплатного доступа с лимитом 100 ГБ и скоростью до 1 Гбит/с!
+                </p>
+                <button class="btn-magic" id="btnActivateHome" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
             </div>
         </div>
+
         <div id="home-active" style="display: none;">
-            <div class="card"><p>Подписка активна! Заходите во вкладку Подписка.</p></div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                            <span class="tag">НОРМА</span>
+                            <span class="tag tag-gray">✧ ПРОБНЫЙ ПЕРИОД</span>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700;">Расход трафика</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 28px; font-weight: 700;" id="trafficPercent">0<span style="font-size: 14px; color: var(--text-muted);">%</span></div>
+                        <div style="font-size: 11px; color: var(--text-muted);" id="trafficText">0 МБ / 100 ГБ</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar"><div class="progress-fill" id="trafficFill" style="width: 2%;"></div></div>
+                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 18px;">
+                    <span>0 МБ</span><span>25 ГБ</span><span>50 ГБ</span><span>75 ГБ</span><span>100 ГБ</span>
+                </div>
+
+                <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
+                        </div>
+                    </div>
+                    <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="glass-box" style="margin-bottom: 0;">
+                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
+                        <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
+                    </div>
+                    <div class="glass-box" style="margin-bottom: 0;">
+                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #FBBF24;" id="homeDaysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
+                <div class="arrow-right">›</div>
+                <h4>Баланс</h4>
+                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
+            </div>
+            <div class="stat-card" onclick="tgAlert('Реферальная ссылка скопирована!')">
+                <div class="arrow-right">›</div>
+                <h4>Рефералы</h4>
+                <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
+            </div>
+        </div>
+
+        <div class="card" onclick="switchTab('tab-wheel', document.querySelectorAll('.nav-item')[3])" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+            <div style="font-size: 30px;">🎰</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
+            </div>
+            <div style="color: var(--text-muted);">›</div>
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 600;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
+        <div class="card">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <span class="tag" style="color: #10B981; border-color: #10B981;">● НОВЫЕ ЛОКАЦИИ</span>
+            </div>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                Еще более быстрое и стабильное подключение. Выберите «Россия» и подключайтесь!
+            </div>
         </div>
     </div>
 
     <!-- 2. ПОДПИСКА -->
     <div id="tab-sub" class="tab-content">
         <h1 class="welcome-title">Подписка</h1>
-        <div class="card"><p>Управление вашей подпиской VLESS</p></div>
+
+        <div id="sub-inactive">
+            <div class="card" style="text-align: center; padding: 45px 20px;">
+                <div style="font-size: 50px; margin-bottom: 16px; opacity: 0.7;">🧊</div>
+                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.4;">
+                    Активируйте бесплатный период или купите подписку для доступа
+                </p>
+                <button class="btn-magic" id="btnActivateSub" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
+            </div>
+        </div>
+
+        <div id="sub-active" style="display: none;">
+            <div class="widget-sub-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="widget-title">Subscription</div>
+                    <div style="font-size: 16px; color: var(--text-muted); cursor: pointer;" onclick="checkUserStatus()">🔄</div>
+                </div>
+                <div class="widget-info" id="widgetTimestamp">Автообновление - 12ч.</div>
+                
+                <div class="widget-pill">
+                    <div class="widget-pill-fill" id="widgetFill" style="width: 0%;"></div>
+                    <div class="widget-pill-text" id="widgetTrafficText">0MB / 100GB</div>
+                </div>
+
+                <div class="widget-footer">
+                    <div style="color: var(--primary); font-size: 14px;">ℹ️</div>
+                    <div class="widget-expire" id="widgetExpire">Истекает: --.--.----</div>
+                    <div class="widget-send-btn" onclick="copySubUrl()" title="Скопировать VLESS">➤</div>
+                </div>
+            </div>
+
+            <div class="btn-blue" style="margin-bottom: 16px; text-align: center;" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
+                + Посмотреть тарифы и купить подписку
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 15px; margin-bottom: 12px;">Мои устройства</h3>
+                <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 15px 0;">Нет подключенных устройств</p>
+            </div>
+        </div>
     </div>
 
     <!-- 3. БАЛАНС -->
-    <div id="tab-balance" class="tab-content"><h1 class="welcome-title">Баланс</h1></div>
-    <div id="tab-wheel" class="tab-content"><h1 class="welcome-title">Колесо</h1></div>
-
-    <!-- 5. ПОДДЕРЖКА (ЧАТ С КЛИЕНТОМ) -->
-    <div id="tab-support" class="tab-content">
-        <h1 class="welcome-title">Поддержка</h1>
-
-        <!-- Вид 1: Список обращений -->
-        <div id="supportListView">
-            <button class="btn-blue" onclick="openNewTicketModal()">➕ Создать новое обращение</button>
-            <h3 style="margin: 15px 0 10px 0; font-size: 14px; color: var(--text-muted);">Ваши диалоги:</h3>
-            <div id="userTicketsList">
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted);">Нет активных диалогов</p></div>
-            </div>
+    <div id="tab-balance" class="tab-content">
+        <h1 class="welcome-title">Баланс</h1>
+        <div class="card">
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Текущий баланс</div>
+            <h1 style="font-size: 32px; font-weight: 700; color: var(--text-main);">0.00 ₽</h1>
         </div>
 
-        <!-- Вид 2: Окно ЧАТА -->
-        <div id="supportChatView" style="display: none;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                <button class="header-btn" onclick="closeChat()">← Назад</button>
-                <h3 id="chatTitle">Диалог #</h3>
-            </div>
-            
-            <div class="chat-container" id="chatMessages"></div>
-
+        <div class="card">
+            <h3 style="font-size: 15px; margin-bottom: 12px;">Промокод</h3>
             <div style="display: flex; gap: 8px;">
-                <input type="text" id="chatInput" class="input-box" placeholder="Напишите сообщение..." style="margin-bottom:0;">
-                <button class="btn-blue" style="width: auto; padding: 0 18px; margin-bottom:0;" onclick="sendMessage()">➤</button>
+                <input type="text" class="input-box" placeholder="Введите промокод">
+                <button class="btn-blue" style="width: auto; padding: 0 18px; white-space: nowrap;">Активировать</button>
             </div>
         </div>
     </div>
 
-    <!-- 6. ОБРАЩЕНИЯ ДЛЯ АДМИНА / ПОДДЕРЖКИ -->
-    <div id="tab-admin" class="tab-content">
-        <h1 class="welcome-title" style="color: #FBBF24;">👑 ЧАТЫ КЛИЕНТОВ</h1>
-        <div id="adminListView">
-            <div id="adminTicketsList"></div>
+    <!-- 4. КОЛЕСО -->
+    <div id="tab-wheel" class="tab-content">
+        <h1 class="welcome-title" style="text-align: center;">Колесо удачи</h1>
+        <div class="wheel-wrap"><div class="wheel-pointer"></div><div class="wheel" id="wheelEl"></div></div>
+        <button class="btn-magic" style="margin-bottom: 20px;" onclick="spinWheel()">КРУТИТЬ! (25 ⭐)</button>
+    </div>
+
+    <!-- 5. ПОДДЕРЖКА -->
+    <div id="tab-support" class="tab-content">
+        <h1 class="welcome-title">Поддержка</h1>
+        <div class="card" style="text-align: center; padding: 30px;">
+            <h3>Служба поддержки</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 10px 0 20px 0;">Если возникли вопросы — напишите нашему администратору</p>
+            <button class="btn-blue" onclick="tg.openTelegramLink('https://t.me/kybic_vpn_bot')">Написать в поддержку</button>
         </div>
     </div>
 
@@ -160,21 +294,40 @@
 
 <!-- Нижнее меню -->
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('tab-home', this)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Главная</span></div>
-    <div class="nav-item" onclick="switchTab('tab-sub', this)"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span>Подписка</span></div>
-    <div class="nav-item" onclick="switchTab('tab-support', this)"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span>Поддержка</span></div>
+    <div class="nav-item active" onclick="switchTab('tab-home', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Главная</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-sub', this)">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Подписка</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-balance', this)">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        <span>Баланс</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-wheel', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
+        <span>Колесо</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-support', this)">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <span>Поддержка</span>
+    </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand(); tg.setHeaderColor('#0B0E14');
+    tg.expand();
+    tg.setHeaderColor('#0B0E14');
+    tg.setBackgroundColor('#0B0E14');
+
     const API_URL = "https://kybic.ru/api/bot";
     let currentUser = tg.initDataUnsafe?.user;
-    let activeTicketId = null;
-    let chatInterval = null;
+    let userSubUrl = "";
 
     if (currentUser) {
-        document.getElementById('userName').innerText = "Привет, " + currentUser.first_name + "!";
+        document.getElementById('userName').innerText = "Добро пожаловать, " + currentUser.first_name + " !!";
         checkUserStatus();
     }
 
@@ -183,158 +336,97 @@
         try {
             const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
-            if (data.role === 'admin' || data.role === 'support') {
-                document.getElementById('adminPanelBtn').style.display = 'flex';
+            if (data.active) {
+                showActiveState(data);
             }
         } catch (e) {}
     }
 
-    // --- ЛОГИКА ЧАТА И ТИКЕТОВ ---
-    async function loadTickets() {
+    async function requestTrialInApp() {
         if (!currentUser) return;
-        try {
-            const res = await fetch(`${API_URL}/tickets?user_id=${currentUser.id}`);
-            const data = await res.json();
-            
-            if (data.tickets && data.tickets.length > 0) {
-                let html = '';
-                data.tickets.forEach(t => {
-                    let statusText = t.status === 'open' ? '🟡 Ожидает ответа' : '🟢 Отвечено';
-                    html += `
-                    <div class="ticket-item" onclick="openChat(${t.id})">
-                        <div>
-                            <div style="font-weight:600; font-size:14px;">Обращение #${t.id}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${statusText}</div>
-                        </div>
-                        <div style="color:var(--primary);">Открыть Чат ➔</div>
-                    </div>`;
-                });
-                document.getElementById('userTicketsList').innerHTML = html;
-            }
-        } catch (e) {}
-    }
-
-    async function loadAdminTickets() {
-        if (!currentUser) return;
-        try {
-            const res = await fetch(`${API_URL}/tickets?user_id=${currentUser.id}`);
-            const data = await res.json();
-            if (data.is_support && data.tickets.length > 0) {
-                let html = '';
-                data.tickets.forEach(t => {
-                    let badge = t.status === 'open' ? '🔴 НОВОЕ' : '🟢 Отвечено';
-                    html += `
-                    <div class="ticket-item" onclick="openChat(${t.id})">
-                        <div>
-                            <div style="font-weight:600; font-size:14px;">${t.first_name} (Чат #${t.id})</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${badge}</div>
-                        </div>
-                        <div style="color:#FBBF24;">Войти в Чат ➔</div>
-                    </div>`;
-                });
-                document.getElementById('adminTicketsList').innerHTML = html;
-            }
-        } catch (e) {}
-    }
-
-    async function openChat(ticketId) {
-        activeTicketId = ticketId;
-        document.getElementById('supportListView').style.display = 'none';
-        document.getElementById('adminListView').style.display = 'none';
-        document.getElementById('supportChatView').style.display = 'block';
-        document.getElementById('chatTitle').innerText = `Чат #${ticketId}`;
+        tg.HapticFeedback.impactOccurred('heavy');
         
-        loadMessages();
-        if (chatInterval) clearInterval(chatInterval);
-        chatInterval = setInterval(loadMessages, 3000); // Автообновление сообщений раз в 3 секунды
-    }
-
-    function closeChat() {
-        if (chatInterval) clearInterval(chatInterval);
-        document.getElementById('supportChatView').style.display = 'none';
-        document.getElementById('supportListView').style.display = 'block';
-        document.getElementById('adminListView').style.display = 'block';
-        loadTickets();
-        loadAdminTickets();
-    }
-
-    async function loadMessages() {
-        if (!activeTicketId) return;
         try {
-            const res = await fetch(`${API_URL}/messages?ticket_id=${activeTicketId}`);
+            const res = await fetch(`${API_URL}/activate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
+            });
             const data = await res.json();
-            
-            if (data.messages) {
-                let html = '';
-                data.messages.forEach(m => {
-                    let isMe = (m.sender_type === 'user');
-                    let bubbleClass = isMe ? 'msg-user' : 'msg-support';
-                    let author = isMe ? 'Вы' : '👨‍💻 Поддержка';
-                    
-                    html += `
-                    <div class="msg-bubble ${bubbleClass}">
-                        <div class="msg-author">${author}</div>
-                        <div>${m.message}</div>
-                    </div>`;
-                });
-                const container = document.getElementById('chatMessages');
-                container.innerHTML = html;
-                container.scrollTop = container.scrollHeight;
+            if (data.success || data.active) {
+                tg.showAlert("🎉 Пробный период 3 дня активирован!");
+                showActiveState(data);
+            } else {
+                tg.showAlert("❌ Ошибка активации");
             }
-        } catch (e) {}
+        } catch (e) { tg.showAlert("Ошибка соединения с сервером."); }
     }
 
-    async function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text || !activeTicketId) return;
+    function showActiveState(data) {
+        document.getElementById('home-inactive').style.display = 'none';
+        document.getElementById('home-active').style.display = 'block';
+        document.getElementById('sub-inactive').style.display = 'none';
+        document.getElementById('sub-active').style.display = 'block';
+
+        document.getElementById('badgeStatus').className = 'badge-pro';
+        document.getElementById('badgeStatus').innerText = '★ Кубик Пользователь';
+
+        if (data.sub_url) userSubUrl = data.sub_url;
+
+        const usedBytes = data.used_traffic || 0;
+        const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
         
-        input.value = '';
+        const usedMB = (usedBytes / (1024 * 1024)).toFixed(0);
+        const limitGB = (limitBytes / (1024 * 1024 * 1024)).toFixed(0);
+        const pct = Math.min(((usedBytes / limitBytes) * 100), 100).toFixed(0);
+
+        document.getElementById('widgetTrafficText').innerText = `${usedMB}MB / ${limitGB}GB`;
+        document.getElementById('widgetFill').style.width = pct + '%';
+        document.getElementById('trafficPercent').innerHTML = `${pct}<span>%</span>`;
+        document.getElementById('trafficText').innerText = `${usedMB} МБ / ${limitGB} ГБ`;
+
+        if (data.expire) {
+            const dateObj = new Date(data.expire * 1000);
+            document.getElementById('widgetExpire').innerText = `Истекает: ${dateObj.toLocaleDateString('ru-RU')}`;
+            const diffDays = Math.ceil((dateObj - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('homeDaysLeft').innerHTML = `${diffDays > 0 ? diffDays : 0} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+        }
+    }
+
+    function copySubUrl() {
+        if (!userSubUrl) {
+            tg.showAlert("Ссылка еще не сгенерирована!");
+            return;
+        }
+        navigator.clipboard.writeText(userSubUrl);
+        tg.showAlert("🔗 VLESS-ссылка скопирована в буфер!");
         tg.HapticFeedback.impactOccurred('light');
-
-        try {
-            await fetch(`${API_URL}/send_message`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    ticket_id: activeTicketId,
-                    message: text,
-                    sender_name: currentUser.first_name
-                })
-            });
-            loadMessages();
-        } catch (e) {}
     }
 
-    async function openNewTicketModal() {
-        const msg = prompt("Введите ваш вопрос для техподдержки:");
-        if (!msg) return;
-        
-        try {
-            const res = await fetch(`${API_URL}/create_ticket`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({user_id: currentUser.id, first_name: currentUser.first_name, message: msg})
-            });
-            const data = await res.json();
-            if (data.ticket_id) {
-                openChat(data.ticket_id);
-            }
-        } catch (e) {}
-    }
-
-    function switchTab(tabId, el=null) {
-        if (chatInterval) clearInterval(chatInterval);
+    function switchTab(tabId, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        if (el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (el) el.classList.add('active');
         window.scrollTo(0, 0);
-        if (tabId === 'tab-support') loadTickets();
-        if (tabId === 'tab-admin') loadAdminTickets();
+    }
+
+    function tgAlert(msg) {
+        tg.showAlert(msg);
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    let isSpinning = false;
+    function spinWheel() {
+        if (isSpinning) return;
+        isSpinning = true;
+        const wheel = document.getElementById('wheelEl');
+        const randomDegree = Math.floor(1800 + Math.random() * 360); 
+        wheel.style.transform = `rotate(${randomDegree}deg)`;
+        setTimeout(() => {
+            tgAlert("🎉 Вы выиграли: 3 дня подписки!");
+            isSpinning = false;
+        }, 4000);
     }
 </script>
 </body>
