@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Кубик VPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #151C2C;
+            --bg-card-hover: #1E273C;
+            --primary: #38BDF8; /* Наш фирменный светло-голубой */
+            --primary-dark: #0284C7;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --border: rgba(56, 189, 248, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 80px; }
+
+        /* Шапка */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-main); position: sticky; top: 0; z-index: 100;}
+        .header-logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 18px; }
+        .header-logo span { color: var(--primary); }
+
+        /* Вкладки */
+        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 24px; margin-bottom: 5px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+
+        /* Карточки */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+        .card-center { text-align: center; }
+
+        .icon-large { font-size: 40px; margin-bottom: 10px; text-shadow: 0 0 15px var(--primary); }
+        .stats-row { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat-item h3 { font-size: 24px; color: var(--text-main); }
+        .stat-item p { font-size: 12px; color: var(--text-muted); }
+
+        /* Кнопки */
+        .btn { background: var(--primary-dark); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); background: var(--primary); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+
+        /* Поля ввода */
+        .input-group { display: flex; gap: 10px; }
+        input { flex: 1; background: #0B0F19; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; font-size: 14px; outline: none; }
+
+        /* Списки */
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .list-item:last-child { border-bottom: none; }
+
+        /* Колесо удачи */
+        .wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto 20px auto; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#0ea5e9 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #0ea5e9 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid var(--bg-card); box-shadow: 0 0 30px rgba(56, 189, 248, 0.4); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); font-size: 12px; border: 2px solid var(--primary); }
+
+        /* Нижнее меню */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: space-between; padding: 10px 5px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; gap: 4px; cursor: pointer; transition: 0.2s; }
+        .nav-item .icon { font-size: 20px; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active .icon { text-shadow: 0 0 10px var(--primary); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<!-- Шапка -->
+<div class="header">
+    <div class="header-logo">🧊 <span>КУБИК VPN</span></div>
+    <div style="font-size: 14px;">🇷🇺 RU</div>
+</div>
+
+<!-- ВКЛАДКА 1: ГЛАВНАЯ -->
+<div id="tab-home" class="tab-content active">
+    <h1 id="welcomeName">Добро пожаловать!</h1>
+    <div class="subtitle">Ваша подписка: <span style="color: var(--primary);">Новичок</span></div>
+
+    <div class="card card-center">
+        <div class="icon-large">✨</div>
+        <h2>Бесплатный период</h2>
+        <p style="color: var(--text-muted); margin-top: 5px; font-size: 14px;">Попробуйте наш VPN бесплатно: без обязательств</p>
+
+        <div class="stats-row">
+            <div class="stat-item"><h3>3</h3><p>дней</p></div>
+            <div class="stat-item"><h3>∞</h3><p>ГБ</p></div>
+            <div class="stat-item"><h3>1</h3><p>устройств</p></div>
+        </div>
+
+        <button class="btn" onclick="tgAlert('Тест активирован!')">Активировать бесплатно</button>
+    </div>
+
+    <div class="card">
+        <h3>👥 Реферальная система</h3>
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 5px;">Приглашай друзей и получай 15% на баланс!</p>
+        <div class="stats-row">
+            <div class="stat-item"><h3>0</h3><p>друзей</p></div>
+            <div class="stat-item"><h3>0 ₽</h3><p>заработано</p></div>
+        </div>
+        <button class="btn btn-outline" onclick="tgAlert('Ссылка скопирована!')">Скопировать ссылку</button>
+    </div>
+</div>
+
+<!-- ВКЛАДКА 2: ПОДПИСКА -->
+<div id="tab-sub" class="tab-content">
+    <h1>Мои подписки</h1>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div>
+                <h3 style="color: var(--primary);">Стандарт (VLESS)</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Активно до 20.10.2026</p>
+            </div>
+            <div style="font-size: 24px;">🛡</div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                <span>Трафик:</span>
+                <span>12 ГБ / Безлимит</span>
+            </div>
+            <div style="width: 100%; background: #0B0F19; height: 6px; border-radius: 3px;">
+                <div style="width: 20%; background: var(--primary); height: 100%; border-radius: 3px;"></div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="tgAlert('Настройки скопированы')">Скопировать ключ</button>
+        <button class="btn" onclick="switchTab('tab-balance')">Продлить подписку</button>
+    </div>
+</div>
+
+<!-- ВКЛАДКА 3: БАЛАНС -->
+<div id="tab-balance" class="tab-content">
+    <h1>Баланс</h1>
+
+    <div class="card">
+        <p style="color: var(--text-muted); font-size: 14px;">Текущий баланс</p>
+        <h1 style="font-size: 36px; margin: 10px 0;">0.00 ₽</h1>
+    </div>
+
+    <div class="card">
+        <h3>Промокод</h3>
+        <div class="input-group" style="margin-top: 15px;">
+            <input type="text" placeholder="Введите промокод">
+            <button class="btn" style="width: auto; padding: 0 20px;">ОК</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 15px;">Пополнение баланса</h3>
+
+        <div class="list-item" onclick="tgAlert('Открываю оплату СБП...')" style="cursor: pointer;">
+            <div>
+                <h4>СБП (QR)</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">Без комиссии</p>
+            </div>
+            <div style="color: var(--primary);">от 100 ₽ ➔</div>
+        </div>
+
+        <div class="list-item" onclick="tgAlert('Открываю оплату Stars...')" style="cursor: pointer;">
+            <div>
+                <h4>Telegram Stars</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">Внутренняя валюта</p>
+            </div>
+            <div style="color: var(--primary);">от 50 ⭐ ➔</div>
+        </div>
+    </div>
+</div>
+
+<!-- ВКЛАДКА 4: КОЛЕСО УДАЧИ -->
+<div id="tab-wheel" class="tab-content">
+    <h1 style="text-align: center;">Колесо Удачи</h1>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Осталось вращений: <span style="color: var(--primary);">1/1</span></p>
+
+    <div class="wheel-container">
+        <div class="wheel-pointer"></div>
+        <div class="wheel" id="wheel"></div>
+        <div class="wheel-center">SPIN</div>
+    </div>
+
+    <button class="btn" onclick="spinWheel()">КРУТИТЬ! (25 ⭐)</button>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>Призы:</h3>
+        <div class="list-item"><span>🎁 3 дня подписки</span></div>
+        <div class="list-item"><span>💸 50 ₽ на баланс</span></div>
+        <div class="list-item"><span>💎 VIP Статус</span></div>
+        <div class="list-item"><span>😢 Кубик пустоты (Ничего)</span></div>
+    </div>
+</div>
+
+<!-- ВКЛАДКА 5: ПОДДЕРЖКА -->
+<div id="tab-support" class="tab-content">
+    <h1>Поддержка</h1>
+
+    <button class="btn" style="margin: 20px 0;" onclick="tgAlert('Открываю чат с админом...')">➕ Создать тикет</button>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3>Связаться с админом</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">@kubic_admin</p>
+            </div>
+            <button class="btn btn-outline" style="width: auto; padding: 8px 15px;" onclick="window.open('https://t.me/твой_юзер')">Написать</button>
+        </div>
+    </div>
+
+    <div class="card card-center">
+        <div style="font-size: 30px; color: var(--text-muted); margin-bottom: 10px;">💬</div>
+        <p style="color: var(--text-muted);">У вас пока нет обращений</p>
+    </div>
+</div>
+
+<!-- НИЖНЕЕ МЕНЮ -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('tab-home', this)">
+        <div class="icon">🏠</div><span>Главная</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-sub', this)">
+        <div class="icon">✨</div><span>Подписка</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-balance', this)">
+        <div class="icon">💳</div><span>Баланс</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-wheel', this)">
+        <div class="icon">🎡</div><span>Рулетка</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-support', this)">
+        <div class="icon">💬</div><span>Поддержка</span>
+    </div>
+</div>
+
+<!-- Скрипты логики -->
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Открыть на весь экран
+    tg.setHeaderColor('#0B0F19'); // Цвет шапки как фон
+
+    // Пишем имя юзера
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        document.getElementById('welcomeName').innerText = "Привет, " + tg.initDataUnsafe.user.first_name + "!";
+    }
+
+    // Функция переключения вкладок
+    function switchTab(tabId, navElement = null) {
+        // Скрываем все вкладки
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        // Показываем нужную
+        document.getElementById(tabId).classList.add('active');
+
+        // Обновляем активную кнопку в меню, если кликали по меню
+        if (navElement) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            navElement.classList.add('active');
+        }
+    }
+
+    // Алерт в стиле Телеграм
+    function tgAlert(msg) {
+        tg.showAlert(msg);
+    }
+
+    // Логика рулетки
+    let isSpinning = false;
+    function spinWheel() {
+        if (isSpinning) return;
+        isSpinning = true;
+
+        const wheel = document.getElementById('wheel');
+        // Генерируем случайный градус вращения (от 5 до 10 полных оборотов + случайный сектор)
+        const randomDegree = Math.floor(1800 + Math.random() * 360);
+
+        wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+        // Ждем 4 секунды (пока крутится)
+        setTimeout(() => {
+            tgAlert("🎉 Вы выиграли: 3 Дня подписки!");
+            isSpinning = false;
+            // Сбрасываем градусы для следующей крутки
+            wheel.style.transition = 'none';
+            wheel.style.transform = `rotate(${randomDegree % 360}deg)`;
+            setTimeout(() => wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)', 50);
+        }, 4000);
+    }
+</script>
+</body>
+</html>
