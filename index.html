@@ -13,81 +13,60 @@
             --primary: #38BDF8;
             --primary-glow: rgba(56, 189, 248, 0.25);
             --primary-dark: #0284C7;
-            --accent: #6366F1;
             --text-main: #F8FAFC;
             --text-muted: #64748B;
             --border: 1px solid rgba(255, 255, 255, 0.05);
-            --border-highlight: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
         html, body {
-            width: 100%; min-height: 100vh; min-height: 100dvh;
+            width: 100%; min-height: 100vh;
             background-color: var(--bg-main);
             background-image: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 100%);
             background-attachment: fixed; background-repeat: no-repeat; background-size: cover;
-            color: var(--text-main); padding-bottom: 95px; -webkit-font-smoothing: antialiased;
+            color: var(--text-main); padding-bottom: 95px;
         }
 
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
-        .logo-icon { width: 34px; height: 34px; background: var(--bg-card); border: var(--border-highlight); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 12px var(--primary-glow); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+        .logo-icon { width: 34px; height: 34px; background: var(--bg-card); border: var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 12px var(--primary-glow); }
         .header-actions { display: flex; gap: 8px; align-items: center; }
-        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; }
+        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; cursor: pointer; }
 
         .container { padding: 0 20px; }
         .tab-content { display: none; animation: fadeIn 0.25s ease-out; }
         .tab-content.active { display: block; }
+        .welcome-title { font-size: 22px; font-weight: 700; margin-top: 14px; margin-bottom: 20px; }
 
-        .welcome-title { font-size: 22px; font-weight: 700; margin-top: 14px; margin-bottom: 6px; }
-        .welcome-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .badge-pro { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
-        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
-
-        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden; transition: transform 0.2s; backdrop-filter: blur(10px); }
-        .card:active { transform: scale(0.985); }
+        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden; }
         .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent); }
 
-        .btn-magic {
-            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
-            background-size: 300% 300%; animation: gradientShift 4s ease infinite;
-            color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
-            font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px rgba(56, 189, 248, 0.25);
-            transition: 0.2s;
-        }
-        .btn-magic:active { transform: scale(0.96); }
-
-        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-bottom: 15px;}
         .btn-blue:active { transform: scale(0.97); opacity: 0.9; }
+        
+        .input-box { width: 100%; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; margin-bottom: 10px;}
+        textarea.input-box { resize: vertical; min-height: 80px; }
 
-        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
-        .tag-gray { border-color: var(--text-muted); color: var(--text-muted); }
+        /* ТИКЕТЫ ПОДДЕРЖКИ */
+        .ticket { background: var(--bg-inner); border: var(--border); border-radius: 12px; padding: 15px; margin-bottom: 10px; }
+        .ticket-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
+        .ticket-status { font-weight: bold; }
+        .status-open { color: #FBBF24; } /* Желтый */
+        .status-closed { color: #10B981; } /* Зеленый */
+        .ticket-msg { font-size: 14px; line-height: 1.4; margin-bottom: 10px;}
+        .ticket-reply { background: rgba(56, 189, 248, 0.1); border-left: 3px solid var(--primary); padding: 10px; font-size: 13px; border-radius: 0 8px 8px 0; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; }
-        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
-        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
+        /* АДМИН ПАНЕЛЬ */
+        #adminPanelBtn { display: none; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #FBBF24; }
 
-        .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
-
-        .input-box { width: 100%; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-around; padding: 8px 6px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s ease; }
-        .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
-        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.08); }
-        .nav-item.active svg { stroke: var(--primary); transform: translateY(-1px); }
-
-        .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 20px auto; }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#0ea5e9 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #0ea5e9 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid var(--bg-card); box-shadow: 0 0 25px rgba(56, 189, 248, 0.25); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
-        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 10px 5px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: 0.3s; }
+        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.1); }
+        .nav-item.active svg { stroke: var(--primary); transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -95,332 +74,185 @@
 <header class="header">
     <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
     <div class="header-actions">
-        <div class="header-btn">🔔</div>
+        <!-- Секретная кнопка админа (появится только у тебя) -->
+        <div class="header-btn" id="adminPanelBtn" onclick="switchTab('tab-admin')">👑 Админ</div>
         <div class="header-btn">🇷🇺 RU ⌄</div>
     </div>
 </header>
 
 <div class="container">
 
-    <!-- ==================== 1. ГЛАВНАЯ ==================== -->
+    <!-- ГЛАВНАЯ (Заглушка для примера) -->
     <div id="tab-home" class="tab-content active">
         <h1 class="welcome-title" id="userName">Добро пожаловать!!</h1>
-        <div class="welcome-sub">Ваша подписка <span class="badge-pro" id="badgeStatus">❌ Не активна</span></div>
-
-        <!-- СОСТОЯНИЕ 1: ПОДПИСКИ НЕТ -->
-        <div id="home-inactive">
-            <div class="card" style="text-align: center; padding: 35px 20px;">
-                <div style="font-size: 45px; margin-bottom: 12px; opacity: 0.8;">🧊</div>
-                <h3 style="margin-bottom: 8px; font-size: 18px;">Подписка не подключена</h3>
-                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 20px; line-height: 1.4;">
-                    Получите 3 дня бесплатного доступа с лимитом 100 ГБ и скоростью до 1 Гбит/с!
-                </p>
-                <button class="btn-magic" id="btnActivateHome" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-            </div>
-        </div>
-
-        <!-- СОСТОЯНИЕ 2: ПОДПИСКА АКТИВНА -->
-        <div id="home-active" style="display: none;">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <div>
-                        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                            <span class="tag">НОРМА</span>
-                            <span class="tag tag-gray">✧ ПРОБНЫЙ ПЕРИОД</span>
-                        </div>
-                        <div style="font-size: 18px; font-weight: 700;">Расход трафика</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 28px; font-weight: 700;" id="trafficPercent">0<span style="font-size: 14px; color: var(--text-muted);">%</span></div>
-                        <div style="font-size: 11px; color: var(--text-muted);" id="trafficText">0 МБ / 100 ГБ</div>
-                    </div>
-                </div>
-
-                <div class="progress-bar"><div class="progress-fill" id="trafficFill" style="width: 2%;"></div></div>
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 18px;">
-                    <span>0 МБ</span><span>25 ГБ</span><span>50 ГБ</span><span>75 ГБ</span><span>100 ГБ</span>
-                </div>
-
-                <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
-                        </div>
-                    </div>
-                    <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
-                        <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
-                    </div>
-                    <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
-                        <div style="font-size: 20px; font-weight: 700; color: #FBBF24;" id="daysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
-                <div class="arrow-right">›</div>
-                <h4>Баланс</h4>
-                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
-            </div>
-            <div class="stat-card" onclick="tgAlert('Реферальная ссылка скопирована!')">
-                <div class="arrow-right">›</div>
-                <h4>Рефералы</h4>
-                <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
-                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
-            </div>
-        </div>
-
-        <div class="card" onclick="switchTab('tab-wheel', document.querySelectorAll('.nav-item')[3])" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-            <div style="font-size: 30px;">🎰</div>
-            <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
-                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
-            </div>
-            <div style="color: var(--text-muted);">›</div>
-        </div>
-
-        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 600;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
-        <div class="card">
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <span class="tag" style="color: #10B981; border-color: #10B981;">● НОВЫЕ ЛОКАЦИИ</span>
-            </div>
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                Еще более быстрое и стабильное подключение. Выберите «Россия» и подключайтесь!
-            </div>
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p>Твоя подписка и VPN будут здесь!</p>
         </div>
     </div>
 
-    <!-- ==================== 2. ПОДПИСКА ==================== -->
-    <div id="tab-sub" class="tab-content">
-        <h1 class="welcome-title">Подписка</h1>
-
-        <div id="sub-inactive">
-            <div class="card" style="text-align: center; padding: 45px 20px;">
-                <div style="font-size: 50px; margin-bottom: 16px; opacity: 0.7;">🧊</div>
-                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.4;">
-                    Активируйте бесплатный период или купите подписку для доступа
-                </p>
-                <button class="btn-magic" id="btnActivateSub" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-            </div>
-        </div>
-
-        <div id="sub-active" style="display: none;">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-size: 11px; font-weight: 700;">
-                        <div style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);"></div>
-                        НОРМА
-                    </div>
-                    <div class="badge-purple">ПРОБНЫЙ ПЕРИОД</div>
-                </div>
-
-                <h2 style="font-size: 20px; margin-bottom: 16px;">Кубик Лайт 🧊</h2>
-
-                <div class="glass-box">
-                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-                        <div style="width: 32px; height: 32px; background: rgba(99,102,241,0.15); color: #818CF8; border-radius: 8px; display: flex; align-items: center; justify-content: center;">⏱</div>
-                        <div>
-                            <div style="color: #818CF8; font-weight: 600; margin-bottom: 2px; font-size: 13px;">Пробный период</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Пробная версия сервиса</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 16px; font-size: 12px;">
-                        <div><b style="color: #818CF8;" id="subDays">3</b> <span style="color: var(--text-muted);">дня</span></div>
-                        <div><b style="color: #818CF8;">100</b> <span style="color: var(--text-muted);">ГБ</span></div>
-                        <div><b style="color: #818CF8;">1</b> <span style="color: var(--text-muted);">устройство</span></div>
-                    </div>
-                </div>
-
-                <div style="margin: 16px 0 8px 0; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
-                    <span>ТРАФИК</span>
-                    <span id="subTrafficText">0 МБ / 100 ГБ</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" id="subTrafficFill" style="width: 2%;"></div></div>
-
-                <div style="display: flex; gap: 8px; margin: 16px 0;">
-                    <div style="flex: 1; background: #0B0E14; border: 1px solid #1E293B; border-radius: 10px; padding: 10px 12px; font-size: 11px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" id="subUrlBox">
-                        Загрузка ссылки...
-                    </div>
-                    <div onclick="copySubUrl(this)" style="width: 40px; height: 40px; background: #1E293B; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">📋</div>
-                </div>
-            </div>
-
-            <div class="btn-blue" style="margin-bottom: 16px; text-align: center;" onclick="tgAlert('Пополнение баланса')">
-                + Посмотреть тарифы и купить подписку
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. БАЛАНС -->
-    <div id="tab-balance" class="tab-content">
-        <h1 class="welcome-title">Баланс</h1>
-        <div class="card">
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Текущий баланс</div>
-            <h1 style="font-size: 32px; font-weight: 700; color: var(--text-main);">0.00 ₽</h1>
-        </div>
-    </div>
-
-    <!-- 4. КОЛЕСО -->
-    <div id="tab-wheel" class="tab-content">
-        <h1 class="welcome-title" style="text-align: center;">Колесо удачи</h1>
-        <div class="wheel-wrap"><div class="wheel-pointer"></div><div class="wheel" id="wheelEl"></div></div>
-        <button class="btn-magic" style="margin-bottom: 20px;" onclick="spinWheel()">КРУТИТЬ! (25 ⭐)</button>
-    </div>
-
-    <!-- 5. ПОДДЕРЖКА -->
+    <!-- ПОДДЕРЖКА (Для всех юзеров) -->
     <div id="tab-support" class="tab-content">
         <h1 class="welcome-title">Поддержка</h1>
-        <div class="card" style="text-align: center; padding: 30px;">
-            <h3>Чат с администратором</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin: 10px 0 20px 0;">Если возникли проблемы — напишите нам</p>
-            <button class="btn-blue" onclick="window.open('https://t.me/kybic_vpn_bot')">Написать в поддержку</button>
+        
+        <button class="btn-blue" onclick="document.getElementById('newTicketBox').style.display='block';">+ Создать обращение</button>
+
+        <!-- Форма создания -->
+        <div id="newTicketBox" class="card" style="display: none;">
+            <h3>Новое обращение</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 5px 0 15px 0;">Опишите вашу проблему, мы ответим в течение часа.</p>
+            <textarea id="ticketMsg" class="input-box" placeholder="Напишите ваш вопрос..."></textarea>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-blue" style="margin-bottom:0;" onclick="sendTicket()">Отправить</button>
+                <button class="btn-blue" style="background:#334155; margin-bottom:0;" onclick="document.getElementById('newTicketBox').style.display='none';">Отмена</button>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 15px; font-size: 15px;">Ваши обращения:</h3>
+        <div id="userTicketsList">
+            <div class="card" style="text-align: center; padding: 30px;"><p style="color: var(--text-muted); font-size: 13px;">Нет обращений</p></div>
+        </div>
+    </div>
+
+    <!-- АДМИН ПАНЕЛЬ (Только для тебя) -->
+    <div id="tab-admin" class="tab-content">
+        <h1 class="welcome-title" style="color: #FBBF24;">👑 Панель Управления</h1>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">Здесь отображаются вопросы от клиентов, ожидающие ответа.</p>
+        
+        <div id="adminTicketsList">
+            <div class="card" style="text-align: center; padding: 30px;"><p style="color: var(--text-muted); font-size: 13px;">Нет новых обращений</p></div>
         </div>
     </div>
 
 </div>
 
-<!-- Нижнее меню -->
+<!-- Навигация -->
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('tab-home', this)">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Главная</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-sub', this)">
-        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <span>Подписка</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-balance', this)">
-        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        <span>Баланс</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-wheel', this)">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
-        <span>Колесо</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-support', this)">
-        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        <span>Поддержка</span>
-    </div>
+    <div class="nav-item active" onclick="switchTab('tab-home', this)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Главная</span></div>
+    <div class="nav-item" onclick="switchTab('tab-support', this)"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span>Поддержка</span></div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.setHeaderColor('#0B0E14');
-    tg.setBackgroundColor('#0B0E14');
-
+    tg.expand(); tg.setHeaderColor('#0B0E14'); tg.setBackgroundColor('#0B0E14');
     const API_URL = "https://kybic.ru/api/bot";
     let currentUser = tg.initDataUnsafe?.user;
 
     if (currentUser) {
-        document.getElementById('userName').innerText = "Добро пожаловать, " + currentUser.first_name + " !!";
-        checkUserStatus();
+        document.getElementById('userName').innerText = "Привет, " + currentUser.first_name + "!";
+        checkRole();
+        loadTickets();
     }
 
-    // Проверка статуса подписки при входе
-    async function checkUserStatus() {
-        if (!currentUser) return;
+    // Проверяем роль (Админ или Юзер)
+    async function checkRole() {
         try {
             const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
-            if (data.active) {
-                showActiveState(data);
+            if (data.role === 'admin' || data.role === 'support') {
+                document.getElementById('adminPanelBtn').style.display = 'flex';
+                setInterval(loadAdminTickets, 10000); // Обновлять тикеты раз в 10 секунд
             }
-        } catch (e) {
-            console.log("Ошибка проверки статуса:", e);
-        }
+        } catch (e) {}
     }
 
-    // Запрос генерации ключа ПРЯМО В ПРИЛОЖЕНИИ
-    async function requestTrialInApp() {
-        if (!currentUser) {
-            tg.showAlert("Ошибка пользователя Telegram");
-            return;
-        }
-
-        tg.HapticFeedback.impactOccurred('heavy');
-        document.getElementById('btnActivateHome').innerText = "⏳ Генерация ключа...";
-        document.getElementById('btnActivateSub').innerText = "⏳ Генерация ключа...";
-
+    // Загрузка тикетов пользователя
+    async function loadTickets() {
         try {
-            const res = await fetch(`${API_URL}/activate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
-            });
+            const res = await fetch(`${API_URL}/tickets?user_id=${currentUser.id}`);
             const data = await res.json();
-
-            if (data.success) {
-                tg.showAlert("🎉 Пробный период 3 дня активирован!");
-                showActiveState(data);
-            } else {
-                tg.showAlert("❌ Ошибка активации. Попробуйте позже.");
+            
+            if (data.tickets && data.tickets.length > 0) {
+                let html = '';
+                data.tickets.forEach(t => {
+                    let statusHtml = t.status === 'open' ? '<span class="ticket-status status-open">⏳ Ожидает ответа</span>' : '<span class="ticket-status status-closed">✅ Отвечено</span>';
+                    let replyHtml = t.reply ? `<div class="ticket-reply"><b>Служба поддержки:</b><br>${t.reply}</div>` : '';
+                    
+                    html += `
+                    <div class="ticket">
+                        <div class="ticket-header"><span>Обращение #${t.id}</span>${statusHtml}</div>
+                        <div class="ticket-msg">${t.message}</div>
+                        ${replyHtml}
+                    </div>`;
+                });
+                document.getElementById('userTicketsList').innerHTML = html;
             }
-        } catch (e) {
-            tg.showAlert("❌ Ошибка соединения с сервером.");
-        } finally {
-            document.getElementById('btnActivateHome').innerText = "🚀 Активировать 3 дня бесплатно";
-            document.getElementById('btnActivateSub').innerText = "🚀 Активировать 3 дня бесплатно";
-        }
+        } catch (e) {}
     }
 
-    // Показываем активное состояние
-    function showActiveState(data) {
-        document.getElementById('home-inactive').style.display = 'none';
-        document.getElementById('home-active').style.display = 'block';
-        document.getElementById('sub-inactive').style.display = 'none';
-        document.getElementById('sub-active').style.display = 'block';
-
-        document.getElementById('badgeStatus').className = 'badge-pro';
-        document.getElementById('badgeStatus').innerText = '★ Кубик Пользователь';
-
-        if (data.sub_url) {
-            document.getElementById('subUrlBox').innerText = data.sub_url;
-        }
+    // Загрузка открытых тикетов для Админа
+    async function loadAdminTickets() {
+        try {
+            const res = await fetch(`${API_URL}/tickets?user_id=${currentUser.id}`);
+            const data = await res.json();
+            
+            if (data.is_support && data.tickets.length > 0) {
+                let html = '';
+                data.tickets.forEach(t => {
+                    html += `
+                    <div class="card" style="padding:15px; border-color: rgba(251, 191, 36, 0.4);">
+                        <div style="font-size:11px; color:#FBBF24; margin-bottom:5px;">От: ${t.first_name} (ID: ${t.user_id})</div>
+                        <div style="font-size:14px; margin-bottom:10px;">${t.message}</div>
+                        <textarea id="replyMsg_${t.id}" class="input-box" placeholder="Написать ответ..."></textarea>
+                        <button class="btn-blue" style="padding: 10px; font-size:13px; margin-bottom:0;" onclick="sendReply(${t.id}, ${t.user_id})">Отправить ответ</button>
+                    </div>`;
+                });
+                document.getElementById('adminTicketsList').innerHTML = html;
+            } else {
+                document.getElementById('adminTicketsList').innerHTML = '<div class="card" style="text-align: center; padding: 30px;"><p style="color: var(--text-muted); font-size: 13px;">Нет новых обращений</p></div>';
+            }
+        } catch (e) {}
     }
 
-    function copySubUrl(el) {
-        const text = document.getElementById('subUrlBox').innerText;
-        navigator.clipboard.writeText(text);
-        tg.showAlert('Ссылка подписки скопирована!');
-        tg.HapticFeedback.impactOccurred('light');
+    // Создать новый тикет
+    async function sendTicket() {
+        const msg = document.getElementById('ticketMsg').value;
+        if (!msg) { tg.showAlert("Введите текст!"); return; }
+        
+        try {
+            const res = await fetch(`${API_URL}/create_ticket`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({user_id: currentUser.id, first_name: currentUser.first_name, message: msg})
+            });
+            if (res.ok) {
+                tg.showAlert("Обращение отправлено!");
+                document.getElementById('ticketMsg').value = '';
+                document.getElementById('newTicketBox').style.display = 'none';
+                loadTickets();
+                loadAdminTickets();
+            }
+        } catch (e) { tg.showAlert("Ошибка отправки"); }
     }
 
-    function switchTab(tabId, el) {
+    // Админ отвечает на тикет
+    async function sendReply(ticketId, clientId) {
+        const replyText = document.getElementById(`replyMsg_${ticketId}`).value;
+        if (!replyText) { tg.showAlert("Введите текст ответа!"); return; }
+        
+        try {
+            const res = await fetch(`${API_URL}/reply_ticket`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({user_id: currentUser.id, ticket_id: ticketId, client_id: clientId, reply_text: replyText})
+            });
+            if (res.ok) {
+                tg.showAlert("Ответ отправлен клиенту!");
+                loadAdminTickets();
+            }
+        } catch (e) { tg.showAlert("Ошибка отправки"); }
+    }
+
+    function switchTab(tabId, el=null) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        if (el) el.classList.add('active');
+        if (el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
         window.scrollTo(0, 0);
-    }
-
-    function tgAlert(msg) {
-        tg.showAlert(msg);
-        tg.HapticFeedback.impactOccurred('light');
-    }
-
-    let isSpinning = false;
-    function spinWheel() {
-        if (isSpinning) return;
-        isSpinning = true;
-        const wheel = document.getElementById('wheelEl');
-        const randomDegree = Math.floor(1800 + Math.random() * 360); 
-        wheel.style.transform = `rotate(${randomDegree}deg)`;
-        setTimeout(() => {
-            tgAlert("🎉 Вы выиграли: 3 дня подписки!");
-            isSpinning = false;
-        }, 4000);
+        
+        if (tabId === 'tab-support') loadTickets();
+        if (tabId === 'tab-admin') loadAdminTickets();
     }
 </script>
 </body>
