@@ -8,25 +8,38 @@
     <style>
         :root {
             --bg-main: #0B0E14;
-            --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.9), rgba(11, 15, 25, 0.9));
+            --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.85), rgba(11, 15, 25, 0.85));
             --bg-inner: rgba(255, 255, 255, 0.03);
             --primary: #38BDF8;
-            --primary-glow: rgba(56, 189, 248, 0.2);
+            --primary-glow: rgba(56, 189, 248, 0.25);
             --primary-dark: #0284C7;
             --accent: #6366F1;
             --text-main: #F8FAFC;
             --text-muted: #64748B;
             --border: 1px solid rgba(255, 255, 255, 0.05);
-            --border-highlight: 1px solid rgba(56, 189, 248, 0.15);
+            --border-highlight: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
-        body { 
-            background-color: var(--bg-main); 
-            background-image: radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.15), transparent 50%);
-            color: var(--text-main); 
-            padding-bottom: 90px; 
+        /* БЕСШОВНЫЙ ФОН БЕЗ СРЕЗОВ И ЛИНИЙ */
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: var(--text-main);
+            padding-bottom: 95px;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -35,54 +48,72 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
-        .logo-icon { width: 32px; height: 32px; background: var(--bg-card); border: var(--border-highlight); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 10px var(--primary-glow); }
-        .header-actions { display: flex; gap: 10px; }
-        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+        /* Единая аккуратная шапка */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
+        .logo-icon { width: 34px; height: 34px; background: var(--bg-card); border: var(--border-highlight); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 12px var(--primary-glow); }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; }
 
         .container { padding: 0 20px; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content { display: none; animation: fadeIn 0.25s ease-out; }
         .tab-content.active { display: block; }
 
-        .welcome-title { font-size: 24px; font-weight: 700; margin-top: 10px; margin-bottom: 5px; }
-        .welcome-sub { font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .welcome-title { font-size: 22px; font-weight: 700; margin-top: 14px; margin-bottom: 6px; }
+        .welcome-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         .badge-pro { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
 
-        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.2s; }
+        /* Глянцевые карточки */
+        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden; transition: transform 0.2s; backdrop-filter: blur(10px); }
         .card:active { transform: scale(0.985); }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent); }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent); }
 
         .btn-magic {
             background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
             background-size: 300% 300%;
             animation: gradientShift 4s ease infinite;
             color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
-            font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+            font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px rgba(56, 189, 248, 0.25);
             transition: 0.2s;
         }
         .btn-magic:active { transform: scale(0.96); }
 
-        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 15px; }
-        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; }
+        .btn-blue {
+            background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-blue:active { transform: scale(0.97); opacity: 0.9; }
+
+        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
         .tag-gray { border-color: var(--text-muted); color: var(--text-muted); }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; }
-        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: normal; margin-bottom: 10px; }
-        .stat-card .val { font-size: 20px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); }
+        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; }
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
+        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
 
         .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 8px 12px; border-radius: 12px; transition: 0.3s; }
-        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .nav-item.active { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
-        .nav-item.active svg { fill: rgba(56, 189, 248, 0.2); stroke: var(--primary); }
+        .input-box { width: 100%; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
+        .input-box::placeholder { color: var(--text-muted); }
+
+        /* Нижнее меню */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-around; padding: 8px 6px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s ease; }
+        .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.08); }
+        .nav-item.active svg { stroke: var(--primary); transform: translateY(-1px); }
+
+        /* Рулетка */
+        .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 20px auto; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#0ea5e9 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #0ea5e9 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid var(--bg-card); box-shadow: 0 0 25px rgba(56, 189, 248, 0.25); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
     </style>
 </head>
 <body>
@@ -98,12 +129,11 @@
 
 <div class="container">
 
-    <!-- ==================== ГЛАВНАЯ (как раньше) ==================== -->
+    <!-- 1. ГЛАВНАЯ -->
     <div id="tab-home" class="tab-content active">
         <h1 class="welcome-title" id="userName">Добро пожаловать!!</h1>
         <div class="welcome-sub">Ваша подписка <span class="badge-pro">★ Кубик Пользователь</span></div>
 
-        <!-- Большая карточка трафика -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                 <div>
@@ -111,160 +141,246 @@
                         <span class="tag">НОРМА</span>
                         <span class="tag tag-gray">✧ ПРОБНЫЙ ПЕРИОД</span>
                     </div>
-                    <div style="font-size: 20px; font-weight: 600;">Расход трафика</div>
+                    <div style="font-size: 18px; font-weight: 700;">Расход трафика</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 32px; font-weight: 700;">0<span style="font-size: 16px; color: var(--text-muted);">%</span></div>
+                    <div style="font-size: 28px; font-weight: 700;">0<span style="font-size: 14px; color: var(--text-muted);">%</span></div>
                     <div style="font-size: 11px; color: var(--text-muted);">0 МБ / 100.0 ГБ</div>
                 </div>
             </div>
 
             <div class="progress-bar"><div class="progress-fill" style="width: 2%;"></div></div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 18px;">
                 <span>0 МБ</span><span>25 ГБ</span><span>50 ГБ</span><span>75 ГБ</span><span>100 ГБ</span>
             </div>
 
-            <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                    <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
                     <div>
-                        <div style="font-weight: 600;">Подключить устройство</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">0 из 1 подключено</div>
+                        <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
                     </div>
                 </div>
                 <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
-                <div class="glass-box">
-                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">ТАРИФ</div>
-                    <div style="font-weight: 600;">Кубик Лайт 🧊</div>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">до 20.10.2026</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="glass-box" style="margin-bottom: 0;">
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
+                    <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">до 20.10.2026</div>
                 </div>
-                <div class="glass-box">
-                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">📅 ОСТАЛОСЬ</div>
-                    <div style="font-size: 22px; font-weight: 700; color: #FBBF24;">3 <span style="font-size: 14px; color: var(--text-muted);">дн.</span></div>
+                <div class="glass-box" style="margin-bottom: 0;">
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
+                    <div style="font-size: 20px; font-weight: 700; color: #FBBF24;">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Баланс + Рефералы -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
                 <div class="arrow-right">›</div>
                 <h4>Баланс</h4>
-                <div class="val"><span style="font-size: 22px;">💳</span> 0.00 ₽</div>
+                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="tgAlert('Реферальная ссылка скопирована!')">
                 <div class="arrow-right">›</div>
                 <h4>Рефералы</h4>
-                <div class="val"><span style="font-size: 22px;">👥</span> 0</div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">+0.00 ₽</div>
+                <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
             </div>
         </div>
 
-        <!-- Испытай удачу -->
-        <div class="card" style="display: flex; align-items: center; gap: 15px;">
-            <div style="font-size: 32px;">🎰</div>
+        <div class="card" onclick="switchTab('tab-wheel', document.querySelectorAll('.nav-item')[3])" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+            <div style="font-size: 30px;">🎰</div>
             <div style="flex: 1;">
-                <div style="font-weight: 600; margin-bottom: 4px;">Испытай удачу!</div>
-                <div style="font-size: 12px; color: var(--text-muted);">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
             </div>
             <div style="color: var(--text-muted);">›</div>
         </div>
 
-        <!-- Новости -->
-        <div style="font-size: 12px; color: var(--text-muted); letter-spacing: 1px; margin: 25px 0 12px 0;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
+        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 600;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
         <div class="card">
-            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                 <span class="tag" style="color: #10B981; border-color: #10B981;">● НОВЫЕ ЛОКАЦИИ</span>
             </div>
-            <div style="font-size: 17px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
-            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-                Новая локация Россия — ещё более быстрое и стабильное подключение.
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                Еще более быстрое и стабильное подключение. Выберите «Россия» и подключайтесь!
             </div>
         </div>
     </div>
 
-    <!-- ==================== ПОДПИСКА ==================== -->
+    <!-- 2. ПОДПИСКА -->
     <div id="tab-sub" class="tab-content">
         <h1 class="welcome-title">Подписка</h1>
 
-        <!-- Состояние: НЕТ подписки -->
         <div id="state-inactive">
-            <div class="card" style="text-align: center; padding: 50px 25px;">
-                <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.6;">🧊</div>
-                <h2 style="margin-bottom: 12px;">У вас нет активной подписки</h2>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px; line-height: 1.5;">
-                    Активируйте пробный период или купите подписку,<br>чтобы пользоваться Кубик VPN
+            <div class="card" style="text-align: center; padding: 45px 20px;">
+                <div style="font-size: 50px; margin-bottom: 16px; opacity: 0.7;">🧊</div>
+                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.4;">
+                    Активируйте бесплатный период или купите подписку для доступа
                 </p>
                 <button class="btn-magic" onclick="activateSub()">💎 Купить подписку</button>
             </div>
         </div>
 
-        <!-- Состояние: ЕСТЬ подписка (как на скрине) -->
         <div id="state-active" style="display: none;">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 12px; font-weight: 700;">
-                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);"></div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-size: 11px; font-weight: 700;">
+                        <div style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);"></div>
                         НОРМА
                     </div>
-                    <div class="badge-pro">ПРОБНЫЙ ПЕРИОД</div>
+                    <div class="badge-purple">ПРОБНЫЙ ПЕРИОД</div>
                 </div>
 
-                <h2 style="font-size: 22px; margin-bottom: 20px;">Кубик Лайт 🧊</h2>
+                <h2 style="font-size: 20px; margin-bottom: 16px;">Кубик Лайт 🧊</h2>
 
                 <div class="glass-box">
-                    <div style="display: flex; gap: 12px; margin-bottom: 15px;">
-                        <div style="width: 36px; height: 36px; background: rgba(99,102,241,0.15); color: #818CF8; border-radius: 10px; display: flex; align-items: center; justify-content: center;">⏱</div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="width: 32px; height: 32px; background: rgba(99,102,241,0.15); color: #818CF8; border-radius: 8px; display: flex; align-items: center; justify-content: center;">⏱</div>
                         <div>
-                            <div style="color: #818CF8; font-weight: 600; margin-bottom: 4px;">Пробный период</div>
-                            <div style="font-size: 13px; color: var(--text-muted);">Вы используете пробную версию сервиса</div>
+                            <div style="color: #818CF8; font-weight: 600; margin-bottom: 2px; font-size: 13px;">Пробный период</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Пробная версия сервиса</div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 20px; font-size: 13px;">
+                    <div style="display: flex; gap: 16px; font-size: 12px;">
                         <div><b style="color: #818CF8;">3</b> <span style="color: var(--text-muted);">дня</span></div>
                         <div><b style="color: #818CF8;">∞</b> <span style="color: var(--text-muted);">ГБ</span></div>
                         <div><b style="color: #818CF8;">1</b> <span style="color: var(--text-muted);">устройство</span></div>
                     </div>
                 </div>
 
-                <div style="margin: 20px 0 10px 0; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                <div style="margin: 16px 0 8px 0; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
                     <span>ТРАФИК</span>
                     <span>0 МБ / ∞</span>
                 </div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 5%;"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 4%;"></div></div>
 
-                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 40px; height: 40px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: rgba(56,189,248,0.1); padding: 8px; border-radius: 8px; color: var(--primary);">🖥</div>
                         <div>
-                            <div style="font-weight: 600;">Подключить устройство</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">0 из 1 подключено</div>
+                            <div style="font-weight: 600; font-size: 13px;">Подключить устройство</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin: 15px 0;">
-                    <div style="flex: 1; background: #0B0E14; border: 1px solid #1E293B; border-radius: 10px; padding: 12px; font-size: 12px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                <div style="display: flex; gap: 8px; margin: 14px 0;">
+                    <div style="flex: 1; background: #0B0E14; border: 1px solid #1E293B; border-radius: 10px; padding: 10px 12px; font-size: 11px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                         vless://...@kybic.ru:443?security=reality...
                     </div>
-                    <div onclick="copyLink()" style="width: 46px; height: 46px; background: #1E293B; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">📋</div>
+                    <div onclick="copyLink()" style="width: 40px; height: 40px; background: #1E293B; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">📋</div>
                 </div>
 
-                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05);">
-                    <div style="color: #FBBF24; font-size: 12px; font-weight: 600; margin-bottom: 8px;">📅 ОСТАЛОСЬ</div>
-                    <div style="font-size: 26px; font-weight: 700; color: #FBBF24;" id="timer">2 дн. 23:44:14</div>
+                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.04); margin-bottom: 0;">
+                    <div style="color: #FBBF24; font-size: 11px; font-weight: 600; margin-bottom: 6px;">📅 ОСТАЛОСЬ</div>
+                    <div style="font-size: 22px; font-weight: 700; color: #FBBF24;" id="timer">2 дн. 23:44:14</div>
                 </div>
+            </div>
+
+            <div class="btn-blue" style="margin-bottom: 16px; text-align: center;" onclick="tgAlert('Покупка тарифа')">
+                + Посмотреть тарифы и купить подписку
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 15px; margin-bottom: 12px;">Мои устройства</h3>
+                <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 15px 0;">Нет подключенных устройств</p>
             </div>
         </div>
     </div>
 
-    <!-- Заглушки остальных вкладок -->
-    <div id="tab-balance" class="tab-content"><h1 class="welcome-title">Баланс</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
-    <div id="tab-wheel" class="tab-content"><h1 class="welcome-title">Колесо удачи</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
-    <div id="tab-support" class="tab-content"><h1 class="welcome-title">Поддержка</h1><div class="card" style="text-align:center;padding:40px;">Скоро</div></div>
+    <!-- 3. БАЛАНС -->
+    <div id="tab-balance" class="tab-content">
+        <h1 class="welcome-title">Баланс</h1>
+
+        <div class="card">
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Текущий баланс</div>
+            <h1 style="font-size: 32px; font-weight: 700; color: var(--text-main);">0.00 ₽</h1>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 15px; margin-bottom: 12px;">Промокод</h3>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" class="input-box" placeholder="Введите промокод">
+                <button class="btn-blue" style="width: auto; padding: 0 18px; white-space: nowrap;">Активировать</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 15px; margin-bottom: 14px;">Пополнение баланса</h3>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;" onclick="tgAlert('Оплата СБП')">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">СБП (QR)</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">СБП или Криптовалютой (от 10 до 1000 ₽)</div>
+                </div>
+                <div style="color: var(--text-muted);">›</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer;" onclick="tgAlert('Оплата Telegram Stars')">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Telegram Stars</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Оплата через Telegram Stars</div>
+                </div>
+                <div style="color: var(--text-muted);">›</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. КОЛЕСО УДАЧИ -->
+    <div id="tab-wheel" class="tab-content">
+        <h1 class="welcome-title" style="text-align: center;">Колесо удачи</h1>
+        <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 20px;">
+            Осталось вращений сегодня: <span style="color: var(--primary); font-weight: 700;">2/2</span>
+        </p>
+
+        <div class="wheel-wrap">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheelEl"></div>
+        </div>
+
+        <button class="btn-magic" style="margin-bottom: 20px;" onclick="spinWheel()">КРУТИТЬ! (25 ⭐)</button>
+
+        <div class="card">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Призы:</h3>
+            <div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px; color: var(--text-muted);">
+                <div>📅 3 дня подписки</div>
+                <div>💸 Бонусный баланс 5 ₽</div>
+                <div>📅 1 день подписки</div>
+                <div>💸 Бонусный баланс 30 ₽</div>
+                <div>📅 7 дней подписки</div>
+                <div>😢 Кубик пустоты</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ПОДДЕРЖКА -->
+    <div id="tab-support" class="tab-content">
+        <h1 class="welcome-title">Поддержка</h1>
+
+        <button class="btn-blue" style="margin-bottom: 16px;" onclick="tgAlert('Создание тикета')">+ Новый тикет</button>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Связаться с поддержкой</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">@kubic_vpn_bot</div>
+                </div>
+                <button class="header-btn" style="background: var(--primary-dark); border: none;" onclick="window.open('https://t.me/твой_юзер')">Написать</button>
+            </div>
+        </div>
+
+        <div class="card" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 36px; opacity: 0.4; margin-bottom: 10px;">💬</div>
+            <div style="color: var(--text-muted); font-size: 13px;">Нет обращений</div>
+        </div>
+    </div>
 
 </div>
 
@@ -306,7 +422,8 @@
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
+        if (el) el.classList.add('active');
+        window.scrollTo(0, 0);
     }
 
     function activateSub() {
@@ -319,364 +436,25 @@
         tg.showAlert('Ссылка скопирована!');
         tg.HapticFeedback.impactOccurred('light');
     }
+
+    function tgAlert(msg) {
+        tg.showAlert(msg);
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    let isSpinning = false;
+    function spinWheel() {
+        if (isSpinning) return;
+        isSpinning = true;
+        const wheel = document.getElementById('wheelEl');
+        const randomDegree = Math.floor(1800 + Math.random() * 360); 
+        wheel.style.transform = `rotate(${randomDegree}deg)`;
+        
+        setTimeout(() => {
+            tgAlert("🎉 Вы выиграли: 3 дня подписки!");
+            isSpinning = false;
+        }, 4000);
+    }
 </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Кубик VPN</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-main: #0B0E14; 
-            --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.9), rgba(11, 15, 25, 0.9));
-            --bg-inner: rgba(255, 255, 255, 0.03);
-            --primary: #38BDF8; 
-            --primary-glow: rgba(56, 189, 248, 0.2);
-            --primary-dark: #0284C7;
-            --accent: #6366F1; /* Доп цвет для градиентов */
-            --text-main: #F8FAFC;
-            --text-muted: #64748B;
-            --border: 1px solid rgba(255, 255, 255, 0.05);
-            --border-highlight: 1px solid rgba(56, 189, 248, 0.15);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        
-        body { 
-            background-color: var(--bg-main); 
-            background-image: radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.15), transparent 50%);
-            color: var(--text-main); 
-            padding-bottom: 90px; 
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* АНИМАЦИИ */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Шапка */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px;}
-        .logo-icon { width: 32px; height: 32px; background: var(--bg-card); border: var(--border-highlight); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 10px var(--primary-glow); }
-        
-        .container { padding: 0 20px; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-content.active { display: block; }
-        
-        .page-title { font-size: 24px; font-weight: 700; margin: 10px 0 20px 0; }
-
-        /* Универсальная Карточка */
-        .card { 
-            background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
-        }
-        .card:active { transform: scale(0.98); }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent); }
-        
-        /* Кнопки с градиентом */
-        .btn-magic {
-            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
-            background-size: 300% 300%;
-            animation: gradientShift 4s ease infinite;
-            color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
-            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
-        }
-        .btn-magic:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(56, 189, 248, 0.2); }
-
-        /* Внутренние блоки (Стекло) */
-        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 15px; }
-        
-        /* Специфичные стили для вкладки Подписка */
-        .tag-status { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-        .tag-status::before { content: ''; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 5px var(--primary); }
-        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
-        
-        /* Полоса трафика */
-        .traffic-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-        .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
-        .progress-fill { width: 15%; height: 100%; background: linear-gradient(90deg, #6366F1, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
-        .progress-markers { display: flex; justify-content: space-between; font-size: 9px; color: #475569; }
-
-        /* Копирование ссылки */
-        .copy-link-box { display: flex; align-items: center; gap: 8px; margin-top: 15px; margin-bottom: 15px; }
-        .link-input { flex: 1; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-muted); padding: 12px 15px; border-radius: 10px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .copy-btn { background: #1E293B; border: 1px solid #334155; color: white; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.2s; cursor: pointer;}
-        .copy-btn:active { background: var(--primary); border-color: var(--primary); transform: scale(0.9); }
-
-        /* Таймер */
-        .timer-box { border: 1px solid rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.05); }
-        .timer-numbers { font-size: 28px; font-weight: 700; color: #FBBF24; display: flex; align-items: baseline; gap: 5px; margin-top: 5px; text-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
-        .timer-label { font-size: 12px; color: var(--text-muted); font-weight: normal; }
-
-        /* Сетка Баланс/Рефералы */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-item { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; transition: 0.2s; }
-        .stat-item:active { transform: scale(0.96); border-color: var(--primary); }
-        .stat-title { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-        .stat-val { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .arrow-icon { position: absolute; right: 16px; top: 16px; color: var(--text-muted); }
-
-        /* Нижнее меню */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 12px 10px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: 0.3s; }
-        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; }
-        .nav-item.active { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
-        .nav-item.active svg { fill: rgba(56, 189, 248, 0.2); stroke: var(--primary); transform: translateY(-2px); }
-    </style>
-</head>
-<body>
-
-    <header class="header">
-        <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
-        <div class="header-actions">
-            <div class="header-btn">🔔</div>
-            <div class="header-btn">🇷🇺 RU ⌄</div>
-        </div>
-    </header>
-
-    <div class="container">
-        
-        <!-- ================= ВКЛАДКА 1: ГЛАВНАЯ ================= -->
-        <div id="tab-home" class="tab-content active">
-            <h1 class="page-title" id="userName">Добро пожаловать!!</h1>
-            <div style="font-size: 14px; color: var(--text-muted); margin-top:-10px; margin-bottom: 20px;">Ваша подписка <span class="badge-purple">★ Кубик Пользователь</span></div>
-
-            <!-- Баланс и Рефералы (Ровные) -->
-            <div class="stats-grid">
-                <div class="stat-item" onclick="tgAlert('Переход к пополнению')">
-                    <span class="arrow-icon">›</span>
-                    <div class="stat-title">Баланс</div>
-                    <div class="stat-val"><span style="color: #6366F1;">💳</span> 0.00 ₽</div>
-                </div>
-                <div class="stat-item" onclick="tgAlert('Ваша реф. ссылка скопирована!')">
-                    <span class="arrow-icon">›</span>
-                    <div class="stat-title">Рефералы</div>
-                    <div class="stat-val"><span style="color: var(--text-muted);">👥</span> 0</div>
-                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">+0.00 ₽</div>
-                </div>
-            </div>
-
-            <div class="card" onclick="tgAlert('Крутим барабан!')" style="display: flex; align-items: center; gap: 15px; cursor: pointer;">
-                <div style="font-size: 32px;">🎰</div>
-                <div>
-                    <h3 style="font-size: 15px; margin-bottom: 4px;">Испытай удачу!</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик и многое другое!</p>
-                </div>
-                <div class="arrow-icon" style="position: relative; top:0; right:0;">›</div>
-            </div>
-        </div>
-
-        <!-- ================= ВКЛАДКА 2: ПОДПИСКА ================= -->
-        <div id="tab-sub" class="tab-content">
-            <h1 class="page-title">Подписка</h1>
-
-            <!-- СОСТОЯНИЕ 1: НЕТ ПОДПИСКИ -->
-            <div id="state-inactive" style="display: block;">
-                <div class="card" style="text-align: center; padding: 40px 20px;">
-                    <div style="font-size: 50px; margin-bottom: 15px; opacity: 0.5;">🧊</div>
-                    <h2 style="margin-bottom: 10px;">У вас нет подписки</h2>
-                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">Подключите Кубик VPN, чтобы наслаждаться свободным интернетом без ограничений.</p>
-                    
-                    <button class="btn-magic" onclick="simulatePurchase()">💎 Купить подписку</button>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 15px;">Нажимая кнопку, вы получите тестовый период</p>
-                </div>
-            </div>
-
-            <!-- СОСТОЯНИЕ 2: АКТИВНАЯ ПОДПИСКА (Как на скрине) -->
-            <div id="state-active" style="display: none;">
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div class="tag-status">НОРМА</div>
-                        <div class="badge-purple">ПРОБНЫЙ ПЕРИОД</div>
-                    </div>
-                    
-                    <h2 style="font-size: 22px; margin-bottom: 20px;">Кубик Лайт 🧊</h2>
-
-                    <!-- Инфо о тарифе -->
-                    <div class="glass-box">
-                        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
-                            <div style="width: 32px; height: 32px; background: rgba(99,102,241,0.1); color: #818CF8; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">⏱</div>
-                            <div>
-                                <h4 style="color: #818CF8; margin-bottom: 5px; font-size: 14px;">Пробный период</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Вы используете пробную версию сервиса. Выберите тариф ниже для полного доступа.</p>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 15px; font-size: 12px;">
-                            <div><span style="color: #818CF8; font-weight: bold;">3</span> <span style="color: var(--text-muted);">дня осталось</span></div>
-                            <div><span style="color: #818CF8; font-weight: bold;">∞</span> <span style="color: var(--text-muted);">Трафик</span></div>
-                            <div><span style="color: #818CF8; font-weight: bold;">1</span> <span style="color: var(--text-muted);">Устройства</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Трафик -->
-                    <div class="traffic-info">
-                        <span>ТРАФИК</span>
-                        <span>0 МБ / ∞ ГБ <span style="font-size: 10px;">🔄 29s</span></span>
-                    </div>
-                    <div style="font-size: 10px; color: #475569; margin-bottom: 8px;">Сброс ежемесячно</div>
-                    <div class="progress-container" style="margin-bottom: 20px;">
-                        <div class="progress-bar"><div class="progress-fill"></div></div>
-                        <div class="progress-markers">
-                            <span>0 МБ</span><span>25.0 ГБ</span><span>50.0 ГБ</span><span>75.0 ГБ</span><span>100.0 ГБ</span>
-                        </div>
-                    </div>
-
-                    <!-- Устройство -->
-                    <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; border-color: rgba(99,102,241,0.3); padding: 12px 16px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; color: var(--primary);">🖥</div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">0 из 1 подключено</div>
-                            </div>
-                        </div>
-                        <div style="width: 6px; height: 6px; background: #334155; border-radius: 50%;"></div>
-                    </div>
-
-                    <!-- Ссылка -->
-                    <div class="copy-link-box">
-                        <div class="link-input" id="vlessLink">vless://8f3b2a1c...kybic.ru:443?security=reality...</div>
-                        <div class="copy-btn" onclick="copyLink(this)">📋</div>
-                    </div>
-
-                    <!-- Таймер -->
-                    <div class="glass-box timer-box">
-                        <div style="display: flex; align-items: center; gap: 8px; color: #FBBF24; font-size: 12px; font-weight: bold; margin-bottom: 5px;">
-                            📅 ОСТАЛОСЬ
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                            <div class="timer-numbers">
-                                2<span class="timer-label">дн.</span> : 
-                                <span id="hrs">23</span> : 
-                                <span id="mins">44</span> : 
-                                <span id="secs">14</span>
-                            </div>
-                            <div style="font-size: 10px; color: var(--text-muted);">Действует до: 14 окт. 2026 г.</div>
-                        </div>
-                    </div>
-                    
-                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px;">Локации</div>
-                    <span style="background: rgba(255,255,255,0.05); border: var(--border); padding: 6px 12px; border-radius: 6px; font-size: 12px; display: inline-block;">🇳🇱 Netherlands (Default)</span>
-                </div>
-
-                <!-- Блок Продления -->
-                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-color: rgba(99,102,241,0.2);" onclick="tgAlert('Тарифы')">
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <div style="color: #818CF8; font-size: 20px;">✨</div>
-                        <div>
-                            <div style="font-weight: bold; font-size: 14px;">Выберите тариф для продолжения</div>
-                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Больше трафика и устройств</div>
-                        </div>
-                    </div>
-                    <div style="color: var(--text-muted);">›</div>
-                </div>
-
-                <div class="card">
-                    <h3 style="font-size: 16px; margin-bottom: 30px;">Мои устройства</h3>
-                    <p style="text-align: center; color: #475569; font-size: 13px; margin-bottom: 20px;">Нет подключенных устройств</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ОСТАЛЬНЫЕ ВКЛАДКИ ПУСТЫЕ ДЛЯ ПРИМЕРА -->
-        <div id="tab-balance" class="tab-content"><h1 class="page-title">Баланс</h1></div>
-        <div id="tab-wheel" class="tab-content"><h1 class="page-title">Рулетка</h1></div>
-        <div id="tab-support" class="tab-content"><h1 class="page-title">Поддержка</h1></div>
-
-    </div>
-
-    <!-- НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ -->
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-home', this)">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>Главная</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-sub', this)">
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>Подписка</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-balance', this)">
-            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-            <span>Баланс</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-wheel', this)">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 2v20M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span>Колесо удачи</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-support', this)">
-            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            <span>Поддержка</span>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); 
-        tg.setHeaderColor('#0B0E14'); 
-        tg.setBackgroundColor('#0B0E14');
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('userName').innerText = "Добро пожаловать, " + tg.initDataUnsafe.user.first_name + " !!";
-        }
-
-        function switchTab(tabId, navElement) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            navElement.classList.add('active');
-        }
-
-        function tgAlert(msg) {
-            tg.HapticFeedback.impactOccurred('light');
-            tg.showAlert(msg);
-        }
-
-        // Копирование ссылки с анимацией кнопки
-        function copyLink(btn) {
-            tg.HapticFeedback.impactOccurred('medium');
-            const link = document.getElementById('vlessLink').innerText;
-            navigator.clipboard.writeText(link);
-            
-            const originalIcon = btn.innerText;
-            btn.innerText = "✅";
-            btn.style.background = "#10B981";
-            btn.style.borderColor = "#10B981";
-            
-            setTimeout(() => {
-                btn.innerText = originalIcon;
-                btn.style.background = "#1E293B";
-                btn.style.borderColor = "#334155";
-            }, 2000);
-        }
-
-        // Симуляция покупки (Смена интерфейса)
-        function simulatePurchase() {
-            tg.HapticFeedback.impactOccurred('heavy');
-            document.getElementById('state-inactive').style.display = 'none';
-            document.getElementById('state-active').style.display = 'block';
-            startTimer(); // Запускаем часики
-        }
-
-        // Живой таймер
-        function startTimer() {
-            let h = 23, m = 44, s = 14;
-            setInterval(() => {
-                s--;
-                if(s < 0) { s = 59; m--; }
-                if(m < 0) { m = 59; h--; }
-                document.getElementById('hrs').innerText = h.toString().padStart(2, '0');
-                document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-                document.getElementById('secs').innerText = s.toString().padStart(2, '0');
-            }, 1000);
-        }
-    </script>
 </body>
 </html>
