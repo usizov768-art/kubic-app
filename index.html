@@ -386,12 +386,16 @@
     const API_URL = "https://panel.kybic.ru:2053/api/bot";
     let currentUser = tg.initDataUnsafe?.user;
     let userSubUrl = "";
+    let expireTimestamp = 0;
+    let timerInterval = null;
+    let refreshInterval = null;
 
     if (currentUser) {
         document.getElementById('userName').innerText = "Добро пожаловать, " + currentUser.first_name + " !!";
         checkUserStatus();
     }
 
+    // ==================== ПРОВЕРКА СТАТУСА ====================
     async function checkUserStatus() {
         if (!currentUser) return;
         try {
@@ -400,35 +404,41 @@
             if (data.active) {
                 showActiveState(data);
             }
-        } catch (e) {}
-    }
-
-    async function requestTrialInApp() {
-    if (!currentUser) return;
-    tg.HapticFeedback.impactOccurred('heavy');
-    
-    try {
-        const res = await fetch(`${API_URL}/activate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                user_id: currentUser.id, 
-                first_name: currentUser.first_name 
-            })
-        });
-        const data = await res.json();
-        if (data.success || data.active) {
-            tg.showAlert("🎉 Пробный период 3 дня активирован!");
-            showActiveState(data);
-            checkUserStatus();
-        } else {
-            tg.showAlert("❌ Ошибка активации");
+        } catch (e) {
+            console.log("Ошибка проверки статуса:", e);
         }
-    } catch (e) { 
-        tg.showAlert("❌ Ошибка соединения с сервером: " + e.message); 
     }
-}
 
+    // ==================== АКТИВАЦИЯ ====================
+    async function requestTrialInApp() {
+        if (!currentUser) return;
+        tg.HapticFeedback.impactOccurred('heavy');
+
+        try {
+            const res = await fetch(`${API_URL}/activate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
+            });
+            const data = await res.json();
+
+            if (data.error === "not_subscribed") {
+                tg.showAlert("❌ Сначала подпишитесь на канал @kubic_vpn!");
+                return;
+            }
+
+            if (data.success || data.active) {
+                tg.showAlert("🎉 Пробный период 3 дня активирован!");
+                showActiveState(data);
+            } else {
+                tg.showAlert("❌ Ошибка активации");
+            }
+        } catch (e) {
+            tg.showAlert("Ошибка соединения с сервером: " + e.message);
+        }
+    }
+
+    // ==================== ПОКАЗАТЬ АКТИВНОЕ СОСТОЯНИЕ ====================
     function showActiveState(data) {
         document.getElementById('home-inactive').style.display = 'none';
         document.getElementById('home-active').style.display = 'block';
@@ -443,43 +453,112 @@
             document.getElementById('vlessInput').value = data.sub_url;
         }
 
+        // ==================== ТРАФИК ====================
         const usedBytes = data.used_traffic || 0;
         const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
-        
-        const usedMB = (usedBytes / (1024 * 1024)).toFixed(0);
-        const limitGB = (limitBytes / (1024 * 1024 * 1024)).toFixed(0);
-        const pct = Math.min(((usedBytes / limitBytes) * 100), 100).toFixed(0);
 
-        // Обновляем главную
-        document.getElementById('trafficPercent').innerHTML = `${pct}<span>%</span>`;
-        document.getElementById('trafficText').innerText = `${usedMB} МБ / ${limitGB} ГБ`;
-        document.getElementById('trafficFill').style.width = pct + '%';
+        updateTrafficDisplay(usedBytes, limitBytes);
 
-        // Обновляем вкладку подписки (1 в 1 как Мята!)
-        document.getElementById('subTrafficVal').innerText = `${usedMB} МБ / ${limitGB}.0 ГБ`;
-        document.getElementById('subProgressFill').style.width = pct + '%';
-
+        // ==================== ВРЕМЯ ====================
         if (data.expire) {
+            expireTimestamp = data.expire;
             const dateObj = new Date(data.expire * 1000);
             const dateStr = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-            
+
             document.getElementById('expireDateText').innerText = `Действует до: ${dateStr}`;
-            
-            const diffDays = Math.ceil((dateObj - new Date()) / (1000 * 60 * 60 * 24));
-            const daysCount = diffDays > 0 ? diffDays : 0;
-            
-            document.getElementById('homeDaysLeft').innerHTML = `${daysCount} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-            document.getElementById('subDaysLeft').innerText = daysCount;
+
+            // Запускаем живой таймер
+            startLiveTimer();
         }
+
+        // Автообновление трафика каждые 30 секунд
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            checkUserStatus();
+        }, 30000);
     }
 
+    // ==================== ОБНОВЛЕНИЕ ТРАФИКА ====================
+    function updateTrafficDisplay(usedBytes, limitBytes) {
+        const usedMB = usedBytes / (1024 * 1024);
+        const usedGB = usedBytes / (1024 * 1024 * 1024);
+        const limitGB = limitBytes / (1024 * 1024 * 1024);
+        const pct = Math.min(((usedBytes / limitBytes) * 100), 100);
+
+        // Формат отображения использованного трафика
+        let usedStr;
+        if (usedGB >= 1) {
+            usedStr = usedGB.toFixed(2) + " ГБ";
+        } else {
+            usedStr = usedMB.toFixed(0) + " МБ";
+        }
+
+        const limitStr = limitGB.toFixed(0) + " ГБ";
+        const pctStr = pct.toFixed(0);
+
+        // Главная
+        document.getElementById('trafficPercent').innerHTML = `${pctStr}<span style="font-size: 14px; color: var(--text-muted);">%</span>`;
+        document.getElementById('trafficText').innerText = `${usedStr} / ${limitStr}`;
+        document.getElementById('trafficFill').style.width = Math.max(pct, 2) + '%';
+
+        // Вкладка подписки
+        document.getElementById('subTrafficVal').innerHTML = `${usedStr} / ${limitStr} <span style="font-size: 10px; color: var(--text-muted); cursor: pointer;" onclick="checkUserStatus()">🔄</span>`;
+        document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
+    }
+
+    // ==================== ЖИВОЙ ТАЙМЕР ====================
+    function startLiveTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        function updateTimer() {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = expireTimestamp - now;
+
+            if (diff <= 0) {
+                document.getElementById('timerDisplay').innerText = "Истекло";
+                document.getElementById('homeDaysLeft').innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+                document.getElementById('subDaysLeft').innerText = "0";
+                clearInterval(timerInterval);
+                return;
+            }
+
+            const days = Math.floor(diff / 86400);
+            const hours = Math.floor((diff % 86400) / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+
+            const pad = (n) => n.toString().padStart(2, '0');
+
+            // Таймер на вкладке подписки
+            document.getElementById('timerDisplay').innerText = `${days} дн. ${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
+
+            // Дни на главной
+            document.getElementById('homeDaysLeft').innerHTML = `${days} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+
+            // Дни на вкладке подписки
+            document.getElementById('subDaysLeft').innerText = days;
+        }
+
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    // ==================== КОПИРОВАТЬ ССЫЛКУ ====================
     function copyVlessInput() {
-        if (!userSubUrl) { tg.showAlert("Ссылка еще не сформирована!"); return; }
-        navigator.clipboard.writeText(userSubUrl);
-        tg.showAlert("🔗 VLESS-ссылка скопирована!");
+        if (!userSubUrl) { tg.showAlert("Ссылка ещё не сформирована!"); return; }
+        navigator.clipboard.writeText(userSubUrl).then(() => {
+            tg.showAlert("🔗 Ссылка подписки скопирована!");
+        }).catch(() => {
+            // fallback для старых браузеров
+            const inp = document.getElementById('vlessInput');
+            inp.select();
+            document.execCommand('copy');
+            tg.showAlert("🔗 Ссылка подписки скопирована!");
+        });
         tg.HapticFeedback.impactOccurred('light');
     }
 
+    // ==================== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ====================
     function switchTab(tabId, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
@@ -493,12 +572,13 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
+    // ==================== КОЛЕСО УДАЧИ ====================
     let isSpinning = false;
     function spinWheel() {
         if (isSpinning) return;
         isSpinning = true;
         const wheel = document.getElementById('wheelEl');
-        const randomDegree = Math.floor(1800 + Math.random() * 360); 
+        const randomDegree = Math.floor(1800 + Math.random() * 360);
         wheel.style.transform = `rotate(${randomDegree}deg)`;
         setTimeout(() => {
             tgAlert("🎉 Вы выиграли: 3 дня подписки!");
