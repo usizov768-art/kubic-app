@@ -395,7 +395,6 @@
         checkUserStatus();
     }
 
-    // ==================== ПРОВЕРКА СТАТУСА ====================
     async function checkUserStatus() {
         if (!currentUser) return;
         try {
@@ -409,7 +408,6 @@
         }
     }
 
-    // ==================== АКТИВАЦИЯ ====================
     async function requestTrialInApp() {
         if (!currentUser) return;
         tg.HapticFeedback.impactOccurred('heavy');
@@ -423,7 +421,7 @@
             const data = await res.json();
 
             if (data.error === "not_subscribed") {
-                tg.showAlert("❌ Сначала подпишитесь на канал @kubic_vpn!");
+                tg.showAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
                 return;
             }
 
@@ -438,7 +436,6 @@
         }
     }
 
-    // ==================== ПОКАЗАТЬ АКТИВНОЕ СОСТОЯНИЕ ====================
     function showActiveState(data) {
         document.getElementById('home-inactive').style.display = 'none';
         document.getElementById('home-active').style.display = 'block';
@@ -453,48 +450,39 @@
             document.getElementById('vlessInput').value = data.sub_url;
         }
 
-        // ==================== ТРАФИК ====================
+        // 1. ТРАФИК
         const usedBytes = data.used_traffic || 0;
         const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
-
         updateTrafficDisplay(usedBytes, limitBytes);
 
-        // ==================== ВРЕМЯ ====================
+        // 2. УСТРОЙСТВА
+        const devices = data.devices || [];
+        const limitDev = data.device_limit || 1;
+        updateDevicesDisplay(devices, limitDev);
+
+        // 3. ЖИВОЙ ТАЙМЕР
         if (data.expire) {
             expireTimestamp = data.expire;
             const dateObj = new Date(data.expire * 1000);
             const dateStr = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-
             document.getElementById('expireDateText').innerText = `Действует до: ${dateStr}`;
-
-            // Запускаем живой таймер
             startLiveTimer();
         }
 
-        // Автообновление трафика каждые 30 секунд
+        // Автообновление раз в 30 секунд
         if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            checkUserStatus();
-        }, 30000);
+        refreshInterval = setInterval(() => checkUserStatus(), 30000);
     }
 
-    // ==================== ОБНОВЛЕНИЕ ТРАФИКА ====================
     function updateTrafficDisplay(usedBytes, limitBytes) {
         const usedMB = usedBytes / (1024 * 1024);
         const usedGB = usedBytes / (1024 * 1024 * 1024);
         const limitGB = limitBytes / (1024 * 1024 * 1024);
         const pct = Math.min(((usedBytes / limitBytes) * 100), 100);
 
-        // Формат отображения использованного трафика
-        let usedStr;
-        if (usedGB >= 1) {
-            usedStr = usedGB.toFixed(2) + " ГБ";
-        } else {
-            usedStr = usedMB.toFixed(0) + " МБ";
-        }
-
-        const limitStr = limitGB.toFixed(0) + " ГБ";
-        const pctStr = pct.toFixed(0);
+        let usedStr = (usedGB >= 1) ? usedGB.toFixed(2) + " ГБ" : usedMB.toFixed(0) + " МБ";
+        let limitStr = limitGB.toFixed(0) + " ГБ";
+        let pctStr = pct.toFixed(0);
 
         // Главная
         document.getElementById('trafficPercent').innerHTML = `${pctStr}<span style="font-size: 14px; color: var(--text-muted);">%</span>`;
@@ -506,7 +494,61 @@
         document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
     }
 
-    // ==================== ЖИВОЙ ТАЙМЕР ====================
+    function updateDevicesDisplay(devices, limitDev) {
+        const count = devices.length;
+        const textCount = `${count} из ${limitDev} подключено`;
+
+        // Обновляем текст счетчиков
+        const homeDevBox = document.querySelector('#home-active .glass-box div div:nth-child(2)');
+        if (homeDevBox) homeDevBox.innerText = textCount;
+
+        const subDevBox = document.querySelector('#sub-active .glass-box div div:nth-child(2)');
+        if (subDevBox) subDevBox.innerText = textCount;
+
+        const subDevLimitBadge = document.querySelector('#sub-active .glass-box b:nth-of-type(3)');
+        if (subDevLimitBadge) subDevLimitBadge.innerText = limitDev;
+
+        // Отрисовываем список в карточке "Мои устройства"
+        const devCard = document.querySelector('#sub-active .card:last-of-type');
+        if (devCard) {
+            if (count > 0) {
+                let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-size: 15px;">Мои устройства</h3>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="tgAlert('Устройства обновлены')">Обновить</span>
+                </div>`;
+
+                devices.forEach(d => {
+                    let name = d.name.toLowerCase();
+                    let icon = "📱";
+                    if (name.includes("windows") || name.includes("mac") || name.includes("pc") || name.includes("linux")) icon = "💻";
+                    else if (name.includes("iphone") || name.includes("ios") || name.includes("ipad")) icon = "🍏";
+                    else if (name.includes("android")) icon = "🤖";
+
+                    html += `
+                    <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 18px;">${icon}</span>
+                            <div>
+                                <div style="font-weight: 600; font-size: 13px;">${d.name || 'Подключенное устройство'}</div>
+                                <div style="font-size: 10px; color: #10B981;">● В сети (Подключено)</div>
+                            </div>
+                        </div>
+                        <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 6px #10B981;"></div>
+                    </div>`;
+                });
+                devCard.innerHTML = html;
+            } else {
+                devCard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-size: 15px;">Мои устройства</h3>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="checkUserStatus()">Обновить</span>
+                </div>
+                <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>`;
+            }
+        }
+    }
+
     function startLiveTimer() {
         if (timerInterval) clearInterval(timerInterval);
 
@@ -529,13 +571,8 @@
 
             const pad = (n) => n.toString().padStart(2, '0');
 
-            // Таймер на вкладке подписки
             document.getElementById('timerDisplay').innerText = `${days} дн. ${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
-
-            // Дни на главной
             document.getElementById('homeDaysLeft').innerHTML = `${days} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-
-            // Дни на вкладке подписки
             document.getElementById('subDaysLeft').innerText = days;
         }
 
@@ -543,22 +580,19 @@
         timerInterval = setInterval(updateTimer, 1000);
     }
 
-    // ==================== КОПИРОВАТЬ ССЫЛКУ ====================
     function copyVlessInput() {
-        if (!userSubUrl) { tg.showAlert("Ссылка ещё не сформирована!"); return; }
+        if (!userSubUrl) { tg.showAlert("Ссылка еще не сформирована!"); return; }
         navigator.clipboard.writeText(userSubUrl).then(() => {
-            tg.showAlert("🔗 Ссылка подписки скопирована!");
+            tg.showAlert("🔗 Ссылка скопирована!");
         }).catch(() => {
-            // fallback для старых браузеров
             const inp = document.getElementById('vlessInput');
             inp.select();
             document.execCommand('copy');
-            tg.showAlert("🔗 Ссылка подписки скопирована!");
+            tg.showAlert("🔗 Ссылка скопирована!");
         });
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    // ==================== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ====================
     function switchTab(tabId, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
@@ -572,13 +606,12 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    // ==================== КОЛЕСО УДАЧИ ====================
     let isSpinning = false;
     function spinWheel() {
         if (isSpinning) return;
         isSpinning = true;
         const wheel = document.getElementById('wheelEl');
-        const randomDegree = Math.floor(1800 + Math.random() * 360);
+        const randomDegree = Math.floor(1800 + Math.random() * 360); 
         wheel.style.transform = `rotate(${randomDegree}deg)`;
         setTimeout(() => {
             tgAlert("🎉 Вы выиграли: 3 дня подписки!");
