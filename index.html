@@ -436,6 +436,39 @@
         }
     }
 
+    // ==================== СБРОС УСТРОЙСТВ И ПЕРЕВЫПУСК ССЫЛКИ ====================
+    async function resetUserDevices() {
+        if (!currentUser) return;
+
+        const handleConfirm = async (confirmed) => {
+            if (!confirmed) return;
+            tg.HapticFeedback.impactOccurred('heavy');
+
+            try {
+                const res = await fetch(`${API_URL}/reset_devices`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: currentUser.id })
+                });
+                const data = await res.json();
+                if (data.success || data.active) {
+                    tg.showAlert("✅ Все устройства отвязаны!\nСтарые ссылки аннулированы, создана новая ссылка.");
+                    showActiveState(data);
+                } else {
+                    tg.showAlert("❌ Не удалось отвязать устройства");
+                }
+            } catch (e) {
+                tg.showAlert("Ошибка соединения с сервером");
+            }
+        };
+
+        if (tg.showConfirm) {
+            tg.showConfirm("Вы уверены? Подписка отключится на всех старых устройствах и будет сгенерирована новая ссылка.", handleConfirm);
+        } else {
+            handleConfirm(confirm("Вы уверены? Подписка отключится на всех старых устройствах и будет сгенерирована новая ссылка."));
+        }
+    }
+
     function showActiveState(data) {
         document.getElementById('home-inactive').style.display = 'none';
         document.getElementById('home-active').style.display = 'block';
@@ -450,17 +483,17 @@
             document.getElementById('vlessInput').value = data.sub_url;
         }
 
-        // 1. ТРАФИК
+        // Трафик
         const usedBytes = data.used_traffic || 0;
         const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
         updateTrafficDisplay(usedBytes, limitBytes);
 
-        // 2. УСТРОЙСТВА
+        // Устройства
         const devices = data.devices || [];
         const limitDev = data.device_limit || 1;
         updateDevicesDisplay(devices, limitDev);
 
-        // 3. ЖИВОЙ ТАЙМЕР
+        // Живой таймер
         if (data.expire) {
             expireTimestamp = data.expire;
             const dateObj = new Date(data.expire * 1000);
@@ -469,7 +502,6 @@
             startLiveTimer();
         }
 
-        // Автообновление раз в 30 секунд
         if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(() => checkUserStatus(), 30000);
     }
@@ -484,12 +516,10 @@
         let limitStr = limitGB.toFixed(0) + " ГБ";
         let pctStr = pct.toFixed(0);
 
-        // Главная
         document.getElementById('trafficPercent').innerHTML = `${pctStr}<span style="font-size: 14px; color: var(--text-muted);">%</span>`;
         document.getElementById('trafficText').innerText = `${usedStr} / ${limitStr}`;
         document.getElementById('trafficFill').style.width = Math.max(pct, 2) + '%';
 
-        // Вкладка подписки
         document.getElementById('subTrafficVal').innerHTML = `${usedStr} / ${limitStr} <span style="font-size: 10px; color: var(--text-muted); cursor: pointer;" onclick="checkUserStatus()">🔄</span>`;
         document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
     }
@@ -498,7 +528,6 @@
         const count = devices.length;
         const textCount = `${count} из ${limitDev} подключено`;
 
-        // Обновляем текст счетчиков
         const homeDevBox = document.querySelector('#home-active .glass-box div div:nth-child(2)');
         if (homeDevBox) homeDevBox.innerText = textCount;
 
@@ -508,14 +537,13 @@
         const subDevLimitBadge = document.querySelector('#sub-active .glass-box b:nth-of-type(3)');
         if (subDevLimitBadge) subDevLimitBadge.innerText = limitDev;
 
-        // Отрисовываем список в карточке "Мои устройства"
         const devCard = document.querySelector('#sub-active .card:last-of-type');
         if (devCard) {
             if (count > 0) {
                 let html = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h3 style="font-size: 15px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="tgAlert('Устройства обновлены')">Обновить</span>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
                 </div>`;
 
                 devices.forEach(d => {
@@ -542,7 +570,7 @@
                 devCard.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h3 style="font-size: 15px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="checkUserStatus()">Обновить</span>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
                 </div>
                 <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>`;
             }
