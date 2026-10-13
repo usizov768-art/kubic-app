@@ -151,7 +151,7 @@
                         <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
                         <div>
                             <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
+                            <div style="font-size: 11px; color: var(--text-muted);" id="homeDeviceCount">0 из 1 подключено</div>
                         </div>
                     </div>
                     <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
@@ -266,7 +266,7 @@
                         <div style="background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; color: var(--primary); font-size: 18px;">🖥</div>
                         <div>
                             <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">0 из 1 подключено</div>
+                            <div style="font-size: 11px; color: var(--text-muted);" id="subDeviceCount">0 из 1 подключено</div>
                         </div>
                     </div>
                     <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
@@ -525,58 +525,64 @@
     }
 
     function updateDevicesDisplay(devices, limitDev) {
-        const count = devices.length;
-        const textCount = `${count} из ${limitDev} подключено`;
+    const count = devices.length;
+    const textCount = `${count} из ${limitDev} подключено`;
 
-        const homeDevBox = document.querySelector('#home-active .glass-box div div:nth-child(2)');
-        if (homeDevBox) homeDevBox.innerText = textCount;
+    // Обновляем счётчики по ID
+    const homeDev = document.getElementById('homeDeviceCount');
+    if (homeDev) homeDev.innerText = textCount;
 
-        const subDevBox = document.querySelector('#sub-active .glass-box div div:nth-child(2)');
-        if (subDevBox) subDevBox.innerText = textCount;
+    const subDev = document.getElementById('subDeviceCount');
+    if (subDev) subDev.innerText = textCount;
 
-        const subDevLimitBadge = document.querySelector('#sub-active .glass-box b:nth-of-type(3)');
-        if (subDevLimitBadge) subDevLimitBadge.innerText = limitDev;
+    // Обновляем бейдж лимита устройств
+    const subDevLimitBadge = document.querySelector('#sub-active .glass-box b:nth-of-type(3)');
+    if (subDevLimitBadge) subDevLimitBadge.innerText = limitDev;
 
-        const devCard = document.querySelector('#sub-active .card:last-of-type');
-        if (devCard) {
-            if (count > 0) {
-                let html = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 15px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
-                </div>`;
+    // Отрисовываем список устройств
+    const devCard = document.querySelector('#sub-active .card:last-of-type');
+    if (devCard) {
+        if (count > 0) {
+            let html = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="font-size: 15px;">Мои устройства</h3>
+                <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
+            </div>`;
 
-                devices.forEach(d => {
-                    let name = d.name.toLowerCase();
-                    let icon = "📱";
-                    if (name.includes("windows") || name.includes("mac") || name.includes("pc") || name.includes("linux")) icon = "💻";
-                    else if (name.includes("iphone") || name.includes("ios") || name.includes("ipad")) icon = "🍏";
-                    else if (name.includes("android")) icon = "🤖";
+            devices.forEach(d => {
+                let name = d.name.toLowerCase();
+                let icon = "📱";
+                if (name.includes("windows") || name.includes("mac") || name.includes("pc") || name.includes("linux")) icon = "💻";
+                else if (name.includes("iphone") || name.includes("ios") || name.includes("ipad")) icon = "🍏";
+                else if (name.includes("android")) icon = "🤖";
 
-                    html += `
-                    <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px 14px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 18px;">${icon}</span>
-                            <div>
-                                <div style="font-weight: 600; font-size: 13px;">${d.name || 'Подключенное устройство'}</div>
-                                <div style="font-size: 10px; color: #10B981;">● В сети (Подключено)</div>
-                            </div>
+                let statusText = d.status_text || "● В сети (Подключено)";
+                let statusColor = d.is_online ? "#10B981" : "#F59E0B";
+                let dotGlow = d.is_online ? "box-shadow: 0 0 6px #10B981;" : "";
+
+                html += `
+                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px 14px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 18px;">${icon}</span>
+                        <div>
+                            <div style="font-weight: 600; font-size: 13px;">${d.name || 'Подключенное устройство'}</div>
+                            <div style="font-size: 10px; color: ${statusColor};">${statusText}</div>
                         </div>
-                        <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 6px #10B981;"></div>
-                    </div>`;
-                });
-                devCard.innerHTML = html;
-            } else {
-                devCard.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 15px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
-                </div>
-                <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>`;
-            }
+                    </div>
+                    <div style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; ${dotGlow}"></div>
+                </div>`;
+            });
+            devCard.innerHTML = html;
+        } else {
+            devCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="font-size: 15px;">Мои устройства</h3>
+                <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
+            </div>
+            <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>`;
         }
     }
-
+}
     function startLiveTimer() {
         if (timerInterval) clearInterval(timerInterval);
 
