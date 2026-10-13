@@ -383,7 +383,7 @@
     tg.setHeaderColor('#0B0E14');
     tg.setBackgroundColor('#0B0E14');
 
-    const API_URL = "https://kybic.ru/api/bot";
+    const API_URL = "http://127.0.0.1:8081";
     let currentUser = tg.initDataUnsafe?.user;
     let userSubUrl = "";
 
@@ -404,24 +404,30 @@
     }
 
     async function requestTrialInApp() {
-        if (!currentUser) return;
-        tg.HapticFeedback.impactOccurred('heavy');
-        
-        try {
-            const res = await fetch(`${API_URL}/activate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
-            });
-            const data = await res.json();
-            if (data.success || data.active) {
-                tg.showAlert("🎉 Пробный период 3 дня активирован!");
-                showActiveState(data);
-            } else {
-                tg.showAlert("❌ Ошибка активации");
-            }
-        } catch (e) { tg.showAlert("Ошибка соединения с сервером."); }
+    if (!currentUser) return;
+    tg.HapticFeedback.impactOccurred('heavy');
+    
+    try {
+        const res = await fetch(`${API_URL}/activate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                user_id: currentUser.id, 
+                first_name: currentUser.first_name 
+            })
+        });
+        const data = await res.json();
+        if (data.success || data.active) {
+            tg.showAlert("🎉 Пробный период 3 дня активирован!");
+            showActiveState(data);
+            checkUserStatus();
+        } else {
+            tg.showAlert("❌ Ошибка активации");
+        }
+    } catch (e) { 
+        tg.showAlert("❌ Ошибка соединения с сервером: " + e.message); 
     }
+}
 
     function showActiveState(data) {
         document.getElementById('home-inactive').style.display = 'none';
