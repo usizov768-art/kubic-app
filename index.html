@@ -14,15 +14,15 @@
             --text-main: #F8FAFC;
             --text-muted: #94A3B8;
             
-            /* Цвета для стекла */
-            --glass-bg: rgba(20, 25, 40, 0.45);
+            /* Стеклянный стиль (Glassmorphism) */
+            --glass-bg: rgba(20, 25, 45, 0.55);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: blur(20px);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* Анимированный переливающийся фон */
+        /* Переливающийся фиолетово-синий фон */
         body {
             width: 100%; min-height: 100vh;
             background: linear-gradient(-45deg, #090B14, #1E1B4B, #0F172A, #2E1065);
@@ -34,35 +34,35 @@
             position: relative;
         }
 
-        /* Фоновые неоновые сферы с блюром */
+        /* Размытые светящиеся сферы на фоне */
         body::before, body::after {
-            content: ''; position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; pointer-events: none;
+            content: ''; position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; pointer-events: none;
         }
         body::before {
-            width: 300px; height: 300px; background: rgba(99, 102, 241, 0.15); top: -50px; left: -100px; animation: float 10s infinite alternate;
+            width: 320px; height: 300px; background: rgba(99, 102, 241, 0.2); top: -50px; left: -100px; animation: float 10s infinite alternate;
         }
         body::after {
-            width: 400px; height: 400px; background: rgba(56, 189, 248, 0.1); bottom: -100px; right: -150px; animation: float 12s infinite alternate-reverse;
+            width: 380px; height: 380px; background: rgba(56, 189, 248, 0.15); bottom: -80px; right: -120px; animation: float 12s infinite alternate-reverse;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 50px); } }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 40px); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Шапка */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; background: rgba(9, 11, 20, 0.6); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--glass-border); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; background: rgba(9, 11, 20, 0.65); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--glass-border); }
         .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
         .logo-icon { width: 34px; height: 34px; background: var(--glass-bg); border: 1px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 15px var(--primary-glow); }
-        .header-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; }
+        .header-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; cursor: pointer; }
 
         .container { padding: 0 20px; }
         .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
         .tab-content.active { display: block; }
 
         .welcome-title { font-size: 24px; font-weight: 800; margin-top: 20px; margin-bottom: 6px; }
-        .welcome-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        .welcome-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
 
-        /* Стеклянные карточки */
+        /* Стеклянные карточки-колбочки */
         .card { 
             background: var(--glass-bg); 
             border: 1px solid var(--glass-border); 
@@ -71,7 +71,7 @@
             margin-bottom: 16px; 
             backdrop-filter: var(--glass-blur); 
             -webkit-backdrop-filter: var(--glass-blur);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
             transition: all 0.3s ease;
         }
         
@@ -102,37 +102,50 @@
         }
         .btn-secondary:active { transform: scale(0.96); background: rgba(99, 102, 241, 0.25); }
 
-        /* Тарифы (Ховеры) */
+        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-blue:active { transform: scale(0.97); }
+
+        /* Карточки Тарифов с подсветкой при ховере */
         .tariff-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 20px; padding: 22px; margin-bottom: 16px;
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .tariff-card:active { transform: scale(0.98); }
-        /* Эффект подсветки при наведении/нажатии на тариф */
-        .tariff-card.hover-effect {
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-            transform: translateY(-2px);
+        .tariff-card:hover, .tariff-card.hover-effect {
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25), 0 0 15px rgba(56, 189, 248, 0.2);
+            transform: translateY(-3px);
         }
         
-        .tariff-price { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
-        .tariff-price span { font-size: 24px; color: var(--primary); font-weight: 700; }
-        .tariff-features { font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 16px; }
+        .tariff-price { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; }
+        .tariff-price span { font-size: 26px; color: var(--primary); font-weight: 800; }
+        .tariff-features { font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 18px; }
         .tariff-features div { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+        /* Статистика на главной */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; backdrop-filter: var(--glass-blur); }
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
 
         /* Прогресс-бар */
         .progress-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); transition: width 0.5s ease; }
 
-        .input-box { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
+        .input-box { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
 
-        /* Нижнее меню */
+        /* Колесо */
+        .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 20px auto; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#4f46e5 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #6366f1 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid rgba(255,255,255,0.1); box-shadow: 0 0 25px var(--accent-glow); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+
+        /* Нижняя навигация */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(9, 11, 20, 0.75); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 10px 6px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s; }
-        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-item svg { width: 20px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .nav-item.active { color: var(--primary); }
         .nav-item.active svg { stroke: var(--primary); filter: drop-shadow(0 0 5px var(--primary-glow)); transform: translateY(-2px); }
     </style>
@@ -141,17 +154,17 @@
 
 <header class="header">
     <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
-    <div class="header-btn">Служба поддержки</div>
+    <div class="header-btn" onclick="switchTab('tab-support', document.querySelectorAll('.nav-item')[4])">Поддержка</div>
 </header>
 
 <div class="container">
 
     <!-- ==================== 1. ГЛАВНАЯ ==================== -->
     <div id="tab-home" class="tab-content active">
-        <h1 class="welcome-title" id="userName">Загрузка...</h1>
+        <h1 class="welcome-title" id="userName">Привет!</h1>
         <div class="welcome-sub">Ваша подписка: <span style="color: #F59E0B; background: rgba(245, 158, 11, 0.1); padding: 3px 8px; border-radius: 6px; font-weight: 600;" id="badgeStatus">Проверяем...</span></div>
 
-        <!-- Если НЕТ подписки -->
+        <!-- Показывается если НЕТ подписки -->
         <div id="home-inactive">
             <div class="card" style="text-align: center; padding: 35px 20px;">
                 <div style="font-size: 50px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">🧊</div>
@@ -160,11 +173,11 @@
                     Получите 3 дня бесплатного доступа с лимитом 100 ГБ и скоростью до 1 Гбит/с!
                 </p>
                 <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-                <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Посмотреть тарифы и купить</button>
+                <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Посмотреть тарифы и купить подписку</button>
             </div>
         </div>
 
-        <!-- Если ЕСТЬ подписка -->
+        <!-- Показывается если ЕСТЬ подписка -->
         <div id="home-active" style="display: none;">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -186,7 +199,7 @@
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">🖥</div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px;">Устройства</div>
+                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
                             <div style="font-size: 11px; color: var(--text-muted);" id="homeDeviceCount">0 из 1 подключено</div>
                         </div>
                     </div>
@@ -196,43 +209,79 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="glass-box" style="margin-bottom: 0;">
                         <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
-                        <div style="font-weight: 600; font-size: 13px;">Кубик ВПН 🧊</div>
+                        <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
                     </div>
                     <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ОСТАЛОСЬ</div>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
                         <div style="font-size: 18px; font-weight: 700; color: #FBBF24;" id="homeDaysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
                     </div>
                 </div>
             </div>
-            
-            <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">✨ Продлить / Сменить тариф</button>
+            <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Продлить / Сменить тариф</button>
+        </div>
+
+        <!-- Карточки статистики баланса и рефералов -->
+        <div class="stats-grid">
+            <div class="stat-card" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">
+                <div class="arrow-right">›</div>
+                <h4>Баланс</h4>
+                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
+            </div>
+            <div class="stat-card" onclick="tgAlert('Реферальная ссылка скопирована!')">
+                <div class="arrow-right">›</div>
+                <h4>Рефералы</h4>
+                <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
+            </div>
+        </div>
+
+        <!-- Баннер Колеса удачи -->
+        <div class="card" onclick="switchTab('tab-wheel', document.querySelectorAll('.nav-item')[3])" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+            <div style="font-size: 32px;">🎰</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
+            </div>
+            <div style="color: var(--text-muted);">›</div>
+        </div>
+
+        <!-- Новости -->
+        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
+        <div class="card">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <span style="color: #10B981; border: 1px solid #10B981; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;">● VLESS И ГЕРМАНИЯ</span>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Запуск высокоскоростного сервера 🚀</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                Германия с каналом 5 Гбит/с уже доступна. Обход блокировок и низкий пинг обеспечены!
+            </div>
         </div>
     </div>
 
-    <!-- ==================== 2. МОЯ ПОДПИСКА ==================== -->
+    <!-- ==================== 2. ПОДПИСКА / ПОДКЛЮЧЕНИЕ ==================== -->
     <div id="tab-sub" class="tab-content">
         <h1 class="welcome-title">Подключение</h1>
 
         <div id="sub-inactive">
             <div class="card" style="text-align: center; padding: 45px 20px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">🔌</div>
-                <h2 style="margin-bottom: 10px; font-size: 20px;">Нет подписки</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Активируйте тариф для получения ссылки.</p>
-                <button class="btn-magic" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">Выбрать тариф</button>
+                <div style="font-size: 45px; margin-bottom: 16px;">🔌</div>
+                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Активируйте бесплатный период или купите подписку для получения ссылки.</p>
+                <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
             </div>
         </div>
 
         <div id="sub-active" style="display: none;">
             <div class="card">
-                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша ссылка</h2>
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша VLESS Ссылка</h2>
                 
                 <div style="display: flex; gap: 8px; margin-bottom: 20px;">
                     <input type="text" id="vlessInput" class="input-box" readonly value="Загрузка ссылки...">
-                    <button class="header-btn" onclick="copyVlessInput()" style="background: var(--primary); color: #000; border: none; padding: 0 16px; font-size: 18px;">📋</button>
+                    <button class="header-btn" onclick="copyVlessInput()" style="background: var(--primary); color: #000; border: none; padding: 0 16px; font-size: 18px; font-weight: bold;">📋</button>
                 </div>
 
                 <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); margin-bottom: 20px;">
-                    <div style="color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 6px;">⏱ ДО ОКОНЧАНИЯ</div>
+                    <div style="color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 6px;">📅 ОСТАЛОСЬ ВРЕМЕНИ</div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div style="font-size: 24px; font-weight: 700; color: #FBBF24;" id="timerDisplay">-- : -- : --</div>
                         <div style="font-size: 11px; color: var(--text-muted);" id="expireDateText">--.--.----</div>
@@ -250,19 +299,19 @@
             <div class="card" id="devicesCard">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 16px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Сбросить всё</span>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Удалить все</span>
                 </div>
-                <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Загрузка...</p>
+                <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Нет подключенных устройств</p>
             </div>
         </div>
     </div>
 
-    <!-- ==================== 3. ТАРИФЫ (НОВЫЙ РАЗДЕЛ) ==================== -->
+    <!-- ==================== 3. ТАРИФЫ ==================== -->
     <div id="tab-tariffs" class="tab-content">
         <h1 class="welcome-title">Оформить подписку</h1>
         
         <!-- Плашка группы -->
-        <div class="glass-box" style="display: flex; align-items: center; gap: 15px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
+        <div class="glass-box" style="display: flex; align-items: center; gap: 15px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
             <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
             <div>
                 <div style="color: #10B981; font-weight: 700; font-size: 14px;">Ваша группа: Кубный пользователь</div>
@@ -270,11 +319,28 @@
             </div>
         </div>
 
+        <!-- Тариф: Пробный -->
+        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Тест 🧊</h2>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+                Попробуйте «Кубик» ВПН бесплатно перед покупкой. Тестовый тариф предоставляется за подписку на Telegram-канал на 3 дня.
+            </p>
+            
+            <div class="tariff-features">
+                <div><span style="color: var(--primary);">⬇</span> <b>100 ГБ</b> трафика на 3 дня</div>
+                <div><span style="color: var(--primary);">🖥</span> <b>1 устройство</b></div>
+                <div><span style="color: var(--text-muted);">↻</span> Без обязательств</div>
+            </div>
+
+            <div class="tariff-price">бесплатно</div>
+            <button class="btn-magic" onclick="requestTrialInApp()">Активировать 3 дня</button>
+        </div>
+
         <!-- Тариф: Стандарт -->
         <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
-            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">Кубик Стандарт 🧊</h2>
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Стандарт 🧊</h2>
             <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Откройте для себя простоту и выгоду с нашим тарифом Стандарт. Идеально подходит для повседневного серфинга, просмотра видео и соцсетей.
+                Идеально подходит для повседневного серфинга, просмотра видео в 4K и соцсетей на двух устройствах одновременно.
             </p>
             
             <div class="tariff-features">
@@ -290,16 +356,15 @@
 
         <!-- Тариф: Про -->
         <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
-            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">Кубик Про 🔥</h2>
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Про 🔥</h2>
             <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Получите полный доступ ко всем возможностям VPN без ограничений по скорости. Защитите смартфоны, компьютеры и планшеты всей семьи.
+                Получите максимальный доступ без ограничений. Защитите смартфоны, компьютеры и планшеты всей семьи.
             </p>
             
             <div class="tariff-features">
                 <div><span style="color: var(--primary);">⬇</span> <b style="color: #FBBF24;">300 ГБ</b> (Максимум)</div>
                 <div><span style="color: var(--primary);">🖥</span> <b style="color: #FBBF24;">3 устройства</b> одновременно</div>
                 <div><span style="color: var(--primary);">🌍</span> Все доступные локации</div>
-                <div><span style="color: var(--text-muted);">↻</span> Сброс трафика ежемесячно</div>
             </div>
 
             <div class="tariff-price">от <span>179.00 ₽</span> / мес</div>
@@ -307,9 +372,28 @@
         </div>
     </div>
 
+    <!-- ==================== 4. КОЛЕСО УДАЧИ ==================== -->
+    <div id="tab-wheel" class="tab-content">
+        <h1 class="welcome-title" style="text-align: center;">Колесо удачи</h1>
+        <div class="wheel-wrap"><div class="wheel-pointer"></div><div class="wheel" id="wheelEl"></div></div>
+        <button class="btn-magic" style="margin-bottom: 20px;" onclick="spinWheel()">КРУТИТЬ! (1 Спин)</button>
+        <p style="text-align: center; color: var(--text-muted); font-size: 12px;">Пригласите 5 друзей, чтобы получить 1 бесплатный спин!</p>
+    </div>
+
+    <!-- ==================== 5. ПОДДЕРЖКА ==================== -->
+    <div id="tab-support" class="tab-content">
+        <h1 class="welcome-title">Поддержка</h1>
+        <div class="card" style="text-align: center; padding: 35px 20px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">💬</div>
+            <h3 style="margin-bottom: 8px;">Служба поддержки</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Возникли вопросы по настройке или оплате? Наш администратор ответит в ближайшее время.</p>
+            <button class="btn-blue" onclick="tg.openTelegramLink('https://t.me/kybic_vpn_bot')">Написать в поддержку</button>
+        </div>
+    </div>
+
 </div>
 
-<!-- Нижняя навигация -->
+<!-- Нижняя навигация (5 разделов) -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('tab-home', this)">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -317,11 +401,19 @@
     </div>
     <div class="nav-item" onclick="switchTab('tab-sub', this)">
         <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <span>Подключение</span>
+        <span>Подписка</span>
     </div>
     <div class="nav-item" onclick="switchTab('tab-tariffs', this)">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
         <span>Тарифы</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-wheel', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
+        <span>Колесо</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-support', this)">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <span>Поддержка</span>
     </div>
 </div>
 
@@ -361,11 +453,11 @@
             });
             const data = await res.json();
             if (data.error === "not_subscribed") {
-                tg.showAlert("❌ Сначала подпишитесь на канал @kubic_vpn!");
+                tg.showAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
                 return;
             }
             if (data.success || data.active) {
-                tg.showAlert("🎉 Пробный период активирован!");
+                tg.showAlert("🎉 Пробный период 3 дня активирован!");
                 showActiveState(data);
             } else tg.showAlert("❌ Ошибка активации");
         } catch (e) { tg.showAlert("Ошибка: " + e.message); }
@@ -373,7 +465,7 @@
 
     async function resetUserDevices() {
         if (!currentUser) return;
-        const confirmAct = confirm("Подписка отключится на всех устройствах, и будет сгенерирована новая ссылка. Продолжить?");
+        const confirmAct = confirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?");
         if (!confirmAct) return;
         tg.HapticFeedback.impactOccurred('heavy');
         try {
@@ -395,9 +487,9 @@
         document.getElementById('sub-inactive').style.display = 'none';
         document.getElementById('sub-active').style.display = 'block';
 
-        document.getElementById('badgeStatus').innerText = '✅ Активна';
-        document.getElementById('badgeStatus').style.color = '#10B981';
-        document.getElementById('badgeStatus').style.background = 'rgba(16,185,129,0.1)';
+        document.getElementById('badgeStatus').innerText = '★ Кубик Пользователь';
+        document.getElementById('badgeStatus').style.color = '#38BDF8';
+        document.getElementById('badgeStatus').style.background = 'rgba(56,189,248,0.1)';
 
         if (data.sub_url) {
             userSubUrl = data.sub_url;
@@ -425,11 +517,11 @@
         
         let devHtml = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="font-size: 16px;">Мои устройства</h3>
-            <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Сбросить всё</span>
+            <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Удалить все</span>
         </div>`;
         
         if (devices.length === 0) {
-            devHtml += `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Устройства появятся после подключения</p>`;
+            devHtml += `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Нет подключенных устройств</p>`;
         } else {
             devices.forEach(d => {
                 devHtml += `<div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
@@ -445,7 +537,7 @@
 
         if (data.expire) {
             expireTimestamp = data.expire;
-            document.getElementById('expireDateText').innerText = new Date(data.expire * 1000).toLocaleDateString();
+            document.getElementById('expireDateText').innerText = `Действует до: ` + new Date(data.expire * 1000).toLocaleDateString('ru-RU');
             if(!timerInterval) startLiveTimer();
         }
     }
@@ -456,12 +548,13 @@
             if (diff <= 0) {
                 document.getElementById('timerDisplay').innerText = "Истекло";
                 document.getElementById('homeDaysLeft').innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+                document.getElementById('subDaysLeft').innerText = "0";
                 clearInterval(timerInterval);
                 return;
             }
             const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400)/3600), m = Math.floor((diff % 3600)/60), s = diff % 60;
             const pad = n => n.toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${d} дн. ${pad(h)}:${pad(m)}:${pad(s)}`;
+            document.getElementById('timerDisplay').innerText = `${d} дн. ${pad(h)} : ${pad(m)} : ${pad(s)}`;
             document.getElementById('homeDaysLeft').innerHTML = `${d} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
         }, 1000);
     }
@@ -469,7 +562,7 @@
     function copyVlessInput() {
         if (!userSubUrl) return;
         navigator.clipboard.writeText(userSubUrl);
-        tg.showAlert("🔗 Ссылка скопирована! Вставьте её в приложение.");
+        tg.showAlert("🔗 Ссылка скопирована!");
         tg.HapticFeedback.impactOccurred('light');
     }
 
@@ -480,7 +573,21 @@
         if (el) el.classList.add('active');
         window.scrollTo(0, 0);
     }
+
     function tgAlert(msg) { tg.showAlert(msg); tg.HapticFeedback.impactOccurred('light'); }
+
+    let isSpinning = false;
+    function spinWheel() {
+        if (isSpinning) return;
+        isSpinning = true;
+        const wheel = document.getElementById('wheelEl');
+        const randomDegree = Math.floor(1800 + Math.random() * 360); 
+        wheel.style.transform = `rotate(${randomDegree}deg)`;
+        setTimeout(() => {
+            tgAlert("🎉 Вы выиграли: 3 дня подписки!");
+            isSpinning = false;
+        }, 4000);
+    }
 </script>
 </body>
 </html>
