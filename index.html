@@ -68,23 +68,55 @@
         .lang-item:hover { background: rgba(255,255,255,0.05); }
         .lang-item.active-lang { color: #818CF8; background: rgba(99, 102, 241, 0.1); }
 
-        /* --- БОКОВОЕ МЕНЮ ПРОФИЛЯ --- */
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(5px); }
-        .sidebar-overlay.show { display: block; opacity: 1; }
+        /* --- ПОЛНОЭКРАННОЕ МЕНЮ --- */
+        .fullscreen-menu {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100vh;
+            background: rgba(9, 11, 20, 0.96);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(-20px);
+        }
+        .fullscreen-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .menu-user-info {
+            padding: 0 30px 20px 30px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 10px;
+        }
+        .menu-user-info .greeting { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .menu-user-info .username { font-size: 14px; color: var(--primary); font-weight: 600; }
         
-        .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100%; background: #0B0F19; border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto; box-shadow: 10px 0 40px rgba(0,0,0,0.5); }
-        .sidebar.open { transform: translateX(100%); } 
-        
-        .sidebar-user { padding: 30px 20px 20px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-user .greeting { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-        .sidebar-user .username { font-size: 13px; color: var(--text-muted); }
-        
-        .sidebar-nav { padding: 15px 0; }
-        .sidebar-nav a { display: flex; align-items: center; gap: 14px; padding: 14px 24px; color: #E2E8F0; font-size: 15px; font-weight: 500; text-decoration: none; cursor: pointer; transition: 0.2s; }
-        .sidebar-nav a:active { background: rgba(255,255,255,0.05); }
-        .sidebar-nav a svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; color: #94A3B8; }
-        .sidebar-nav a.danger { color: #EF4444; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-nav a.danger svg { stroke: #EF4444; }
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 20px;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+        .menu-items a {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 15px;
+            color: var(--text-main);
+            font-size: 16px; font-weight: 600;
+            text-decoration: none;
+            border-radius: 14px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .menu-items a:active { background: rgba(255,255,255,0.05); transform: scale(0.98); }
+        .menu-items a svg { width: 22px; height: 22px; stroke: #94A3B8; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
         .container { padding: 0 20px; }
         .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
@@ -208,25 +240,26 @@
         
         <button class="lang-btn" onclick="toggleLang(event)">🇷🇺 RU ⌄</button>
         <div class="lang-dropdown" id="langDrop">
-            <div class="lang-item active-lang" onclick="tgAlert('Язык установлен: Русский')">🇷🇺 Русский</div>
-            <div class="lang-item" onclick="tgAlert('Language set: English')">🇬🇧 English</div>
-            <div class="lang-item" onclick="tgAlert('Мову встановлено: Українська')">🇺🇦 Українська</div>
-            <div class="lang-item" onclick="tgAlert('语言设置：中文')">🇨🇳 中文</div>
-            <div class="lang-item" onclick="tgAlert('زبان تنظیم شد: فارسی')">🇮🇷 فارسی</div>
+            <div class="lang-item active-lang">🇷🇺 Русский</div>
+            <div class="lang-item" onclick="tgAlert('Скоро')">🇬🇧 English</div>
         </div>
 
-        <button class="icon-btn" onclick="toggleMenu()">☰</button>
+        <!-- Кнопка 3 точки / Крестик -->
+        <button class="icon-btn" id="menuBtn" onclick="toggleMenu()" style="border: none; background: transparent; box-shadow: none;">
+            <svg id="menuIcon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>
+            </svg>
+        </button>
     </div>
 </header>
 
-<!-- Боковое меню (Sidebar) -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-user">
-        <div class="greeting">Привет, <span id="sideName">Загрузка...</span> <span>!</span></div>
-        <div class="username" id="sideUsername">@username</div>
+<!-- Полноэкранное меню -->
+<div class="fullscreen-menu" id="fullMenu">
+    <div class="menu-user-info">
+        <div class="greeting" id="menuName">Привет!</div>
+        <div class="username" id="menuUsername">@username</div>
     </div>
-    <div class="sidebar-nav">
+    <div class="menu-items">
         <a onclick="closeMenuAndSwitch('tab-home', 0)">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Главная
@@ -247,13 +280,9 @@
             <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
             Поддержка
         </a>
-        <a onclick="tgAlert('Колесо удачи скоро будет доступно!')">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></svg>
-            Колесо удачи
-        </a>
-        <a onclick="tgAlert('Скоро!')">
+        <a onclick="tgAlert('Раздел бонусов скоро будет доступен!')">
             <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-            Подарить
+            Бонусы и подарки
         </a>
         <a onclick="tgAlert('Версия: 1.0.0')">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -263,10 +292,6 @@
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             Профиль
         </a>
-        <a class="danger" onclick="tg.close()">
-            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Выйти
-        </a>
     </div>
 </div>
 
@@ -275,20 +300,22 @@
     <!-- ==================== 1. ГЛАВНАЯ ==================== -->
     <div id="tab-home" class="tab-content active">
         <h1 class="welcome-title" id="userName">Привет!</h1>
-        <div class="welcome-sub">Ваша подписка: <span style="color: #F59E0B; background: rgba(245, 158, 11, 0.1); padding: 3px 8px; border-radius: 6px; font-weight: 600;" id="badgeStatus">Проверяем...</span></div>
+        <div class="welcome-sub">Ваша подписка: <span style="color: #38BDF8; background: rgba(56,189,248,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 600;" id="badgeStatus">Проверяем...</span></div>
 
+        <!-- Если НЕТ подписки -->
         <div id="home-inactive">
             <div class="card" style="text-align: center; padding: 35px 20px;">
                 <div style="font-size: 50px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">🧊</div>
                 <h3 style="margin-bottom: 8px; font-size: 18px;">Подписка не подключена</h3>
                 <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.5;">
-                    Получите 3 дня бесплатного доступа с лимитом 100 ГБ и скоростью до 1 Гбит/с!
+                    Получите 3 дня бесплатного доступа с лимитом 100 ГБ и высокой скоростью соединения!
                 </p>
                 <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
                 <button class="btn-dark" style="margin-top: 15px;" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Посмотреть тарифы и купить подписку</button>
             </div>
         </div>
 
+        <!-- Если ЕСТЬ подписка -->
         <div id="home-active" style="display: none;">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -332,6 +359,7 @@
             <button class="btn-dark" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Продлить / Сменить тариф</button>
         </div>
 
+        <!-- Статистика -->
         <div class="stats-grid">
             <div class="stat-card" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">
                 <div class="arrow-right">›</div>
@@ -346,15 +374,17 @@
             </div>
         </div>
 
-        <div class="card" onclick="tgAlert('🎰 Колесо удачи будет доступно в скором времени!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-            <div style="font-size: 32px;">🎰</div>
+        <!-- Баннер Бонусов (Без упоминания азартных игр для RollyPay) -->
+        <div class="card" onclick="tgAlert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+            <div style="font-size: 32px;">🎁</div>
             <div style="flex: 1;">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
-                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
+                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Ежедневные бонусы!</div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
             </div>
             <div style="color: var(--text-muted);">›</div>
         </div>
 
+        <!-- Новости (Без упоминания обхода блокировок) -->
         <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
         <div class="card">
             <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -362,7 +392,7 @@
             </div>
             <div style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Запуск высокоскоростного сервера 🚀</div>
             <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                Германия с каналом 5 Гбит/с уже доступна. Обход блокировок и низкий пинг обеспечены!
+                Германия с каналом 5 Гбит/с уже доступна. Защита данных и минимальная задержка обеспечены!
             </div>
         </div>
     </div>
@@ -443,7 +473,7 @@
         <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
             <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Стандарт 🧊</h2>
             <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Идеально подходит для повседневного серфинга, просмотра видео в 4K и соцсетей на двух устройствах одновременно.
+                Идеально подходит для повседневного серфинга, просмотра видео в 4K и работы на двух устройствах одновременно.
             </p>
             <div class="tariff-features">
                 <div><span style="color: var(--primary);">⬇</span> <b>150 ГБ</b> быстрого трафика</div>
@@ -486,9 +516,9 @@
         <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
         <span>Баланс</span>
     </div>
-    <div class="nav-item" onclick="tgAlert('Колесо удачи скоро будет доступно!')">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></svg>
-        <span>Колесо удачи</span>
+    <div class="nav-item" onclick="tgAlert('Раздел бонусов скоро будет доступен!')">
+        <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        <span>Бонусы</span>
     </div>
     <div class="nav-item" onclick="tg.openTelegramLink('https://t.me/kybic_vpn_bot')">
         <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
@@ -510,9 +540,28 @@
 
     if (currentUser) {
         document.getElementById('userName').innerText = "Привет, " + currentUser.first_name + "!";
-        document.getElementById('sideName').innerText = currentUser.first_name;
-        document.getElementById('sideUsername').innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
+        document.getElementById('menuName').innerText = currentUser.first_name;
+        document.getElementById('menuUsername').innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
         checkUserStatus();
+    }
+
+    /* АНИМАЦИЯ МЕНЮ 3 ТОЧКИ / КРЕСТИК */
+    let isMenuOpen = false;
+    const icon3Dots = '<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
+    const iconCross = '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
+
+    function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+        const menu = document.getElementById('fullMenu');
+        const icon = document.getElementById('menuIcon');
+        
+        if (isMenuOpen) {
+            menu.classList.add('open');
+            icon.innerHTML = iconCross;
+        } else {
+            menu.classList.remove('open');
+            icon.innerHTML = icon3Dots;
+        }
     }
 
     function toggleLang(e) {
@@ -521,18 +570,13 @@
     }
 
     function closeDropdowns(e) {
-        if (!e.target.closest('.lang-wrap')) {
+        if (!e.target.closest('.lang-btn')) {
             document.getElementById('langDrop').classList.remove('show');
         }
     }
 
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('sidebarOverlay').classList.toggle('show');
-    }
-
     function closeMenuAndSwitch(tabId, navIndex) {
-        toggleMenu();
+        if (isMenuOpen) toggleMenu();
         const navItems = document.querySelectorAll('.bottom-nav-wrapper .nav-item');
         if(navItems[navIndex]) {
             switchTab(tabId, navItems[navIndex]);
