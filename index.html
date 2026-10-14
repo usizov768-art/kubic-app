@@ -682,34 +682,51 @@
         } catch (e) { console.log(e); }
     }
 
-    async function submitNewTicket() {
-        const title = document.getElementById('ticketTitleInput').value.trim();
-        const message = document.getElementById('ticketMsgInput').value.trim();
+        async function submitNewTicket() {
+        const titleInput = document.getElementById('ticketTitleInput');
+        const msgInput = document.getElementById('ticketMsgInput');
+        
+        const title = titleInput ? titleInput.value.trim() : "";
+        const message = msgInput ? msgInput.value.trim() : "";
         
         if (!title || !message) {
-            tg.showAlert("Заполните тему и сообщение!");
+            tgAlert("Заполните тему и сообщение!");
             return;
         }
 
+        // Если открыто вне Telegram
+        const uid = currentUser ? currentUser.id : 7058964435;
+        const fname = currentUser ? currentUser.first_name : "Тест";
+
         tg.HapticFeedback.impactOccurred('heavy');
+
         try {
             const res = await fetch(`${API_URL}/create_ticket`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user_id: currentUser.id,
-                    first_name: currentUser.first_name,
+                    user_id: uid,
+                    first_name: fname,
                     title: title,
                     message: message
                 })
             });
+            
             const data = await res.json();
+            
             if (data.success) {
-                tg.showAlert("✅ Обращение успешно создано!");
+                tgAlert("✅ Обращение успешно создано!");
                 hideCreateTicketModal();
                 await loadTickets();
-                selectTicket(data.ticket_id, title, 'open', new Date().toLocaleDateString('ru-RU'));
+                if (data.ticket_id) {
+                    selectTicket(data.ticket_id, title, 'open', new Date().toLocaleDateString('ru-RU'));
+                }
+            } else {
+                tgAlert("❌ Не удалось создать обращение");
             }
-        } catch (e) { tg.showAlert("Ошибка отправки"); }
+        } catch (e) {
+            tgAlert("❌ Ошибка отправки: " + e.message);
+        }
     }
 
     async function sendTicketReply() {
