@@ -7,344 +7,303 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-main: #0B0E14;
-            --bg-card: linear-gradient(145deg, rgba(22, 28, 45, 0.85), rgba(11, 15, 25, 0.85));
-            --bg-inner: rgba(255, 255, 255, 0.03);
             --primary: #38BDF8;
-            --primary-glow: rgba(56, 189, 248, 0.25);
-            --primary-dark: #0284C7;
+            --primary-glow: rgba(56, 189, 248, 0.4);
             --accent: #6366F1;
+            --accent-glow: rgba(99, 102, 241, 0.4);
             --text-main: #F8FAFC;
-            --text-muted: #64748B;
-            --border: 1px solid rgba(255, 255, 255, 0.05);
-            --border-highlight: 1px solid rgba(56, 189, 248, 0.2);
+            --text-muted: #94A3B8;
+            
+            /* Цвета для стекла */
+            --glass-bg: rgba(20, 25, 40, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(20px);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        html, body {
-            width: 100%; min-height: 100vh; min-height: 100dvh;
-            background-color: var(--bg-main);
-            background-image: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 100%);
-            background-attachment: fixed; background-repeat: no-repeat; background-size: cover;
-            color: var(--text-main); padding-bottom: 95px; -webkit-font-smoothing: antialiased;
+        /* Анимированный переливающийся фон */
+        body {
+            width: 100%; min-height: 100vh;
+            background: linear-gradient(-45deg, #090B14, #1E1B4B, #0F172A, #2E1065);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            padding-bottom: 95px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        /* Фоновые неоновые сферы с блюром */
+        body::before, body::after {
+            content: ''; position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; pointer-events: none;
+        }
+        body::before {
+            width: 300px; height: 300px; background: rgba(99, 102, 241, 0.15); top: -50px; left: -100px; animation: float 10s infinite alternate;
+        }
+        body::after {
+            width: 400px; height: 400px; background: rgba(56, 189, 248, 0.1); bottom: -100px; right: -150px; animation: float 12s infinite alternate-reverse;
+        }
 
-        /* Единая аккуратная шапка */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(11, 14, 20, 0.75); }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 50px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Шапка */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; background: rgba(9, 11, 20, 0.6); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--glass-border); }
         .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
-        .logo-icon { width: 34px; height: 34px; background: var(--bg-card); border: var(--border-highlight); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 12px var(--primary-glow); }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-        .header-btn { background: var(--bg-inner); border: var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; cursor: pointer; }
+        .logo-icon { width: 34px; height: 34px; background: var(--glass-bg); border: 1px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 15px var(--primary-glow); }
+        .header-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 7px 12px; font-size: 12px; color: var(--text-main); font-weight: 500; }
 
         .container { padding: 0 20px; }
-        .tab-content { display: none; animation: fadeIn 0.25s ease-out; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
         .tab-content.active { display: block; }
 
-        .welcome-title { font-size: 22px; font-weight: 700; margin-top: 14px; margin-bottom: 6px; }
-        .welcome-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .badge-pro { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
-        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+        .welcome-title { font-size: 24px; font-weight: 800; margin-top: 20px; margin-bottom: 6px; }
+        .welcome-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
 
-        /* Глянцевые карточки */
-        .card { background: var(--bg-card); border: var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden; transition: transform 0.2s; backdrop-filter: blur(10px); }
-        .card:active { transform: scale(0.985); }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent); }
+        /* Стеклянные карточки */
+        .card { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 16px; 
+            backdrop-filter: var(--glass-blur); 
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-box { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 14px; 
+            padding: 16px; 
+            margin-bottom: 14px; 
+        }
 
+        /* Кнопки */
         .btn-magic {
-            background: linear-gradient(45deg, #0284C7, #38BDF8, #6366F1, #0284C7);
-            background-size: 300% 300%; animation: gradientShift 4s ease infinite;
+            background: linear-gradient(45deg, #4F46E5, #38BDF8, #7C3AED, #38BDF8);
+            background-size: 300% 300%; animation: gradientBG 4s ease infinite;
             color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; 
-            font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px rgba(56, 189, 248, 0.25);
+            font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px var(--accent-glow);
             transition: 0.2s;
         }
         .btn-magic:active { transform: scale(0.96); }
 
-        .btn-blue { background: #2563EB; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-blue:active { transform: scale(0.97); opacity: 0.9; }
+        .btn-secondary {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #A5B4FC; padding: 14px; width: 100%; border-radius: 14px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn-secondary:active { transform: scale(0.96); background: rgba(99, 102, 241, 0.25); }
 
-        .glass-box { background: var(--bg-inner); border: var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-        .tag { background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
-        .tag-gray { border-color: var(--text-muted); color: var(--text-muted); }
+        /* Тарифы (Ховеры) */
+        .tariff-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 22px; margin-bottom: 16px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            transition: all 0.3s ease;
+        }
+        .tariff-card:active { transform: scale(0.98); }
+        /* Эффект подсветки при наведении/нажатии на тариф */
+        .tariff-card.hover-effect {
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tariff-price { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
+        .tariff-price span { font-size: 24px; color: var(--primary); font-weight: 700; }
+        .tariff-features { font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 16px; }
+        .tariff-features div { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: var(--bg-card); border: var(--border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; }
-        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
-        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
+        /* Прогресс-бар */
+        .progress-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); transition: width 0.5s ease; }
 
-        .progress-bar { width: 100%; height: 6px; background: #1E293B; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); }
-
-        .input-box { width: 100%; background: #0B0E14; border: 1px solid #1E293B; color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
+        .input-box { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
 
         /* Нижнее меню */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-around; padding: 8px 6px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s ease; }
-        .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
-        .nav-item.active { color: var(--primary); background: rgba(56, 189, 248, 0.08); }
-        .nav-item.active svg { stroke: var(--primary); transform: translateY(-1px); }
-
-        /* Рулетка */
-        .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 20px auto; }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#0ea5e9 0deg 60deg, #38bdf8 60deg 120deg, #0284c7 120deg 180deg, #0ea5e9 180deg 240deg, #38bdf8 240deg 300deg, #0284c7 300deg 360deg); border: 4px solid var(--bg-card); box-shadow: 0 0 25px rgba(56, 189, 248, 0.25); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
-        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; background: white; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(9, 11, 20, 0.75); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 10px 6px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; padding: 6px 0; border-radius: 12px; transition: all 0.2s; }
+        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active svg { stroke: var(--primary); filter: drop-shadow(0 0 5px var(--primary-glow)); transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <header class="header">
     <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
-    <div class="header-actions">
-        <div class="header-btn">🔔</div>
-        <div class="header-btn">🇷🇺 RU ⌄</div>
-        <div class="header-btn">☰</div>
-    </div>
+    <div class="header-btn">Служба поддержки</div>
 </header>
 
 <div class="container">
 
     <!-- ==================== 1. ГЛАВНАЯ ==================== -->
     <div id="tab-home" class="tab-content active">
-        <h1 class="welcome-title" id="userName">Добро пожаловать!!</h1>
-        <div class="welcome-sub">Ваша подписка <span class="badge-pro" id="badgeStatus">❌ Не активна</span></div>
+        <h1 class="welcome-title" id="userName">Загрузка...</h1>
+        <div class="welcome-sub">Ваша подписка: <span style="color: #F59E0B; background: rgba(245, 158, 11, 0.1); padding: 3px 8px; border-radius: 6px; font-weight: 600;" id="badgeStatus">Проверяем...</span></div>
 
-        <!-- Показывается пока НЕТ подписки -->
+        <!-- Если НЕТ подписки -->
         <div id="home-inactive">
             <div class="card" style="text-align: center; padding: 35px 20px;">
-                <div style="font-size: 45px; margin-bottom: 12px; opacity: 0.8;">🧊</div>
+                <div style="font-size: 50px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">🧊</div>
                 <h3 style="margin-bottom: 8px; font-size: 18px;">Подписка не подключена</h3>
-                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 20px; line-height: 1.4;">
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.5;">
                     Получите 3 дня бесплатного доступа с лимитом 100 ГБ и скоростью до 1 Гбит/с!
                 </p>
-                <button class="btn-magic" id="btnActivateHome" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
+                <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
+                <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Посмотреть тарифы и купить</button>
             </div>
         </div>
 
-        <!-- Показывается когда ЕСТЬ подписка -->
+        <!-- Если ЕСТЬ подписка -->
         <div id="home-active" style="display: none;">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div>
                         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                            <span class="tag">НОРМА</span>
-                            <span class="tag tag-gray">✧ ПРОБНЫЙ ПЕРИОД</span>
+                            <span style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700;">АКТИВНО</span>
                         </div>
                         <div style="font-size: 18px; font-weight: 700;">Расход трафика</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 28px; font-weight: 700;" id="trafficPercent">0<span style="font-size: 14px; color: var(--text-muted);">%</span></div>
+                        <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="trafficPercent">0<span>%</span></div>
                         <div style="font-size: 11px; color: var(--text-muted);" id="trafficText">0 МБ / 100 ГБ</div>
                     </div>
                 </div>
 
                 <div class="progress-bar"><div class="progress-fill" id="trafficFill" style="width: 2%;"></div></div>
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 18px;">
-                    <span>0 МБ</span><span>25 ГБ</span><span>50 ГБ</span><span>75 ГБ</span><span>100 ГБ</span>
-                </div>
-
-                <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                
+                <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">🖥</div>
+                        <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">🖥</div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
+                            <div style="font-weight: 600; font-size: 14px;">Устройства</div>
                             <div style="font-size: 11px; color: var(--text-muted);" id="homeDeviceCount">0 из 1 подключено</div>
                         </div>
                     </div>
-                    <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
+                    <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 8px #10B981;"></div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="glass-box" style="margin-bottom: 0;">
                         <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
-                        <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
+                        <div style="font-weight: 600; font-size: 13px;">Кубик ВПН 🧊</div>
                     </div>
                     <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
-                        <div style="font-size: 20px; font-weight: 700; color: #FBBF24;" id="homeDaysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ОСТАЛОСЬ</div>
+                        <div style="font-size: 18px; font-weight: 700; color: #FBBF24;" id="homeDaysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
-                <div class="arrow-right">›</div>
-                <h4>Баланс</h4>
-                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
-            </div>
-            <div class="stat-card" onclick="tgAlert('Реферальная ссылка скопирована!')">
-                <div class="arrow-right">›</div>
-                <h4>Рефералы</h4>
-                <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
-                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
-            </div>
-        </div>
-
-        <div class="card" onclick="switchTab('tab-wheel', document.querySelectorAll('.nav-item')[3])" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-            <div style="font-size: 30px;">🎰</div>
-            <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px;">Испытай удачу!</div>
-                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Крути колесо и выигрывай призы: дни подписки, баланс, трафик</div>
-            </div>
-            <div style="color: var(--text-muted);">›</div>
-        </div>
-
-        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 600;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
-        <div class="card">
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <span class="tag" style="color: #10B981; border-color: #10B981;">● НОВЫЕ ЛОКАЦИИ</span>
-            </div>
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Локация Россия уже доступна в Кубик ВПН 🧊</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                Еще более быстрое и стабильное подключение. Выберите «Россия» и подключайтесь!
-            </div>
+            
+            <button class="btn-secondary" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">✨ Продлить / Сменить тариф</button>
         </div>
     </div>
 
-    <!-- ==================== 2. ПОДПИСКА (1 В 1 ИЗ МЯТЫ) ==================== -->
+    <!-- ==================== 2. МОЯ ПОДПИСКА ==================== -->
     <div id="tab-sub" class="tab-content">
-        <h1 class="welcome-title">Подписка</h1>
+        <h1 class="welcome-title">Подключение</h1>
 
-        <!-- Не активна -->
         <div id="sub-inactive">
             <div class="card" style="text-align: center; padding: 45px 20px;">
-                <div style="font-size: 50px; margin-bottom: 16px; opacity: 0.7;">🧊</div>
-                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.4;">
-                    Активируйте бесплатный период или купите подписку для доступа
-                </p>
-                <button class="btn-magic" id="btnActivateSub" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
+                <div style="font-size: 40px; margin-bottom: 16px;">🔌</div>
+                <h2 style="margin-bottom: 10px; font-size: 20px;">Нет подписки</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Активируйте тариф для получения ссылки.</p>
+                <button class="btn-magic" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">Выбрать тариф</button>
             </div>
         </div>
 
-        <!-- АКТИВНАЯ ПОДПИСКА (ТОЧНО ПО СКРИНШОТУ) -->
         <div id="sub-active" style="display: none;">
             <div class="card">
-                <!-- Статусы -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-size: 11px; font-weight: 700;">
-                        <div style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);"></div>
-                        НОРМА
-                    </div>
-                    <div class="badge-purple">ПРОБНЫЙ ПЕРИОД</div>
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша ссылка</h2>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <input type="text" id="vlessInput" class="input-box" readonly value="Загрузка ссылки...">
+                    <button class="header-btn" onclick="copyVlessInput()" style="background: var(--primary); color: #000; border: none; padding: 0 16px; font-size: 18px;">📋</button>
                 </div>
 
-                <!-- Название -->
-                <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">Кубик Лайт 🧊</h2>
-
-                <!-- Внутренний инфо-блок -->
-                <div class="glass-box">
-                    <div style="display: flex; gap: 12px; margin-bottom: 15px;">
-                        <div style="width: 36px; height: 36px; background: rgba(99,102,241,0.15); color: #818CF8; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">⏱</div>
-                        <div>
-                            <div style="color: #818CF8; font-weight: 600; margin-bottom: 3px; font-size: 14px;">Пробный период</div>
-                            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Вы используете пробную версию сервиса. Выберите тариф ниже для полного доступа.</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 18px; font-size: 13px;">
-                        <div><b style="color: #818CF8;" id="subDaysLeft">3</b> <span style="color: var(--text-muted);">дня осталось</span></div>
-                        <div><b style="color: #818CF8;">100 ГБ</b> <span style="color: var(--text-muted);">Трафик</span></div>
-                        <div><b style="color: #818CF8;">1</b> <span style="color: var(--text-muted);">Устройства</span></div>
+                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); margin-bottom: 20px;">
+                    <div style="color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 6px;">⏱ ДО ОКОНЧАНИЯ</div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div style="font-size: 24px; font-weight: 700; color: #FBBF24;" id="timerDisplay">-- : -- : --</div>
+                        <div style="font-size: 11px; color: var(--text-muted);" id="expireDateText">--.--.----</div>
                     </div>
                 </div>
 
-                <!-- Блок трафика -->
                 <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
                     <span style="font-weight: 600;">ТРАФИК</span>
-                    <span id="subTrafficVal" style="color: var(--text-main);">0 МБ / 100.0 ГБ <span style="font-size: 10px; color: var(--text-muted); cursor: pointer;" onclick="checkUserStatus()">🔄 29s</span></span>
+                    <span id="subTrafficVal" style="color: var(--text-main);">0 МБ / 100 ГБ</span>
                 </div>
-                <div style="font-size: 10px; color: #475569; margin-bottom: 8px;">Сброс ежемесячно</div>
-                <div class="progress-bar" style="margin-bottom: 20px;"><div class="progress-fill" id="subProgressFill" style="width: 2%;"></div></div>
-
-                <!-- Подключить устройство -->
-                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; color: var(--primary); font-size: 18px;">🖥</div>
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                            <div style="font-size: 11px; color: var(--text-muted);" id="subDeviceCount">0 из 1 подключено</div>
-                        </div>
-                    </div>
-                    <div style="width: 8px; height: 8px; background: #334155; border-radius: 50%;"></div>
-                </div>
-
-                <!-- Поле ввода подписки с кнопкой скопировать -->
-                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <input type="text" id="vlessInput" class="input-box" readonly value="Загрузка ссылки..." style="margin-bottom:0; font-size:11px; color:var(--text-muted);">
-                    <button class="header-btn" onclick="copyVlessInput()" style="background:#1E293B; border-color:#334155; padding:0 16px; font-size:16px;">📋</button>
-                </div>
-
-                <!-- Блок Осталось времени (Счетчик) -->
-                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.04); margin-bottom: 16px;">
-                    <div style="color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                        <span>📅</span> ОСТАЛОСЬ
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div style="font-size: 24px; font-weight: 700; color: #FBBF24;" id="timerDisplay">2 дн. 23 : 59 : 59</div>
-                        <div style="font-size: 10px; color: var(--text-muted);" id="expireDateText">Действует до: --.--.----</div>
-                    </div>
-                </div>
-
-                <!-- Локации -->
-                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px;">ЛОКАЦИИ</div>
-                <div style="display: inline-block; background: var(--bg-inner); border: var(--border); padding: 6px 12px; border-radius: 8px; font-size: 12px;">🇩🇪 Германия (Default)</div>
+                <div class="progress-bar"><div class="progress-fill" id="subProgressFill" style="width: 2%;"></div></div>
             </div>
 
-            <!-- Баннер Посмотреть тарифы -->
-            <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-color: rgba(99,102,241,0.25); margin-bottom: 16px;" onclick="switchTab('tab-balance', document.querySelectorAll('.nav-item')[2])">
-                <div style="display: flex; gap: 14px; align-items: center;">
-                    <div style="color: #818CF8; font-size: 22px;">✨</div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 14px;">Выберите тариф для продолжения</div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Больше трафика и устройств</div>
-                    </div>
+            <!-- Список устройств -->
+            <div class="card" id="devicesCard">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 16px;">Мои устройства</h3>
+                    <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Сбросить всё</span>
                 </div>
-                <div style="color: var(--text-muted);">›</div>
-            </div>
-
-            <!-- Мои устройства -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 15px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
-                </div>
-                <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>
+                <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Загрузка...</p>
             </div>
         </div>
     </div>
 
-    <!-- ==================== 3. БАЛАНС ==================== -->
-    <div id="tab-balance" class="tab-content">
-        <h1 class="welcome-title">Баланс</h1>
-        <div class="card">
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Текущий баланс</div>
-            <h1 style="font-size: 32px; font-weight: 700; color: var(--text-main);">0.00 ₽</h1>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 15px; margin-bottom: 12px;">Промокод</h3>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" class="input-box" placeholder="Введите промокод">
-                <button class="btn-blue" style="width: auto; padding: 0 18px; white-space: nowrap;">Активировать</button>
+    <!-- ==================== 3. ТАРИФЫ (НОВЫЙ РАЗДЕЛ) ==================== -->
+    <div id="tab-tariffs" class="tab-content">
+        <h1 class="welcome-title">Оформить подписку</h1>
+        
+        <!-- Плашка группы -->
+        <div class="glass-box" style="display: flex; align-items: center; gap: 15px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
+            <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
+            <div>
+                <div style="color: #10B981; font-weight: 700; font-size: 14px;">Ваша группа: Кубный пользователь</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Персональные скидки применены к ценам</div>
             </div>
         </div>
-    </div>
 
-    <!-- ==================== 4. КОЛЕСО ==================== -->
-<div id="tab-wheel" class="tab-content">
-</div>
+        <!-- Тариф: Стандарт -->
+        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">Кубик Стандарт 🧊</h2>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+                Откройте для себя простоту и выгоду с нашим тарифом Стандарт. Идеально подходит для повседневного серфинга, просмотра видео и соцсетей.
+            </p>
+            
+            <div class="tariff-features">
+                <div><span style="color: var(--primary);">⬇</span> <b>150 ГБ</b> быстрого трафика</div>
+                <div><span style="color: var(--primary);">🖥</span> <b>2 устройства</b> одновременно</div>
+                <div><span style="color: var(--primary);">🇩🇪</span> Локация: Германия</div>
+                <div><span style="color: var(--text-muted);">↻</span> Сброс трафика ежемесячно</div>
+            </div>
 
-    <!-- ==================== 5. ПОДДЕРЖКА ==================== -->
-    <div id="tab-support" class="tab-content">
-        <h1 class="welcome-title">Поддержка</h1>
-        <div class="card" style="text-align: center; padding: 30px;">
-            <h3>Служба поддержки</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin: 10px 0 20px 0;">Задайте вопрос нашему администратору</p>
-            <button class="btn-blue" onclick="tg.openTelegramLink('https://t.me/kybic_vpn_bot')">Написать в поддержку</button>
+            <div class="tariff-price">от <span>99.00 ₽</span> / мес</div>
+            <button class="btn-magic" onclick="tgAlert('Оплата скоро будет доступна!')">Купить</button>
+        </div>
+
+        <!-- Тариф: Про -->
+        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">Кубик Про 🔥</h2>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+                Получите полный доступ ко всем возможностям VPN без ограничений по скорости. Защитите смартфоны, компьютеры и планшеты всей семьи.
+            </p>
+            
+            <div class="tariff-features">
+                <div><span style="color: var(--primary);">⬇</span> <b style="color: #FBBF24;">300 ГБ</b> (Максимум)</div>
+                <div><span style="color: var(--primary);">🖥</span> <b style="color: #FBBF24;">3 устройства</b> одновременно</div>
+                <div><span style="color: var(--primary);">🌍</span> Все доступные локации</div>
+                <div><span style="color: var(--text-muted);">↻</span> Сброс трафика ежемесячно</div>
+            </div>
+
+            <div class="tariff-price">от <span>179.00 ₽</span> / мес</div>
+            <button class="btn-magic" style="background: linear-gradient(45deg, #F59E0B, #EF4444, #EC4899);" onclick="tgAlert('Оплата скоро будет доступна!')">Купить PRO</button>
         </div>
     </div>
 
@@ -358,37 +317,28 @@
     </div>
     <div class="nav-item" onclick="switchTab('tab-sub', this)">
         <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <span>Подписка</span>
+        <span>Подключение</span>
     </div>
-    <div class="nav-item" onclick="switchTab('tab-balance', this)">
+    <div class="nav-item" onclick="switchTab('tab-tariffs', this)">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        <span>Баланс</span>
-    </div>
-    <div class="nav-item" onclick="tgAlert('🎰 Колесо удачи будет доступно в скором времени!')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
-    <span>Колесо</span>
-</div>
-    <div class="nav-item" onclick="switchTab('tab-support', this)">
-        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        <span>Поддержка</span>
+        <span>Тарифы</span>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    tg.setHeaderColor('#0B0E14');
-    tg.setBackgroundColor('#0B0E14');
+    tg.setHeaderColor('#090B14');
+    tg.setBackgroundColor('#090B14');
 
     const API_URL = "https://panel.kybic.ru:2053/api/bot";
     let currentUser = tg.initDataUnsafe?.user;
     let userSubUrl = "";
     let expireTimestamp = 0;
     let timerInterval = null;
-    let refreshInterval = null;
 
     if (currentUser) {
-        document.getElementById('userName').innerText = "Добро пожаловать, " + currentUser.first_name + " !!";
+        document.getElementById('userName').innerText = "Привет, " + currentUser.first_name + "!";
         checkUserStatus();
     }
 
@@ -397,73 +347,46 @@
         try {
             const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
-            if (data.active) {
-                showActiveState(data);
-            }
-        } catch (e) {
-            console.log("Ошибка проверки статуса:", e);
-        }
+            if (data.active) showActiveState(data);
+        } catch (e) { console.log(e); }
     }
 
     async function requestTrialInApp() {
         if (!currentUser) return;
         tg.HapticFeedback.impactOccurred('heavy');
-
         try {
             const res = await fetch(`${API_URL}/activate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
             });
             const data = await res.json();
-
             if (data.error === "not_subscribed") {
-                tg.showAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
+                tg.showAlert("❌ Сначала подпишитесь на канал @kubic_vpn!");
                 return;
             }
-
             if (data.success || data.active) {
-                tg.showAlert("🎉 Пробный период 3 дня активирован!");
+                tg.showAlert("🎉 Пробный период активирован!");
                 showActiveState(data);
-            } else {
-                tg.showAlert("❌ Ошибка активации");
-            }
-        } catch (e) {
-            tg.showAlert("Ошибка соединения с сервером: " + e.message);
-        }
+            } else tg.showAlert("❌ Ошибка активации");
+        } catch (e) { tg.showAlert("Ошибка: " + e.message); }
     }
 
-    // ==================== СБРОС УСТРОЙСТВ И ПЕРЕВЫПУСК ССЫЛКИ ====================
     async function resetUserDevices() {
         if (!currentUser) return;
-
-        const handleConfirm = async (confirmed) => {
-            if (!confirmed) return;
-            tg.HapticFeedback.impactOccurred('heavy');
-
-            try {
-                const res = await fetch(`${API_URL}/reset_devices`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user_id: currentUser.id })
-                });
-                const data = await res.json();
-                if (data.success || data.active) {
-                    tg.showAlert("✅ Все устройства отвязаны!\nСтарые ссылки аннулированы, создана новая ссылка.");
-                    showActiveState(data);
-                } else {
-                    tg.showAlert("❌ Не удалось отвязать устройства");
-                }
-            } catch (e) {
-                tg.showAlert("Ошибка соединения с сервером");
+        const confirmAct = confirm("Подписка отключится на всех устройствах, и будет сгенерирована новая ссылка. Продолжить?");
+        if (!confirmAct) return;
+        tg.HapticFeedback.impactOccurred('heavy');
+        try {
+            const res = await fetch(`${API_URL}/reset_devices`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: currentUser.id })
+            });
+            const data = await res.json();
+            if (data.success || data.active) {
+                tg.showAlert("✅ Устройства сброшены! Скопируйте новую ссылку.");
+                showActiveState(data);
             }
-        };
-
-        if (tg.showConfirm) {
-            tg.showConfirm("Вы уверены? Подписка отключится на всех старых устройствах и будет сгенерирована новая ссылка.", handleConfirm);
-        } else {
-            handleConfirm(confirm("Вы уверены? Подписка отключится на всех старых устройствах и будет сгенерирована новая ссылка."));
-        }
+        } catch (e) {}
     }
 
     function showActiveState(data) {
@@ -472,155 +395,81 @@
         document.getElementById('sub-inactive').style.display = 'none';
         document.getElementById('sub-active').style.display = 'block';
 
-        document.getElementById('badgeStatus').className = 'badge-pro';
-        document.getElementById('badgeStatus').innerText = '★ Кубик Пользователь';
+        document.getElementById('badgeStatus').innerText = '✅ Активна';
+        document.getElementById('badgeStatus').style.color = '#10B981';
+        document.getElementById('badgeStatus').style.background = 'rgba(16,185,129,0.1)';
 
         if (data.sub_url) {
             userSubUrl = data.sub_url;
             document.getElementById('vlessInput').value = data.sub_url;
         }
 
-        // Трафик
         const usedBytes = data.used_traffic || 0;
         const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
-        updateTrafficDisplay(usedBytes, limitBytes);
+        
+        let usedStr = (usedBytes / (1024 * 1024 * 1024)).toFixed(2) + " ГБ";
+        if (usedBytes < 1024*1024*1024) usedStr = (usedBytes / (1024*1024)).toFixed(0) + " МБ";
+        let limitStr = (limitBytes / (1024 * 1024 * 1024)).toFixed(0) + " ГБ";
+        let pct = Math.min((usedBytes / limitBytes) * 100, 100).toFixed(0);
+
+        document.getElementById('trafficPercent').innerHTML = `${pct}<span>%</span>`;
+        document.getElementById('trafficText').innerText = `${usedStr} / ${limitStr}`;
+        document.getElementById('trafficFill').style.width = Math.max(pct, 2) + '%';
+        document.getElementById('subTrafficVal').innerText = `${usedStr} / ${limitStr}`;
+        document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
 
         // Устройства
         const devices = data.devices || [];
-        const limitDev = data.device_limit || 1;
-        updateDevicesDisplay(devices, limitDev);
-
-        // Живой таймер
-        if (data.expire) {
-            expireTimestamp = data.expire;
-            const dateObj = new Date(data.expire * 1000);
-            const dateStr = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('expireDateText').innerText = `Действует до: ${dateStr}`;
-            startLiveTimer();
-        }
-
-        if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => checkUserStatus(), 30000);
-    }
-
-    function updateTrafficDisplay(usedBytes, limitBytes) {
-        const usedMB = usedBytes / (1024 * 1024);
-        const usedGB = usedBytes / (1024 * 1024 * 1024);
-        const limitGB = limitBytes / (1024 * 1024 * 1024);
-        const pct = Math.min(((usedBytes / limitBytes) * 100), 100);
-
-        let usedStr = (usedGB >= 1) ? usedGB.toFixed(2) + " ГБ" : usedMB.toFixed(0) + " МБ";
-        let limitStr = limitGB.toFixed(0) + " ГБ";
-        let pctStr = pct.toFixed(0);
-
-        document.getElementById('trafficPercent').innerHTML = `${pctStr}<span style="font-size: 14px; color: var(--text-muted);">%</span>`;
-        document.getElementById('trafficText').innerText = `${usedStr} / ${limitStr}`;
-        document.getElementById('trafficFill').style.width = Math.max(pct, 2) + '%';
-
-        document.getElementById('subTrafficVal').innerHTML = `${usedStr} / ${limitStr} <span style="font-size: 10px; color: var(--text-muted); cursor: pointer;" onclick="checkUserStatus()">🔄</span>`;
-        document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
-    }
-
-    function updateDevicesDisplay(devices, limitDev) {
-    const count = devices.length;
-    const textCount = `${count} из ${limitDev} подключено`;
-
-    // Обновляем счётчики по ID
-    const homeDev = document.getElementById('homeDeviceCount');
-    if (homeDev) homeDev.innerText = textCount;
-
-    const subDev = document.getElementById('subDeviceCount');
-    if (subDev) subDev.innerText = textCount;
-
-    // Обновляем бейдж лимита устройств
-    const subDevLimitBadge = document.querySelector('#sub-active .glass-box b:nth-of-type(3)');
-    if (subDevLimitBadge) subDevLimitBadge.innerText = limitDev;
-
-    // Отрисовываем список устройств
-    const devCard = document.querySelector('#sub-active .card:last-of-type');
-    if (devCard) {
-        if (count > 0) {
-            let html = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="font-size: 15px;">Мои устройства</h3>
-                <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
-            </div>`;
-
+        const devLimit = data.device_limit || 1;
+        document.getElementById('homeDeviceCount').innerText = `${devices.length} из ${devLimit} подключено`;
+        
+        let devHtml = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="font-size: 16px;">Мои устройства</h3>
+            <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Сбросить всё</span>
+        </div>`;
+        
+        if (devices.length === 0) {
+            devHtml += `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Устройства появятся после подключения</p>`;
+        } else {
             devices.forEach(d => {
-                let name = d.name.toLowerCase();
-                let icon = "📱";
-                if (name.includes("windows") || name.includes("mac") || name.includes("pc") || name.includes("linux")) icon = "💻";
-                else if (name.includes("iphone") || name.includes("ios") || name.includes("ipad")) icon = "🍏";
-                else if (name.includes("android")) icon = "🤖";
-
-                let statusText = d.status_text || "● В сети (Подключено)";
-                let statusColor = d.is_online ? "#10B981" : "#F59E0B";
-                let dotGlow = d.is_online ? "box-shadow: 0 0 6px #10B981;" : "";
-
-                html += `
-                <div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px 14px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 18px;">${icon}</span>
-                        <div>
-                            <div style="font-weight: 600; font-size: 13px;">${d.name || 'Подключенное устройство'}</div>
-                            <div style="font-size: 10px; color: ${statusColor};">${statusText}</div>
-                        </div>
+                devHtml += `<div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="font-size: 20px;">📱</span>
+                        <div><div style="font-size: 13px; font-weight: 600;">${d.name}</div><div style="font-size: 10px; color: ${d.is_online ? '#10B981' : '#94A3B8'};">${d.status_text || 'В сети'}</div></div>
                     </div>
-                    <div style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; ${dotGlow}"></div>
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: ${d.is_online ? '#10B981' : '#94A3B8'}; box-shadow: 0 0 8px ${d.is_online ? '#10B981' : 'transparent'};"></div>
                 </div>`;
             });
-            devCard.innerHTML = html;
-        } else {
-            devCard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="font-size: 15px;">Мои устройства</h3>
-                <span style="font-size: 12px; color: #EF4444; cursor: pointer;" onclick="resetUserDevices()">Удалить все</span>
-            </div>
-            <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0;">Нет подключенных устройств</p>`;
+        }
+        document.getElementById('devicesCard').innerHTML = devHtml;
+
+        if (data.expire) {
+            expireTimestamp = data.expire;
+            document.getElementById('expireDateText').innerText = new Date(data.expire * 1000).toLocaleDateString();
+            if(!timerInterval) startLiveTimer();
         }
     }
-}
+
     function startLiveTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-
-        function updateTimer() {
-            const now = Math.floor(Date.now() / 1000);
-            const diff = expireTimestamp - now;
-
+        timerInterval = setInterval(() => {
+            const diff = expireTimestamp - Math.floor(Date.now() / 1000);
             if (diff <= 0) {
                 document.getElementById('timerDisplay').innerText = "Истекло";
                 document.getElementById('homeDaysLeft').innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-                document.getElementById('subDaysLeft').innerText = "0";
                 clearInterval(timerInterval);
                 return;
             }
-
-            const days = Math.floor(diff / 86400);
-            const hours = Math.floor((diff % 86400) / 3600);
-            const minutes = Math.floor((diff % 3600) / 60);
-            const seconds = diff % 60;
-
-            const pad = (n) => n.toString().padStart(2, '0');
-
-            document.getElementById('timerDisplay').innerText = `${days} дн. ${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
-            document.getElementById('homeDaysLeft').innerHTML = `${days} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-            document.getElementById('subDaysLeft').innerText = days;
-        }
-
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
+            const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400)/3600), m = Math.floor((diff % 3600)/60), s = diff % 60;
+            const pad = n => n.toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${d} дн. ${pad(h)}:${pad(m)}:${pad(s)}`;
+            document.getElementById('homeDaysLeft').innerHTML = `${d} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+        }, 1000);
     }
 
     function copyVlessInput() {
-        if (!userSubUrl) { tg.showAlert("Ссылка еще не сформирована!"); return; }
-        navigator.clipboard.writeText(userSubUrl).then(() => {
-            tg.showAlert("🔗 Ссылка скопирована!");
-        }).catch(() => {
-            const inp = document.getElementById('vlessInput');
-            inp.select();
-            document.execCommand('copy');
-            tg.showAlert("🔗 Ссылка скопирована!");
-        });
+        if (!userSubUrl) return;
+        navigator.clipboard.writeText(userSubUrl);
+        tg.showAlert("🔗 Ссылка скопирована! Вставьте её в приложение.");
         tg.HapticFeedback.impactOccurred('light');
     }
 
@@ -631,24 +480,7 @@
         if (el) el.classList.add('active');
         window.scrollTo(0, 0);
     }
-
-    function tgAlert(msg) {
-        tg.showAlert(msg);
-        tg.HapticFeedback.impactOccurred('light');
-    }
-
-    let isSpinning = false;
-    function spinWheel() {
-        if (isSpinning) return;
-        isSpinning = true;
-        const wheel = document.getElementById('wheelEl');
-        const randomDegree = Math.floor(1800 + Math.random() * 360); 
-        wheel.style.transform = `rotate(${randomDegree}deg)`;
-        setTimeout(() => {
-            tgAlert("🎉 Вы выиграли: 3 дня подписки!");
-            isSpinning = false;
-        }, 4000);
-    }
+    function tgAlert(msg) { tg.showAlert(msg); tg.HapticFeedback.impactOccurred('light'); }
 </script>
 </body>
 </html>
