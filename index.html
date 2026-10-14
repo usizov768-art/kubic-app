@@ -676,38 +676,48 @@
         badge.className = 'badge-status ' + badgeClass;
     }
 
-    async function changeTicketStatus(newStatus) {
+        async function changeTicketStatus(newStatus) {
         if (!selectedTicketId || !currentUser) return;
-        
-        if (newStatus === 'closed') {
-            const confirmDel = confirm("Вы уверены, что хотите закрыть и удалить это обращение у всех?");
-            if (!confirmDel) return;
-        }
 
-        tg.HapticFeedback.impactOccurred('medium');
-        try {
-            const res = await fetch(`${API_URL}/change_ticket_status`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ticket_id: selectedTicketId,
-                    user_id: currentUser.id,
-                    status: newStatus
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                if (newStatus === 'closed') {
-                    tg.showAlert("🗑 Обращение закрыто и удалено");
-                    document.getElementById('chatBoxContent').style.display = 'none';
-                    document.getElementById('chatEmptyState').style.display = 'block';
-                    selectedTicketId = null;
-                } else {
-                    tg.showAlert("🟡 Статус обновлён: На рассмотрении");
-                    updateChatBadge(newStatus);
+        const doChangeStatus = async () => {
+            tg.HapticFeedback.impactOccurred('medium');
+            try {
+                const res = await fetch(`${API_URL}/change_ticket_status`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ticket_id: selectedTicketId,
+                        user_id: currentUser.id,
+                        status: newStatus
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (newStatus === 'closed') {
+                        tg.showAlert("🗑 Обращение закрыто и удалено");
+                        document.getElementById('chatBoxContent').style.display = 'none';
+                        document.getElementById('chatEmptyState').style.display = 'block';
+                        selectedTicketId = null;
+                    } else {
+                        tg.showAlert("🟡 Статус обновлён: На рассмотрении");
+                        updateChatBadge(newStatus);
+                    }
+                    loadTickets();
                 }
-                loadTickets();
+            } catch(e) {}
+        };
+
+        if (newStatus === 'closed') {
+            // Красивое нативное окно Telegram без адреса сайта
+            if (tg && tg.showConfirm) {
+                tg.showConfirm("Удалить это обращение?", function(confirmed) {
+                    if (confirmed) doChangeStatus();
+                });
+            } else {
+                doChangeStatus();
             }
-        } catch(e) {}
+        } else {
+            doChangeStatus();
+        }
     }
 
     async function loadTicketMessages(ticketId) {
