@@ -82,7 +82,6 @@
         .card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 8px 32px rgba(0,0,0,0.25); transition: all 0.3s ease; }
         .glass-box { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
 
-        /* Кнопки */
         .btn-blue-bright {
             background: #1D4ED8; color: white; border: none; padding: 14px; width: 100%; border-radius: 14px;
             font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
@@ -113,7 +112,6 @@
 
         .input-box { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
 
-        /* ПЛАВАЮЩЕЕ НИЖНЕЕ МЕНЮ */
         .bottom-nav-wrapper {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px;
             background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -123,7 +121,7 @@
         .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
         .nav-item.active { background: rgba(49, 46, 129, 0.6); color: #818CF8; }
 
-        /* ЧАТ ТИКЕТА СТИЛИ */
+        /* ТИКЕТЫ */
         .ticket-item {
             background: rgba(255,255,255,0.02); border: 1px solid rgba(99, 102, 241, 0.3);
             border-radius: 16px; padding: 14px 18px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;
@@ -133,6 +131,7 @@
         .badge-status { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
         .badge-open { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border: 1px solid rgba(37, 99, 235, 0.4); }
         .badge-answered { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-in_review { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); }
 
         .chat-msg { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; max-width: 85%; }
         .chat-msg.user-msg { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); margin-right: auto; }
@@ -178,7 +177,7 @@
             <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
             Баланс
         </a>
-        <a onclick="closeMenuAndSwitch('tab-support', 4)">
+        <a onclick="closeMenuAndSwitch('tab-support', 3)">
             <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
             Поддержка
         </a>
@@ -263,6 +262,15 @@
                 <div class="val"><span style="font-size: 20px;">👥</span> 0</div>
                 <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">+0.00 ₽</div>
             </div>
+        </div>
+
+        <div class="card" onclick="tgAlert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+            <div style="font-size: 32px;">🎁</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Ежедневные бонусы!</div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
+            </div>
+            <div style="color: var(--text-muted);">›</div>
         </div>
 
         <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
@@ -398,16 +406,14 @@
         </div>
     </div>
 
-    <!-- ==================== 5. ПОДДЕРЖКА (НОВАЯ ТИКЕТ-СИСТЕМА) ==================== -->
+    <!-- ==================== 5. ПОДДЕРЖКА (ТИКЕТ-СИСТЕМА) ==================== -->
     <div id="tab-support" class="tab-content">
         <h1 class="welcome-title">Поддержка</h1>
         
-        <!-- Кнопка "+ Новый тикет" -->
         <button class="btn-blue-bright" style="margin-bottom: 16px;" onclick="showCreateTicketModal()">
             <span style="font-size: 18px;">+</span> Новый тикет
         </button>
 
-        <!-- Блок связи в Телеграм -->
         <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px;">💬</div>
@@ -419,7 +425,6 @@
             <button class="icon-btn" style="width: auto; padding: 0 16px; height: 36px; font-size: 13px; font-weight: 600;" onclick="tg.openTelegramLink('https://t.me/kybic_vpn_bot')">Написать</button>
         </div>
 
-        <!-- МОДАЛКА / ФОРМА СОЗДАНИЯ ТИКЕТА -->
         <div class="card" id="createTicketCard" style="display: none; border-color: rgba(37, 99, 235, 0.5);">
             <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">Создать обращение</h2>
             
@@ -435,7 +440,6 @@
             </div>
         </div>
 
-        <!-- БЛОК "ВАШИ ОБРАЩЕНИЯ" / "ДРУГИЕ ОБРАЩЕНИЯ" -->
         <div class="card">
             <h3 style="font-size: 16px; margin-bottom: 14px;" id="ticketsHeaderTitle">Ваши обращения</h3>
             <div id="ticketsListContainer">
@@ -443,7 +447,6 @@
             </div>
         </div>
 
-        <!-- БЛОК АКТИВНОГО ЧАТА ТИКЕТА -->
         <div class="card" id="activeChatCard">
             <div style="text-align: center; padding: 25px 10px; color: var(--text-muted);" id="chatEmptyState">
                 <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.6;">💬</div>
@@ -459,10 +462,14 @@
                     <span class="badge-status badge-open" id="chatStatusBadge">Открыт</span>
                 </div>
 
-                <!-- Сообщения -->
+                <!-- КНОПКИ УПРАВЛЕНИЯ ДЛЯ АДМИНА -->
+                <div id="adminStatusButtons" style="display: none; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border);">
+                    <button class="icon-btn" style="width: auto; padding: 6px 12px; font-size: 12px; background: rgba(245, 158, 11, 0.2); color: #F59E0B; border-color: rgba(245, 158, 11, 0.4);" onclick="changeTicketStatus('in_review')">🟡 На рассмотрении</button>
+                    <button class="icon-btn" style="width: auto; padding: 6px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; border-color: rgba(239, 68, 68, 0.4);" onclick="changeTicketStatus('closed')">🗑 Закрыть и удалить</button>
+                </div>
+
                 <div id="chatMessagesList" style="max-height: 250px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px;"></div>
 
-                <!-- Поле ввода ответа -->
                 <div style="display: flex; gap: 8px;">
                     <input type="text" id="chatReplyInput" class="input-box" placeholder="Введите ваш ответ...">
                     <button class="icon-btn" onclick="sendTicketReply()" style="background: #1D4ED8; border: none; width: 44px; height: 44px; font-size: 18px;">✈️</button>
@@ -588,7 +595,7 @@
         else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
     }
 
-    /* --- ЛОГИКА ТИКЕТОВ ПОДДЕРЖКИ --- */
+    /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
     function showCreateTicketModal() {
         document.getElementById('createTicketCard').style.display = 'block';
     }
@@ -620,8 +627,12 @@
             let html = "";
             data.tickets.forEach(t => {
                 const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
-                const badgeClass = t.status === 'answered' ? 'badge-answered' : 'badge-open';
-                const badgeText = t.status === 'answered' ? 'Отвечен' : 'Открыт';
+                let badgeClass = 'badge-open';
+                let badgeText = 'Открыт';
+                
+                if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+                else if (t.status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
+
                 const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
 
                 html += `
@@ -645,11 +656,58 @@
         document.getElementById('chatTitle').innerText = title;
         document.getElementById('chatMeta').innerText = "Создано: " + dateStr;
         
-        const badge = document.getElementById('chatStatusBadge');
-        badge.innerText = status === 'answered' ? 'Отвечен' : 'Открыт';
-        badge.className = 'badge-status ' + (status === 'answered' ? 'badge-answered' : 'badge-open');
+        // Кнопки управления для админа
+        const adminBtnBox = document.getElementById('adminStatusButtons');
+        if (adminBtnBox) adminBtnBox.style.display = isUserAdmin ? 'flex' : 'none';
 
+        updateChatBadge(status);
         await loadTicketMessages(ticketId);
+    }
+
+    function updateChatBadge(status) {
+        const badge = document.getElementById('chatStatusBadge');
+        let badgeClass = 'badge-open';
+        let badgeText = 'Открыт';
+        
+        if (status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+        else if (status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
+
+        badge.innerText = badgeText;
+        badge.className = 'badge-status ' + badgeClass;
+    }
+
+    async function changeTicketStatus(newStatus) {
+        if (!selectedTicketId || !currentUser) return;
+        
+        if (newStatus === 'closed') {
+            const confirmDel = confirm("Вы уверены, что хотите закрыть и удалить это обращение у всех?");
+            if (!confirmDel) return;
+        }
+
+        tg.HapticFeedback.impactOccurred('medium');
+        try {
+            const res = await fetch(`${API_URL}/change_ticket_status`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ticket_id: selectedTicketId,
+                    user_id: currentUser.id,
+                    status: newStatus
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (newStatus === 'closed') {
+                    tg.showAlert("🗑 Обращение закрыто и удалено");
+                    document.getElementById('chatBoxContent').style.display = 'none';
+                    document.getElementById('chatEmptyState').style.display = 'block';
+                    selectedTicketId = null;
+                } else {
+                    tg.showAlert("🟡 Статус обновлён: На рассмотрении");
+                    updateChatBadge(newStatus);
+                }
+                loadTickets();
+            }
+        } catch(e) {}
     }
 
     async function loadTicketMessages(ticketId) {
@@ -682,10 +740,9 @@
         } catch (e) { console.log(e); }
     }
 
-        async function submitNewTicket() {
+    async function submitNewTicket() {
         const titleInput = document.getElementById('ticketTitleInput');
         const msgInput = document.getElementById('ticketMsgInput');
-        
         const title = titleInput ? titleInput.value.trim() : "";
         const message = msgInput ? msgInput.value.trim() : "";
         
@@ -694,16 +751,13 @@
             return;
         }
 
-        // Если открыто вне Telegram
         const uid = currentUser ? currentUser.id : 7058964435;
-        const fname = currentUser ? currentUser.first_name : "Тест";
+        const fname = currentUser ? currentUser.first_name : "Пользователь";
 
         tg.HapticFeedback.impactOccurred('heavy');
-
         try {
             const res = await fetch(`${API_URL}/create_ticket`, {
-                method: "POST", 
-                headers: { "Content-Type": "application/json" },
+                method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     user_id: uid,
                     first_name: fname,
@@ -711,9 +765,7 @@
                     message: message
                 })
             });
-            
             const data = await res.json();
-            
             if (data.success) {
                 tgAlert("✅ Обращение успешно создано!");
                 hideCreateTicketModal();
@@ -724,13 +776,11 @@
             } else {
                 tgAlert("❌ Не удалось создать обращение");
             }
-        } catch (e) {
-            tgAlert("❌ Ошибка отправки: " + e.message);
-        }
+        } catch (e) { tgAlert("❌ Ошибка отправки: " + e.message); }
     }
 
     async function sendTicketReply() {
-        if (!selectedTicketId) return;
+        if (!selectedTicketId || !currentUser) return;
         const inp = document.getElementById('chatReplyInput');
         const message = inp.value.trim();
         if (!message) return;
