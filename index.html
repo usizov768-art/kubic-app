@@ -159,6 +159,9 @@
         }
         .btn-dark:active { transform: scale(0.97); background: rgba(46, 16, 101, 0.8); }
 
+        .btn-blue { background: #2563EB; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-blue:active { transform: scale(0.97); }
+
         /* Карточки Тарифов с подсветкой при ховере */
         .tariff-card {
             background: var(--glass-bg); border: 1px solid var(--glass-border);
@@ -268,7 +271,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
             Подписка
         </a>
-        <a onclick="closeMenuAndSwitch('tab-tariffs', 2)">
+        <a onclick="closeMenuAndSwitch('tab-balance', 2)">
             <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
             Баланс
         </a>
@@ -311,7 +314,7 @@
                     Получите 3 дня бесплатного доступа с лимитом 100 ГБ и высокой скоростью соединения!
                 </p>
                 <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-                <button class="btn-dark" style="margin-top: 15px;" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Посмотреть тарифы и купить подписку</button>
+                <button class="btn-dark" style="margin-top: 15px;" onclick="openTariffsPage()">+ Посмотреть тарифы и купить подписку</button>
             </div>
         </div>
 
@@ -356,12 +359,12 @@
                 </div>
             </div>
             
-            <button class="btn-dark" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">+ Продлить / Сменить тариф</button>
+            <button class="btn-dark" onclick="openTariffsPage()">+ Продлить / Сменить тариф</button>
         </div>
 
         <!-- Статистика -->
         <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-tariffs', document.querySelectorAll('.nav-item')[2])">
+            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav-wrapper .nav-item')[2])">
                 <div class="arrow-right">›</div>
                 <h4>Баланс</h4>
                 <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
@@ -374,7 +377,7 @@
             </div>
         </div>
 
-        <!-- Баннер Бонусов (Без упоминания азартных игр для RollyPay) -->
+        <!-- Баннер Бонусов -->
         <div class="card" onclick="tgAlert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
             <div style="font-size: 32px;">🎁</div>
             <div style="flex: 1;">
@@ -384,7 +387,7 @@
             <div style="color: var(--text-muted);">›</div>
         </div>
 
-        <!-- Новости (Без упоминания обхода блокировок) -->
+        <!-- Новости -->
         <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
         <div class="card">
             <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -444,7 +447,24 @@
         </div>
     </div>
 
-    <!-- ==================== 3. ТАРИФЫ ==================== -->
+    <!-- ==================== 3. БАЛАНС (НАСТОЯЩИЙ) ==================== -->
+    <div id="tab-balance" class="tab-content">
+        <h1 class="welcome-title">Баланс</h1>
+        <div class="card">
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Текущий баланс</div>
+            <h1 style="font-size: 36px; font-weight: 800; color: var(--text-main);">0.00 ₽</h1>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 14px;">Активация промокода</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" class="input-box" placeholder="Введите промокод">
+                <button class="btn-blue" onclick="tgAlert('Промокод не найден')">Применить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 4. ТАРИФЫ (ОТДЕЛЬНЫЙ ЭКРАН) ==================== -->
     <div id="tab-tariffs" class="tab-content">
         <h1 class="welcome-title">Оформить подписку</h1>
         
@@ -512,7 +532,7 @@
         <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
         <span>Подписка</span>
     </div>
-    <div class="nav-item" onclick="switchTab('tab-tariffs', this)">
+    <div class="nav-item" onclick="switchTab('tab-balance', this)">
         <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
         <span>Баланс</span>
     </div>
@@ -578,11 +598,16 @@
     function closeMenuAndSwitch(tabId, navIndex) {
         if (isMenuOpen) toggleMenu();
         const navItems = document.querySelectorAll('.bottom-nav-wrapper .nav-item');
-        if(navItems[navIndex]) {
+        if (navIndex !== null && navItems[navIndex]) {
             switchTab(tabId, navItems[navIndex]);
         } else {
             switchTab(tabId, null);
         }
+    }
+
+    /* Отдельная функция для показа экрана ТАРИФОВ */
+    function openTariffsPage() {
+        switchTab('tab-tariffs', null);
     }
 
     async function checkUserStatus() {
@@ -723,8 +748,9 @@
     function switchTab(tabId, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
+        
+        document.querySelectorAll('.bottom-nav-wrapper .nav-item').forEach(n => n.classList.remove('active'));
         if (el) {
-            document.querySelectorAll('.bottom-nav-wrapper .nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
         window.scrollTo(0, 0);
