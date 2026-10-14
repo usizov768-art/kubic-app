@@ -1,3 +1,34 @@
+Присягаю, всё понял на 100%! В прошлый раз в коде смешались разделы и заскочили лишние косые кавычки ` ``` ` из формата сообщений.
+
+Я полностью всё исправил и зафиксировал:
+
+### Что сделано:
+1. **Раздел «Баланс» полностью очищен от тарифов:**
+   * Вкладка «Баланс» теперь показывает только **Баланс (0.00 ₽)**, кнопку пополнения и поле для ввода промокодов.
+   * На карточке баланса на Главном экране при клике открывается именно **настоящий Баланс**!
+2. **«Тарифы» убраны из нижнего меню:**
+   * Тарифы перенесены в **отдельный независимый экран**.
+   * Открываются строго по клику на кнопки:
+     * *«+ Посмотреть тарифы и купить подписку»*
+     * *«+ Продлить / Сменить тариф»*
+     * *«Пополнить / Выбрать тариф»*
+3. **Удалены ВСЕ символы ` ``` `:** В самом коде нет ни одной лишней кавычки.
+4. **Сохранён весь функционал и визуал:**
+   * Стеклянный переливающийся дизайн с блюром.
+   * Полноэкранное меню на 3 точки с закрестиком.
+   * Кнопка «Информация» с вызовом Политикой и Офертой для **RollyPay**.
+   * Нативное окно сброса устройств без некрасивых сообщений с адресом GitHub.
+
+---
+
+⚠️ **ВАЖНО ПРИ КОПИРОВАНИИ:**
+Когда будешь копировать код ниже, **НЕ копируй первую строчку** ` ```html ` и **самую последнюю строчку** ` ``` `! Копируй строго содержимое, начиная с `<!DOCTYPE html>` и заканчивая `</html>`.
+
+---
+
+### 📋 Полный, чистый и исправленный код `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -97,6 +128,8 @@
         .btn-magic:active { transform: scale(0.96); }
         .btn-dark { background: rgba(30, 27, 75, 0.6); border: 1px solid rgba(99, 102, 241, 0.3); color: #C7D2FE; padding: 15px; width: 100%; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; margin-bottom: 16px; }
         .btn-dark:active { transform: scale(0.97); background: rgba(46, 16, 101, 0.8); }
+        .btn-blue { background: #2563EB; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-blue:active { transform: scale(0.97); }
 
         .tariff-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 22px; margin-bottom: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .tariff-card:hover, .tariff-card.hover-effect { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25), 0 0 15px rgba(56, 189, 248, 0.2); transform: translateY(-3px); }
@@ -164,7 +197,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
             Подписка
         </a>
-        <a onclick="closeMenuAndSwitch('tab-tariffs', 2)">
+        <a onclick="closeMenuAndSwitch('tab-balance', 2)">
             <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
             Баланс
         </a>
@@ -254,7 +287,7 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-tariffs', document.querySelectorAll('.bottom-nav-wrapper .nav-item')[2])">
+            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav-wrapper .nav-item')[2])">
                 <div class="arrow-right">›</div>
                 <h4>Баланс</h4>
                 <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
@@ -335,7 +368,25 @@
         </div>
     </div>
 
-    <!-- ==================== 3. ТАРИФЫ ==================== -->
+    <!-- ==================== 3. БАЛАНС (НАСТОЯЩИЙ) ==================== -->
+    <div id="tab-balance" class="tab-content">
+        <h1 class="welcome-title">Баланс</h1>
+        <div class="card" style="text-align: center; padding: 25px 20px;">
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Текущий баланс</div>
+            <h1 style="font-size: 38px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">0.00 ₽</h1>
+            <button class="btn-magic" onclick="openTariffsPage()">➕ Пополнить / Выбрать тариф</button>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 14px;">Активация промокода</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" class="input-box" placeholder="Введите промокод">
+                <button class="btn-blue" onclick="tgAlert('Промокод не найден')">Применить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 4. ТАРИФЫ (ОТДЕЛЬНЫЙ ЭКРАН) ==================== -->
     <div id="tab-tariffs" class="tab-content">
         <h1 class="welcome-title">Оформить подписку</h1>
         
@@ -403,7 +454,7 @@
         <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
         <span>Подписка</span>
     </div>
-    <div class="nav-item" onclick="switchTab('tab-tariffs', this)">
+    <div class="nav-item" onclick="switchTab('tab-balance', this)">
         <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
         <span>Баланс</span>
     </div>
@@ -482,7 +533,6 @@
         switchTab('tab-tariffs', null);
     }
 
-    /* ФУНКЦИЯ ДОКУМЕНТОВ ДЛЯ ROLLYPAY */
     function openInfoDocs() {
         if (isMenuOpen) toggleMenu();
         tg.showPopup({
@@ -645,8 +695,9 @@
         document.getElementById(tabId).classList.add('active');
         
         document.querySelectorAll('.bottom-nav-wrapper .nav-item').forEach(n => n.classList.remove('active'));
-        if (el) el.classList.add('active');
-        
+        if (el) {
+            el.classList.add('active');
+        }
         window.scrollTo(0, 0);
     }
 
