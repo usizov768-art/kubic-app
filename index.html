@@ -487,9 +487,7 @@
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.setHeaderColor('#090B14');
-    tg.setBackgroundColor('#090B14');
+    try { tg.expand(); tg.setHeaderColor('#090B14'); tg.setBackgroundColor('#090B14'); } catch(e){}
 
     const API_URL = "https://panel.kybic.ru:2053/api/bot";
     let currentUser = tg.initDataUnsafe?.user;
@@ -504,10 +502,10 @@
 
     if (currentUser) {
         const uName = document.getElementById('userName');
-        if (uName) uName.innerText = "Привет, " + currentUser.first_name + "!";
+        if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
         
         const mName = document.getElementById('menuName');
-        if (mName) mName.innerText = currentUser.first_name;
+        if (mName) mName.innerText = currentUser.first_name || "Пользователь";
         
         const mUser = document.getElementById('menuUsername');
         if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
@@ -516,15 +514,18 @@
 
         checkUserStatus();
         loadTickets();
+    } else {
+        // Запасные значения для тестов вне Телеграм
+        const uName = document.getElementById('userName');
+        if (uName) uName.innerText = "Привет, Гость!";
     }
 
     function copyRefLink() {
         if (!userRefLink) {
             userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
         }
-        navigator.clipboard.writeText(userRefLink);
-        tg.showAlert("🔗 Реферальная ссылка скопирована!");
-        tg.HapticFeedback.impactOccurred('light');
+        try { navigator.clipboard.writeText(userRefLink); } catch(e){}
+        tgAlert("🔗 Ваша реферальная ссылка скопирована!");
     }
 
     let isMenuOpen = false;
@@ -535,23 +536,27 @@
         isMenuOpen = !isMenuOpen;
         const menu = document.getElementById('fullMenu');
         const icon = document.getElementById('menuIcon');
-        if (isMenuOpen) {
-            menu.classList.add('open');
-            icon.innerHTML = iconCross;
-        } else {
-            menu.classList.remove('open');
-            icon.innerHTML = icon3Dots;
+        if (menu && icon) {
+            if (isMenuOpen) {
+                menu.classList.add('open');
+                icon.innerHTML = iconCross;
+            } else {
+                menu.classList.remove('open');
+                icon.innerHTML = icon3Dots;
+            }
         }
     }
 
     function toggleLang(e) {
-        e.stopPropagation();
-        document.getElementById('langDrop').classList.toggle('show');
+        if(e) e.stopPropagation();
+        const drop = document.getElementById('langDrop');
+        if (drop) drop.classList.toggle('show');
     }
 
     function closeDropdowns(e) {
         if (!e.target.closest('.lang-btn')) {
-            document.getElementById('langDrop').classList.remove('show');
+            const drop = document.getElementById('langDrop');
+            if (drop) drop.classList.remove('show');
         }
     }
 
@@ -729,7 +734,7 @@
         const uid = currentUser ? currentUser.id : 7058964435;
         const fname = currentUser ? currentUser.first_name : "Пользователь";
 
-        tg.HapticFeedback.impactOccurred('heavy');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
         try {
             const res = await fetch(`${API_URL}/create_ticket`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
@@ -761,7 +766,7 @@
         const message = inp.value.trim();
         if (!message) return;
 
-        tg.HapticFeedback.impactOccurred('light');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         inp.value = "";
 
         try {
@@ -798,7 +803,7 @@
 
     async function requestTrialInApp() {
         if (!currentUser) return;
-        tg.HapticFeedback.impactOccurred('heavy');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
         try {
             const res = await fetch(`${API_URL}/activate`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
@@ -806,21 +811,20 @@
             });
             const data = await res.json();
             if (data.error === "not_subscribed") {
-                tg.showAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
+                tgAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
                 return;
             }
             if (data.success || data.active) {
-                tg.showAlert("🎉 Пробный период 3 дня активирован!");
+                tgAlert("🎉 Пробный период 3 дня активирован!");
                 showActiveState(data);
-            } else tg.showAlert("❌ Ошибка активации");
-        } catch (e) { tg.showAlert("Ошибка: " + e.message); }
+            } else tgAlert("❌ Ошибка активации");
+        } catch (e) { tgAlert("Ошибка: " + e.message); }
     }
 
     function resetUserDevices() {
         if (!currentUser) return;
-        tg.showConfirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?", async function(confirmed) {
-            if (!confirmed) return;
-            tg.HapticFeedback.impactOccurred('heavy');
+        const doReset = async () => {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
             try {
                 const res = await fetch(`${API_URL}/reset_devices`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
@@ -828,13 +832,23 @@
                 });
                 const data = await res.json();
                 if (data.success || data.active) {
-                    tg.showAlert("✅ Устройства сброшены! Скопируйте новую ссылку.");
+                    tgAlert("✅ Устройства сброшены! Скопируйте новую ссылку.");
                     showActiveState(data);
                 }
             } catch (e) {
-                tg.showAlert("Ошибка соединения с сервером");
+                tgAlert("Ошибка соединения с сервером");
             }
-        });
+        };
+
+        if (tg && tg.showConfirm) {
+            tg.showConfirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?", function(confirmed) {
+                if (confirmed) doReset();
+            });
+        } else {
+            if (confirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?")) {
+                doReset();
+            }
+        }
     }
 
     function showActiveState(data) {
@@ -953,9 +967,8 @@
 
     function copyVlessInput() {
         if (!userSubUrl) return;
-        navigator.clipboard.writeText(userSubUrl);
-        tg.showAlert("🔗 Ссылка скопирована!");
-        tg.HapticFeedback.impactOccurred('light');
+        try { navigator.clipboard.writeText(userSubUrl); } catch(e){}
+        tgAlert("🔗 Ссылка скопирована!");
     }
 
     function switchTab(tabId, el) {
@@ -972,7 +985,11 @@
         window.scrollTo(0, 0);
     }
 
-    function tgAlert(msg) { tg.showAlert(msg); tg.HapticFeedback.impactOccurred('light'); }
+    function tgAlert(msg) { 
+        if (tg && tg.showAlert) tg.showAlert(msg);
+        else alert(msg);
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
+    }
 </script>
 </body>
 </html>
