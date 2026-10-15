@@ -482,39 +482,61 @@
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    try { tg.expand(); tg.setHeaderColor('#090B14'); tg.setBackgroundColor('#090B14'); } catch(e){}
+    // 1. БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
+    let tg;
+    let currentUser = null;
+    let userRefLink = "";
+
+    try {
+        tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#090B14');
+        tg.setBackgroundColor('#090B14');
+        currentUser = tg.initDataUnsafe?.user;
+    } catch(e) {
+        console.warn("Telegram WebApp не найден");
+    }
 
     const API_URL = "https://panel.kybic.ru:2053/api/bot";
-    let currentUser = tg.initDataUnsafe?.user;
     let userSubUrl = "";
-    let userRefLink = "";
     let expireTimestamp = 0;
     let timerInterval = null;
     let refreshInterval = null;
-
     let selectedTicketId = null;
     let isUserAdmin = false;
 
-    if (currentUser) {
-        const uName = document.getElementById('userName');
-        if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
-        
-        const mName = document.getElementById('menuName');
-        if (mName) mName.innerText = currentUser.first_name || "Пользователь";
-        
-        const mUser = document.getElementById('menuUsername');
-        if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
-        
-        userRefLink = `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`;
-
-        checkUserStatus();
-        loadTickets();
-    } else {
-        const uName = document.getElementById('userName');
-        if (uName) uName.innerText = "Привет, Гость!";
+    // 2. БЕЗОПАСНЫЙ АЛЕРТ (НИКОГДА НЕ ПАДАЕТ)
+    function tgAlert(msg) {
+        try {
+            if (tg && tg.showAlert) tg.showAlert(msg);
+            else alert(msg);
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
+        } catch(e) { alert(msg); }
     }
 
+    // 3. СТАРТ ПРИЛОЖЕНИЯ
+    window.onload = function() {
+        if (currentUser) {
+            const uName = document.getElementById('userName');
+            if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
+            
+            const mName = document.getElementById('menuName');
+            if (mName) mName.innerText = currentUser.first_name || "Пользователь";
+            
+            const mUser = document.getElementById('menuUsername');
+            if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
+            
+            userRefLink = `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`;
+
+            checkUserStatus();
+            loadTickets();
+        } else {
+            const uName = document.getElementById('userName');
+            if (uName) uName.innerText = "Привет, Гость!";
+        }
+    };
+
+    /* --- ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ, ТОЛЬКО ЗАЩИЩЕНЫ) --- */
     function copyRefLink() {
         if (!userRefLink) {
             userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
@@ -568,6 +590,11 @@
     function openTariffsPage() {
         if (isMenuOpen) toggleMenu();
         switchTab('tab-tariffs', null);
+    }
+    
+    function openReferralsPage() {
+        if (isMenuOpen) toggleMenu();
+        switchTab('tab-referrals', null);
     }
 
     function openInfoDocs() {
@@ -638,7 +665,9 @@
                 const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
                 let badgeClass = 'badge-open';
                 let badgeText = 'Открыт';
+                
                 if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+                else if (t.status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
 
                 const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
 
@@ -668,6 +697,9 @@
         
         const cMeta = document.getElementById('chatMeta');
         if (cMeta) cMeta.innerText = "Создано: " + dateStr;
+        
+        const adminBtnBox = document.getElementById('adminStatusButtons');
+        if (adminBtnBox) adminBtnBox.style.display = isUserAdmin ? 'flex' : 'none';
 
         updateChatBadge(status);
         await loadTicketMessages(ticketId);
@@ -678,10 +710,53 @@
         if (!badge) return;
         let badgeClass = 'badge-open';
         let badgeText = 'Открыт';
+        
         if (status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+        else if (status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
 
         badge.innerText = badgeText;
         badge.className = 'badge-status ' + badgeClass;
+    }
+
+    async function changeTicketStatus(newStatus) {
+        if (!selectedTicketId || !currentUser) return;
+
+        const doChangeStatus = async () => {
+            try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); } catch(e){}
+            try {
+                const res = await fetch(`${API_URL}/change_ticket_status`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ticket_id: selectedTicketId, user_id: currentUser.id, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (newStatus === 'closed') {
+                        tgAlert("🗑 Обращение закрыто и удалено");
+                        const boxContent = document.getElementById('chatBoxContent');
+                        if (boxContent) boxContent.style.display = 'none';
+                        const emptyState = document.getElementById('chatEmptyState');
+                        if (emptyState) emptyState.style.display = 'block';
+                        selectedTicketId = null;
+                    } else {
+                        tgAlert("🟡 Статус обновлён: На рассмотрении");
+                        updateChatBadge(newStatus);
+                    }
+                    loadTickets();
+                }
+            } catch(e) {}
+        };
+
+        if (newStatus === 'closed') {
+            if (tg && tg.showConfirm) {
+                tg.showConfirm("Удалить это обращение?", function(confirmed) {
+                    if (confirmed) doChangeStatus();
+                });
+            } else {
+                doChangeStatus();
+            }
+        } else {
+            doChangeStatus();
+        }
     }
 
     async function loadTicketMessages(ticketId) {
@@ -729,16 +804,12 @@
         const uid = currentUser ? currentUser.id : 7058964435;
         const fname = currentUser ? currentUser.first_name : "Пользователь";
 
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
+        
         try {
             const res = await fetch(`${API_URL}/create_ticket`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: uid,
-                    first_name: fname,
-                    title: title,
-                    message: message
-                })
+                body: JSON.stringify({ user_id: uid, first_name: fname, title: title, message: message })
             });
             const data = await res.json();
             if (data.success) {
@@ -761,7 +832,7 @@
         const message = inp.value.trim();
         if (!message) return;
 
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); } catch(e){}
         inp.value = "";
 
         try {
@@ -795,7 +866,8 @@
 
     async function requestTrialInApp() {
         if (!currentUser) return;
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
+        
         try {
             const res = await fetch(`${API_URL}/activate`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
@@ -816,7 +888,7 @@
     function resetUserDevices() {
         if (!currentUser) return;
         const doReset = async () => {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+            try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
             try {
                 const res = await fetch(`${API_URL}/reset_devices`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
@@ -975,12 +1047,6 @@
             el.classList.add('active');
         }
         window.scrollTo(0, 0);
-    }
-
-    function tgAlert(msg) { 
-        if (tg && tg.showAlert) tg.showAlert(msg);
-        else alert(msg);
-        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
     }
 </script>
 </body>
