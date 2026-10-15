@@ -14,7 +14,6 @@
             --text-main: #F8FAFC;
             --text-muted: #94A3B8;
             
-            /* Стеклянный стиль (Glassmorphism) */
             --glass-bg: rgba(20, 25, 45, 0.45);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: blur(25px);
@@ -82,7 +81,6 @@
         .card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 8px 32px rgba(0,0,0,0.25); transition: all 0.3s ease; }
         .glass-box { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
 
-        /* Кнопки */
         .btn-blue-bright {
             background: #1D4ED8; color: white; border: none; padding: 14px; width: 100%; border-radius: 14px;
             font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
@@ -359,7 +357,7 @@
         </div>
     </div>
 
-    <!-- ==================== 4. ТАРИФЫ (ОТДЕЛЬНЫЙ ЭКРАН) ==================== -->
+    <!-- ==================== 4. ТАРИФЫ ==================== -->
     <div id="tab-tariffs" class="tab-content">
         <h1 class="welcome-title">Оформить подписку</h1>
         
@@ -415,7 +413,7 @@
         </div>
     </div>
 
-    <!-- ==================== 5. ПОДДЕРЖКА (ТИКЕТ-СИСТЕМА) ==================== -->
+    <!-- ==================== 5. ПОДДЕРЖКА ==================== -->
     <div id="tab-support" class="tab-content">
         <h1 class="welcome-title">Поддержка</h1>
         
@@ -578,6 +576,8 @@
     let currentUser = tg.initDataUnsafe?.user;
     let userSubUrl = "";
     let userRefLink = "";
+    let userRefCount = 0;
+    let userSpins = 0;
     let expireTimestamp = 0;
     let timerInterval = null;
     let refreshInterval = null;
@@ -586,11 +586,39 @@
     let isUserAdmin = false;
 
     if (currentUser) {
-        document.getElementById('userName').innerText = "Привет, " + currentUser.first_name + "!";
-        document.getElementById('menuName').innerText = currentUser.first_name;
-        document.getElementById('menuUsername').innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
+        const uName = document.getElementById('userName');
+        if (uName) uName.innerText = "Привет, " + currentUser.first_name + "!";
+        
+        const mName = document.getElementById('menuName');
+        if (mName) mName.innerText = currentUser.first_name;
+        
+        const mUser = document.getElementById('menuUsername');
+        if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
+        
+        userRefLink = `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`;
+        const refInp = document.getElementById('refLinkInput');
+        if (refInp) refInp.value = userRefLink;
+
         checkUserStatus();
         loadTickets();
+    }
+
+    /* РЕФЕРАЛЫ */
+    function copyRefLinkInput() {
+        if (!userRefLink) {
+            userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
+        }
+        navigator.clipboard.writeText(userRefLink);
+        tg.showAlert("🔗 Ваша реферальная ссылка скопирована!");
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function shareRefLink() {
+        if (!userRefLink) {
+            userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
+        }
+        const text = encodeURIComponent("🚀 Присоединяйся к КУБИК VPN и получи 3 дня бесплатного интернета с высокой скоростью!");
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(userRefLink)}&text=${text}`);
     }
 
     let isMenuOpen = false;
@@ -668,26 +696,18 @@
         else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
     }
 
-    /* --- РЕФЕРАЛЫ ЛОГИКА --- */
-    function copyRefLinkInput() {
-        if (!userRefLink) return;
-        navigator.clipboard.writeText(userRefLink);
-        tg.showAlert("🔗 Реферальная ссылка скопирована!");
-        tg.HapticFeedback.impactOccurred('light');
-    }
-
-    function shareRefLink() {
-        if (!userRefLink) return;
-        const text = encodeURIComponent("🚀 Присоединяйся к КУБИК VPN и получи 3 дня бесплатного интернета без блокировок!");
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(userRefLink)}&text=${text}`);
-    }
-
     /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
-    function showCreateTicketModal() { document.getElementById('createTicketCard').style.display = 'block'; }
+    function showCreateTicketModal() { 
+        const card = document.getElementById('createTicketCard');
+        if (card) card.style.display = 'block'; 
+    }
     function hideCreateTicketModal() {
-        document.getElementById('createTicketCard').style.display = 'none';
-        document.getElementById('ticketTitleInput').value = '';
-        document.getElementById('ticketMsgInput').value = '';
+        const card = document.getElementById('createTicketCard');
+        if (card) card.style.display = 'none';
+        const tInput = document.getElementById('ticketTitleInput');
+        if (tInput) tInput.value = '';
+        const mInput = document.getElementById('ticketMsgInput');
+        if (mInput) mInput.value = '';
     }
 
     async function loadTickets() {
@@ -696,10 +716,13 @@
             const res = await fetch(`${API_URL}/get_tickets?user_id=${currentUser.id}`);
             const data = await res.json();
             
-            isUserAdmin = data.is_admin;
-            document.getElementById('ticketsHeaderTitle').innerText = isUserAdmin ? "Другие обращения" : "Ваши обращения";
+            isUserAdmin = data.is_admin || false;
+            const titleEl = document.getElementById('ticketsHeaderTitle');
+            if (titleEl) titleEl.innerText = isUserAdmin ? "Другие обращения" : "Ваши обращения";
 
             const container = document.getElementById('ticketsListContainer');
+            if (!container) return;
+
             if (!data.tickets || data.tickets.length === 0) {
                 container.innerHTML = `
                 <div style="text-align: center; padding: 20px; color: var(--text-muted);">
@@ -735,11 +758,17 @@
 
     async function selectTicket(ticketId, title, status, dateStr) {
         selectedTicketId = ticketId;
-        document.getElementById('chatEmptyState').style.display = 'none';
-        document.getElementById('chatBoxContent').style.display = 'block';
+        const emptyState = document.getElementById('chatEmptyState');
+        if (emptyState) emptyState.style.display = 'none';
+        
+        const boxContent = document.getElementById('chatBoxContent');
+        if (boxContent) boxContent.style.display = 'block';
 
-        document.getElementById('chatTitle').innerText = title;
-        document.getElementById('chatMeta').innerText = "Создано: " + dateStr;
+        const cTitle = document.getElementById('chatTitle');
+        if (cTitle) cTitle.innerText = title;
+        
+        const cMeta = document.getElementById('chatMeta');
+        if (cMeta) cMeta.innerText = "Создано: " + dateStr;
         
         const adminBtnBox = document.getElementById('adminStatusButtons');
         if (adminBtnBox) adminBtnBox.style.display = isUserAdmin ? 'flex' : 'none';
@@ -750,6 +779,7 @@
 
     function updateChatBadge(status) {
         const badge = document.getElementById('chatStatusBadge');
+        if (!badge) return;
         let badgeClass = 'badge-open';
         let badgeText = 'Открыт';
         
@@ -778,8 +808,10 @@
                 if (data.success) {
                     if (newStatus === 'closed') {
                         tg.showAlert("🗑 Обращение закрыто и удалено");
-                        document.getElementById('chatBoxContent').style.display = 'none';
-                        document.getElementById('chatEmptyState').style.display = 'block';
+                        const boxContent = document.getElementById('chatBoxContent');
+                        if (boxContent) boxContent.style.display = 'none';
+                        const emptyState = document.getElementById('chatEmptyState');
+                        if (emptyState) emptyState.style.display = 'block';
                         selectedTicketId = null;
                     } else {
                         tg.showAlert("🟡 Статус обновлён: На рассмотрении");
@@ -809,6 +841,7 @@
             const data = await res.json();
             
             const list = document.getElementById('chatMessagesList');
+            if (!list) return;
             let html = "";
             
             if (data.messages) {
@@ -875,6 +908,7 @@
     async function sendTicketReply() {
         if (!selectedTicketId || !currentUser) return;
         const inp = document.getElementById('chatReplyInput');
+        if (!inp) return;
         const message = inp.value.trim();
         if (!message) return;
 
@@ -906,15 +940,22 @@
             const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
             
-            if (data.ref_count !== undefined) {
-                document.getElementById('homeRefCount').innerText = data.ref_count;
-                document.getElementById('refPageCount').innerText = data.ref_count;
+            if (data && data.ref_count !== undefined) {
+                userRefCount = data.ref_count;
+                userSpins = data.spins || 0;
+                
+                const hRef = document.getElementById('homeRefCount');
+                if (hRef) hRef.innerText = userRefCount;
+                
+                const rPage = document.getElementById('refPageCount');
+                if (rPage) rPage.innerText = userRefCount;
             }
-            if (data.ref_link) {
+            if (data && data.ref_link) {
                 userRefLink = data.ref_link;
-                document.getElementById('refLinkInput').value = data.ref_link;
+                const rInp = document.getElementById('refLinkInput');
+                if (rInp) rInp.value = data.ref_link;
             }
-            if (data.active) showActiveState(data);
+            if (data && data.active) showActiveState(data);
         } catch (e) { console.log(e); }
     }
 
@@ -960,18 +1001,29 @@
     }
 
     function showActiveState(data) {
-        document.getElementById('home-inactive').style.display = 'none';
-        document.getElementById('home-active').style.display = 'block';
-        document.getElementById('sub-inactive').style.display = 'none';
-        document.getElementById('sub-active').style.display = 'block';
+        const hInact = document.getElementById('home-inactive');
+        if (hInact) hInact.style.display = 'none';
+        
+        const hAct = document.getElementById('home-active');
+        if (hAct) hAct.style.display = 'block';
+        
+        const sInact = document.getElementById('sub-inactive');
+        if (sInact) sInact.style.display = 'none';
+        
+        const sAct = document.getElementById('sub-active');
+        if (sAct) sAct.style.display = 'block';
 
-        document.getElementById('badgeStatus').innerText = '★ Кубик Пользователь';
-        document.getElementById('badgeStatus').style.color = '#38BDF8';
-        document.getElementById('badgeStatus').style.background = 'rgba(56,189,248,0.15)';
+        const badge = document.getElementById('badgeStatus');
+        if (badge) {
+            badge.innerText = '★ Кубик Пользователь';
+            badge.style.color = '#38BDF8';
+            badge.style.background = 'rgba(56,189,248,0.15)';
+        }
 
         if (data.sub_url) {
             userSubUrl = data.sub_url;
-            document.getElementById('vlessInput').value = data.sub_url;
+            const vInp = document.getElementById('vlessInput');
+            if (vInp) vInp.value = data.sub_url;
         }
 
         const usedBytes = data.used_traffic || 0;
@@ -982,15 +1034,26 @@
         let limitStr = (limitBytes / (1024 * 1024 * 1024)).toFixed(0) + " ГБ";
         let pct = Math.min((usedBytes / limitBytes) * 100, 100).toFixed(0);
 
-        document.getElementById('trafficPercent').innerHTML = `${pct}<span>%</span>`;
-        document.getElementById('trafficText').innerText = `${usedStr} / ${limitStr}`;
-        document.getElementById('trafficFill').style.width = Math.max(pct, 2) + '%';
-        document.getElementById('subTrafficVal').innerText = `${usedStr} / ${limitStr}`;
-        document.getElementById('subProgressFill').style.width = Math.max(pct, 2) + '%';
+        const tPct = document.getElementById('trafficPercent');
+        if (tPct) tPct.innerHTML = `${pct}<span>%</span>`;
+        
+        const tText = document.getElementById('trafficText');
+        if (tText) tText.innerText = `${usedStr} / ${limitStr}`;
+        
+        const tFill = document.getElementById('trafficFill');
+        if (tFill) tFill.style.width = Math.max(pct, 2) + '%';
+        
+        const sTrafficVal = document.getElementById('subTrafficVal');
+        if (sTrafficVal) sTrafficVal.innerText = `${usedStr} / ${limitStr}`;
+        
+        const sFill = document.getElementById('subProgressFill');
+        if (sFill) sFill.style.width = Math.max(pct, 2) + '%';
 
         const devices = data.devices || [];
         const devLimit = data.device_limit || 1;
-        document.getElementById('homeDeviceCount').innerText = `${devices.length} из ${devLimit} подключено`;
+        
+        const hDevCount = document.getElementById('homeDeviceCount');
+        if (hDevCount) hDevCount.innerText = `${devices.length} из ${devLimit} подключено`;
         
         let devHtml = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="font-size: 16px;">Мои устройства</h3>
@@ -1012,11 +1075,14 @@
                 </div>`;
             });
         }
-        document.getElementById('devicesCard').innerHTML = devHtml;
+        
+        const devCard = document.getElementById('devicesCard');
+        if (devCard) devCard.innerHTML = devHtml;
 
         if (data.expire) {
             expireTimestamp = data.expire;
-            document.getElementById('expireDateText').innerText = `Действует до: ` + new Date(data.expire * 1000).toLocaleDateString('ru-RU');
+            const expText = document.getElementById('expireDateText');
+            if (expText) expText.innerText = `Действует до: ` + new Date(data.expire * 1000).toLocaleDateString('ru-RU');
             if(!timerInterval) startLiveTimer();
         }
 
@@ -1028,15 +1094,23 @@
         timerInterval = setInterval(() => {
             const diff = expireTimestamp - Math.floor(Date.now() / 1000);
             if (diff <= 0) {
-                document.getElementById('timerDisplay').innerText = "Истекло";
-                document.getElementById('homeDaysLeft').innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+                const tDisp = document.getElementById('timerDisplay');
+                if (tDisp) tDisp.innerText = "Истекло";
+                
+                const hDays = document.getElementById('homeDaysLeft');
+                if (hDays) hDays.innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+                
                 clearInterval(timerInterval);
                 return;
             }
             const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400)/3600), m = Math.floor((diff % 3600)/60), s = diff % 60;
             const pad = n => n.toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${d} дн. ${pad(h)} : ${pad(m)} : ${pad(s)}`;
-            document.getElementById('homeDaysLeft').innerHTML = `${d} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
+            
+            const tDisp = document.getElementById('timerDisplay');
+            if (tDisp) tDisp.innerText = `${d} дн. ${pad(h)} : ${pad(m)} : ${pad(s)}`;
+            
+            const hDays = document.getElementById('homeDaysLeft');
+            if (hDays) hDays.innerHTML = `${d} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
         }, 1000);
     }
 
@@ -1048,8 +1122,11 @@
     }
 
     function switchTab(tabId, el) {
+        const targetTab = document.getElementById(tabId);
+        if (!targetTab) return;
+        
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        targetTab.classList.add('active');
         
         document.querySelectorAll('.bottom-nav-wrapper .nav-item').forEach(n => n.classList.remove('active'));
         if (el) {
