@@ -488,7 +488,7 @@
 <script>
     let tg = window.Telegram?.WebApp;
     
-    // Мгновенно говорим Телеграму "Мы готовы, убирай анимацию загрузки!"
+    // Снимаем спиннер загрузки Telegram WebApp моментально!
     if (tg) {
         try {
             tg.ready();
@@ -517,7 +517,7 @@
         } catch(e) { alert(msg); }
     }
 
-    // Мгновенная инициализация
+    // Запуск приложения без задержек
     document.addEventListener("DOMContentLoaded", function() {
         if (currentUser) {
             const uName = document.getElementById('userName');
