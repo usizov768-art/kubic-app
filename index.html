@@ -179,6 +179,10 @@
             <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
             Поддержка
         </a>
+        <a onclick="copyRefLink()">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Рефералы
+        </a>
         <a onclick="openInfoDocs()">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             Информация
@@ -482,31 +486,30 @@
 </div>
 
 <script>
-    // 1. БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
-    let tg;
-    let currentUser = null;
-    let userRefLink = "";
-
-    try {
-        tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.setHeaderColor('#090B14');
-        tg.setBackgroundColor('#090B14');
-        currentUser = tg.initDataUnsafe?.user;
-    } catch(e) {
-        console.warn("Telegram WebApp не найден");
+    let tg = window.Telegram?.WebApp;
+    
+    // Мгновенно говорим Телеграму "Мы готовы, убирай анимацию загрузки!"
+    if (tg) {
+        try {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#090B14');
+            tg.setBackgroundColor('#090B14');
+        } catch(e) {}
     }
 
     const API_URL = "https://panel.kybic.ru:2053/api/bot";
+    let currentUser = tg?.initDataUnsafe?.user;
     let userSubUrl = "";
+    let userRefLink = "";
     let expireTimestamp = 0;
     let timerInterval = null;
     let refreshInterval = null;
+
     let selectedTicketId = null;
     let isUserAdmin = false;
 
-    // 2. БЕЗОПАСНЫЙ АЛЕРТ (НИКОГДА НЕ ПАДАЕТ)
-    function tgAlert(msg) {
+    function tgAlert(msg) { 
         try {
             if (tg && tg.showAlert) tg.showAlert(msg);
             else alert(msg);
@@ -514,8 +517,8 @@
         } catch(e) { alert(msg); }
     }
 
-    // 3. СТАРТ ПРИЛОЖЕНИЯ
-    window.onload = function() {
+    // Мгновенная инициализация
+    document.addEventListener("DOMContentLoaded", function() {
         if (currentUser) {
             const uName = document.getElementById('userName');
             if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
@@ -534,15 +537,14 @@
             const uName = document.getElementById('userName');
             if (uName) uName.innerText = "Привет, Гость!";
         }
-    };
+    });
 
-    /* --- ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ, ТОЛЬКО ЗАЩИЩЕНЫ) --- */
     function copyRefLink() {
         if (!userRefLink) {
             userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
         }
         try { navigator.clipboard.writeText(userRefLink); } catch(e){}
-        tgAlert("🔗 Реферальная ссылка скопирована!");
+        tgAlert("🔗 Ваша реферальная ссылка скопирована!");
     }
 
     let isMenuOpen = false;
@@ -590,11 +592,6 @@
     function openTariffsPage() {
         if (isMenuOpen) toggleMenu();
         switchTab('tab-tariffs', null);
-    }
-    
-    function openReferralsPage() {
-        if (isMenuOpen) toggleMenu();
-        switchTab('tab-referrals', null);
     }
 
     function openInfoDocs() {
@@ -665,9 +662,7 @@
                 const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
                 let badgeClass = 'badge-open';
                 let badgeText = 'Открыт';
-                
                 if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
-                else if (t.status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
 
                 const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
 
@@ -697,9 +692,6 @@
         
         const cMeta = document.getElementById('chatMeta');
         if (cMeta) cMeta.innerText = "Создано: " + dateStr;
-        
-        const adminBtnBox = document.getElementById('adminStatusButtons');
-        if (adminBtnBox) adminBtnBox.style.display = isUserAdmin ? 'flex' : 'none';
 
         updateChatBadge(status);
         await loadTicketMessages(ticketId);
@@ -710,53 +702,10 @@
         if (!badge) return;
         let badgeClass = 'badge-open';
         let badgeText = 'Открыт';
-        
         if (status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
-        else if (status === 'in_review') { badgeClass = 'badge-in_review'; badgeText = 'На рассмотрении'; }
 
         badge.innerText = badgeText;
         badge.className = 'badge-status ' + badgeClass;
-    }
-
-    async function changeTicketStatus(newStatus) {
-        if (!selectedTicketId || !currentUser) return;
-
-        const doChangeStatus = async () => {
-            try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); } catch(e){}
-            try {
-                const res = await fetch(`${API_URL}/change_ticket_status`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ticket_id: selectedTicketId, user_id: currentUser.id, status: newStatus })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    if (newStatus === 'closed') {
-                        tgAlert("🗑 Обращение закрыто и удалено");
-                        const boxContent = document.getElementById('chatBoxContent');
-                        if (boxContent) boxContent.style.display = 'none';
-                        const emptyState = document.getElementById('chatEmptyState');
-                        if (emptyState) emptyState.style.display = 'block';
-                        selectedTicketId = null;
-                    } else {
-                        tgAlert("🟡 Статус обновлён: На рассмотрении");
-                        updateChatBadge(newStatus);
-                    }
-                    loadTickets();
-                }
-            } catch(e) {}
-        };
-
-        if (newStatus === 'closed') {
-            if (tg && tg.showConfirm) {
-                tg.showConfirm("Удалить это обращение?", function(confirmed) {
-                    if (confirmed) doChangeStatus();
-                });
-            } else {
-                doChangeStatus();
-            }
-        } else {
-            doChangeStatus();
-        }
     }
 
     async function loadTicketMessages(ticketId) {
