@@ -130,6 +130,7 @@
         .badge-status { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
         .badge-open { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border: 1px solid rgba(37, 99, 235, 0.4); }
         .badge-answered { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-in_review { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); }
 
         .chat-msg { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; max-width: 85%; }
         .chat-msg.user-msg { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); margin-right: auto; }
@@ -453,6 +454,11 @@
                     <span class="badge-status badge-open" id="chatStatusBadge">Открыт</span>
                 </div>
 
+                <div id="adminStatusButtons" style="display: none; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border);">
+                    <button class="icon-btn" style="width: auto; padding: 6px 12px; font-size: 12px; background: rgba(245, 158, 11, 0.2); color: #F59E0B; border-color: rgba(245, 158, 11, 0.4);" onclick="changeTicketStatus('in_review')">🟡 На рассмотрении</button>
+                    <button class="icon-btn" style="width: auto; padding: 6px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; border-color: rgba(239, 68, 68, 0.4);" onclick="changeTicketStatus('closed')">🗑 Закрыть и удалить</button>
+                </div>
+
                 <div id="chatMessagesList" style="max-height: 250px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px;"></div>
 
                 <div style="display: flex; gap: 8px;">
@@ -487,8 +493,6 @@
 
 <script>
     let tg = window.Telegram?.WebApp;
-    
-    // Снимаем спиннер загрузки Telegram WebApp моментально!
     if (tg) {
         try {
             tg.ready();
@@ -517,7 +521,6 @@
         } catch(e) { alert(msg); }
     }
 
-    // Запуск приложения без задержек
     document.addEventListener("DOMContentLoaded", function() {
         if (currentUser) {
             const uName = document.getElementById('userName');
@@ -544,7 +547,7 @@
             userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
         }
         try { navigator.clipboard.writeText(userRefLink); } catch(e){}
-        tgAlert("🔗 Ваша реферальная ссылка скопирована!");
+        tgAlert("🔗 Реферальная ссылка скопирована!");
     }
 
     let isMenuOpen = false;
