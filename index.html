@@ -1,3 +1,15 @@
+Понял тебя. Извини, я реально перемудрил и ушел не в ту степь, добавив лишний дизайн и шапки, о которых ты не просил. Мой косяк.
+
+Я откатил **всё** назад к той чистой и строгой структуре, которая была изначально. 
+
+1. **Никаких шапок и привествий.** Сразу заголовки (`<h2>Личный кабинет</h2>` и т.д.).
+2. **Нижнее меню** вернулось к изначальному строгому виду (без плавающих эффектов, просто ровная панель).
+3. **Цвета** строго те, что ты скинул (глубокий `#0A0D14` для фона и `#11151F` для карточек и меню). Текст везде белый (`#FFFFFF`), а второстепенный — серый (`#8E96A3`).
+4. **Логика** осталась правильной: 4 вкладки внизу (Главная, Подписка, Баланс, Поддержка) и отдельный скрытый экран Рефералов, который открывается из Баланса.
+
+Вот чистый код без моей отсебятины. Скопируй его и замени.
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,20 +19,17 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* СТРОГО ТВОИ ЦВЕТА */
         :root {
-            --bg-main: #0B0E14;
-            --bg-gradient: linear-gradient(180deg, #121827 0%, #0B0E14 100%);
-            --card-bg: #151A27;
-            --card-border: rgba(255, 255, 255, 0.06);
-            --text-title: #FFFFFF;
-            --text-main: #D1D5DB; 
-            --text-muted: #8B949E;
-            --accent-blue: #2A5BFF;
-            --accent-blue-hover: #1E40D9;
-            --accent-light: #3B82F6;
-            --green-text: #10B981;
-            --yellow-accent: #F59E0B;
-            --nav-bg: rgba(15, 20, 31, 0.95);
+            --bg-main: #0A0D14; 
+            --card-bg: #11151F; 
+            --text-main: #FFFFFF;
+            --text-muted: #8E96A3; 
+            --accent-blue: #2936FF; 
+            --accent-blue-hover: #1E28CC;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --green-text: #00E676; 
+            --red-text: #FF3B30; /* Добавил для ошибок и статусов */
         }
 
         * {
@@ -29,75 +38,61 @@
         }
 
         body {
-            background: var(--bg-main);
-            background-image: var(--bg-gradient);
-            background-attachment: fixed;
+            background-color: var(--bg-main);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 0 0 80px 0;
-            min-height: 100vh;
+            padding: 16px 16px 80px 16px; /* 80px снизу под навигацию */
         }
 
-        /* Главный контейнер (без всяких шапок сверху) */
-        .content-container { 
-            padding: 24px 20px 20px 20px; 
-        }
-
-        h2, h3, h4 { color: var(--text-title); margin-top: 0; }
-        
-        /* Блок приветствия */
-        .greeting-block {
-            margin-bottom: 24px;
-        }
-        .greeting-title {
-            font-size: 24px;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 12px;
-            color: var(--text-title);
-        }
-        .sub-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(42, 91, 255, 0.15);
-            border: 1px solid rgba(42, 91, 255, 0.3);
-            color: #60A5FA;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-        }
+        h2, h3, h4 { margin-top: 0; color: var(--text-main); }
 
         /* Карточки */
         .modern-card {
             background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 18px;
+            padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
+        .modern-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* Тексты и статусы */
         .text-muted { color: var(--text-muted); font-size: 14px; }
         .text-sm { font-size: 12px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-active { background: rgba(0, 230, 118, 0.1); color: var(--green-text); }
+        .status-inactive { background: rgba(255, 59, 48, 0.1); color: var(--red-text); }
+        .status-review { background: rgba(255, 170, 0, 0.1); color: #FFAA00; }
 
-        /* Поля и кнопки */
+        /* Поля ввода */
+        .copy-group { display: flex; gap: 8px; align-items: center; }
+
         .input-field {
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--card-border);
+            flex-grow: 1;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 14px 16px;
-            color: var(--text-title);
+            color: var(--text-main);
             font-size: 14px;
             outline: none;
-            transition: 0.2s;
+            width: 100%;
         }
-        .input-field:focus { border-color: var(--accent-light); }
 
+        /* Кнопки */
         .btn-primary {
             background-color: var(--accent-blue);
             color: white;
@@ -107,19 +102,19 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
+            transition: 0.2s;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            transition: background 0.2s;
         }
         .btn-primary:active { transform: scale(0.98); }
         
         .btn-secondary {
-            background-color: rgba(255,255,255,0.05);
+            background-color: transparent;
             color: var(--text-main);
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 14px;
             font-size: 15px;
@@ -131,7 +126,7 @@
             gap: 8px;
         }
 
-        /* Грид пополнения */
+        /* Сетка сумм */
         .amount-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -139,221 +134,219 @@
             margin-top: 16px;
         }
         .amount-btn {
-            background-color: rgba(0,0,0,0.2);
-            border: 1px solid var(--card-border);
+            background-color: transparent;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
             text-align: center;
-            color: var(--text-title);
+            color: var(--text-main);
             font-weight: bold;
             font-size: 16px;
+            cursor: pointer;
         }
         .amount-btn.active {
-            border-color: var(--accent-light);
-            background-color: rgba(42, 91, 255, 0.1);
+            border-color: var(--accent-blue);
+            background-color: rgba(41, 54, 255, 0.1);
         }
 
-        /* Навигация */
+        /* Прогресс бар */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-blue);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Нижняя навигация (строгая, как была) */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--card-border);
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            padding: 12px 0;
             z-index: 1000;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
         }
         .nav-item {
             color: var(--text-muted);
             text-align: center;
-            font-size: 11px;
-            font-weight: 500;
+            font-size: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            cursor: pointer;
         }
-        .nav-item i { font-size: 20px; transition: 0.2s; }
-        .nav-item.active { color: var(--accent-light); }
-        .nav-item.active i { transform: translateY(-2px); }
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { color: var(--accent-blue); }
 
-        .screen { display: none; animation: fadeIn 0.3s ease; }
+        /* Экраны */
+        .screen { display: none; animation: fadeIn 0.2s ease; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     </style>
 </head>
 <body>
 
-    <div class="content-container">
+    <!-- ЭКРАН 1: ГЛАВНАЯ -->
+    <div id="screen-home" class="screen active">
+        <h2>Личный кабинет</h2>
         
-        <!-- ЭКРАН 1: ГЛАВНАЯ -->
-        <div id="screen-home" class="screen active">
+        <div class="modern-card">
+            <div class="flex-between" style="margin-bottom: 12px;">
+                <span class="text-muted">Статус профиля:</span>
+                <span id="profileStatus" class="status-badge status-inactive">Загрузка...</span>
+            </div>
             
-            <div class="greeting-block">
-                <div class="greeting-title" id="userNameTitle">Привет!</div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="text-muted text-sm">Ваша подписка:</span>
-                    <div class="sub-badge"><i class="fas fa-star"></i> Кубик Пользователь</div>
-                </div>
+            <h3 style="font-size: 24px; margin-bottom: 4px;" id="timerDisplay">00 дн 00:00:00</h3>
+            <p class="text-muted text-sm" style="margin-bottom: 16px;">До окончания подписки</p>
+
+            <div class="flex-between text-sm">
+                <span>Использовано: <b id="usedTraffic">0 ГБ</b></span>
+                <span>Лимит: <b id="totalTraffic">0 ГБ</b></span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="trafficProgress" style="width: 0%;"></div>
             </div>
 
-            <div class="modern-card">
-                <div class="flex-between" style="margin-bottom: 16px;">
-                    <span class="text-muted">Статус соединения:</span>
-                    <span id="profileStatus" style="color: var(--green-text); font-weight: bold; font-size: 14px;"><i class="fas fa-circle" style="font-size: 10px;"></i> Активен</span>
-                </div>
-                
-                <h3 style="font-size: 28px; margin-bottom: 4px;" id="timerDisplay">00 дн 00:00:00</h3>
-                <p class="text-muted text-sm" style="margin-bottom: 20px;">Осталось времени</p>
+            <div class="flex-between text-sm" style="margin-top: 16px;">
+                <span>Устройства: <b id="deviceUsage">0 / 0</b></span>
+                <button class="btn-secondary" style="width: auto; padding: 6px 12px; margin: 0; font-size: 12px;" onclick="resetDevices()">
+                    <i class="fas fa-sync-alt"></i> Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
 
-                <div class="flex-between text-sm" style="margin-bottom: 8px;">
-                    <span style="color: var(--text-main);">Использовано: <b id="usedTraffic" style="color: var(--text-title);">0 ГБ</b></span>
-                    <span style="color: var(--text-muted);">Лимит: <b id="totalTraffic">0 ГБ</b></span>
-                </div>
-                
-                <!-- Прогресс бар -->
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin-bottom: 20px;">
-                    <div id="trafficProgress" style="height: 100%; width: 0%; background: var(--accent-light); border-radius: 10px;"></div>
-                </div>
+    <!-- ЭКРАН 2: ПОДПИСКА -->
+    <div id="screen-subscription" class="screen">
+        <h2>Ваша подписка</h2>
+        <p class="text-muted text-sm" style="margin-bottom: 16px;">Выберите подходящий тариф для продления.</p>
 
-                <div class="flex-between text-sm">
-                    <span style="color: var(--text-main);">Устройства: <b id="deviceUsage" style="color: var(--text-title);">0 / 0</b></span>
-                    <button class="btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px; margin: 0;" onclick="resetDevices()">
-                        <i class="fas fa-sync-alt" style="color: var(--text-muted);"></i> Сброс
-                    </button>
-                </div>
+        <div class="modern-card">
+            <div class="flex-between" style="margin-bottom: 8px;">
+                <b>Standard</b>
+                <b style="color: var(--green-text);">99 ₽ / мес</b>
+            </div>
+            <p class="text-muted text-sm" style="margin-bottom: 12px;"><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> 150 ГБ, 2 устройства, Защита данных</p>
+            <button class="btn-primary" onclick="buyTariff(99, 'Standard')">Продлить Standard</button>
+        </div>
+
+        <div class="modern-card" style="border-color: var(--accent-blue);">
+            <div class="flex-between" style="margin-bottom: 8px;">
+                <b style="color: var(--accent-blue);">Pro (Макс.)</b>
+                <b style="color: var(--accent-blue);">179 ₽ / мес</b>
+            </div>
+            <p class="text-muted text-sm" style="margin-bottom: 12px;"><i class="fas fa-check" style="color: var(--accent-blue); margin-right: 4px;"></i> 300 ГБ, 3 устройства, Приоритет</p>
+            <button class="btn-primary" onclick="buyTariff(179, 'Pro')">Продлить Pro</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: БАЛАНС -->
+    <div id="screen-balance" class="screen">
+        <h2>Баланс</h2>
+        
+        <div class="modern-card">
+            <h3 style="margin-bottom: 16px;">Пополнение счета</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <button class="btn-primary" style="flex: 1;">СБП</button>
+                <button class="btn-secondary" style="flex: 1; color: var(--text-muted);">Крипто</button>
+            </div>
+
+            <p class="text-muted text-sm" style="margin-bottom: 8px;">Введите сумму (от 50 до 5000 ₽)</p>
+            <div class="copy-group">
+                <input type="number" class="input-field" id="customAmount" placeholder="0 ₽" style="font-size: 18px;" oninput="syncAmount()">
+                <button class="btn-primary" style="width: auto; padding: 14px 24px;" onclick="processTopUp()">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="amount-grid">
+                <div class="amount-btn" onclick="selectAmount(100)">100 ₽</div>
+                <div class="amount-btn" onclick="selectAmount(300)">300 ₽</div>
+                <div class="amount-btn" onclick="selectAmount(500)">500 ₽</div>
+                <div class="amount-btn" onclick="selectAmount(1000)">1000 ₽</div>
             </div>
         </div>
 
-        <!-- ЭКРАН 2: ПОДПИСКА -->
-        <div id="screen-subscription" class="screen">
-            <h2 style="margin-bottom: 8px;">Выбор тарифа</h2>
-            <p class="text-muted text-sm" style="margin-bottom: 20px;">Продлите подписку для бесперебойной защиты данных.</p>
-
-            <div class="modern-card">
-                <div class="flex-between" style="margin-bottom: 12px;">
-                    <b style="font-size: 16px;">Standard</b>
-                    <b style="color: var(--green-text); font-size: 16px;">99 ₽ / мес</b>
+        <!-- Кнопка перехода в Рефералы -->
+        <div class="modern-card" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="openReferrals()">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-users" style="color: var(--accent-blue); font-size: 24px;"></i>
+                <div>
+                    <div style="font-weight: bold;">Реферальная программа</div>
+                    <div class="text-sm text-muted">Зарабатывайте 15% с друзей</div>
                 </div>
-                <p class="text-muted text-sm" style="margin-bottom: 16px; line-height: 1.4;"><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> 150 ГБ трафика<br><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> 2 устройства<br><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> Стабильное шифрование</p>
-                <button class="btn-secondary" onclick="buyTariff(99, 'Standard')">Выбрать Standard</button>
             </div>
+            <i class="fas fa-chevron-right text-muted"></i>
+        </div>
+    </div>
 
-            <div class="modern-card" style="border: 1px solid rgba(42, 91, 255, 0.4); background: rgba(42, 91, 255, 0.05);">
-                <div class="flex-between" style="margin-bottom: 12px;">
-                    <b style="font-size: 16px; color: var(--accent-light);">Pro (Максимальный)</b>
-                    <b style="color: var(--accent-light); font-size: 16px;">179 ₽ / мес</b>
-                </div>
-                <p class="text-muted text-sm" style="margin-bottom: 16px; line-height: 1.4;"><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> 300 ГБ трафика<br><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> 3 устройства<br><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> Приоритетный канал</p>
-                <button class="btn-primary" onclick="buyTariff(179, 'Pro')">Выбрать Pro</button>
+    <!-- ЭКРАН: РЕФЕРАЛЫ (Скрытый) -->
+    <div id="screen-referrals" class="screen">
+        <button class="btn-secondary" style="width: auto; margin-bottom: 16px; padding: 8px 16px; border: none; background: rgba(0,0,0,0.2);" onclick="closeReferrals()">
+            <i class="fas fa-arrow-left"></i> Назад
+        </button>
+        
+        <h2 style="margin-bottom: 16px;">Реферальная система</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div class="modern-card" style="margin: 0;">
+                <p class="text-muted text-sm" style="margin: 0 0 8px 0;">Заработок</p>
+                <div style="color: var(--green-text); font-weight: bold; font-size: 18px;">+0.00 ₽</div>
+            </div>
+            <div class="modern-card" style="margin: 0;">
+                <p class="text-muted text-sm" style="margin: 0 0 8px 0;">Рефералы</p>
+                <div style="font-weight: bold; font-size: 18px;">0 чел.</div>
             </div>
         </div>
 
-        <!-- ЭКРАН 3: БАЛАНС -->
-        <div id="screen-balance" class="screen">
-            <h2>Кошелек</h2>
-            
-            <div class="modern-card" style="margin-bottom: 24px;">
-                <h3 style="margin-bottom: 16px; font-size: 15px; color: var(--text-muted);">Пополнение баланса</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-                    <button class="btn-primary" style="flex: 1; padding: 10px;">СБП</button>
-                    <button class="btn-secondary" style="flex: 1; padding: 10px;">Крипто</button>
-                </div>
-
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="number" class="input-field" id="customAmount" placeholder="Сумма в ₽" oninput="syncAmount()">
-                    <button class="btn-primary" style="width: auto; padding: 14px 20px;" onclick="processTopUp()">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-
-                <div class="amount-grid">
-                    <div class="amount-btn" onclick="selectAmount(100)">100 ₽</div>
-                    <div class="amount-btn" onclick="selectAmount(300)">300 ₽</div>
-                    <div class="amount-btn" onclick="selectAmount(500)">500 ₽</div>
-                    <div class="amount-btn" onclick="selectAmount(1000)">1000 ₽</div>
-                </div>
+        <div class="modern-card">
+            <h3>Ваша ссылка для приглашения</h3>
+            <div class="copy-group" style="margin-bottom: 12px;">
+                <input type="text" class="input-field" id="refLinkInput" readonly>
             </div>
-
-            <!-- Кнопка перехода в Рефералы -->
-            <div class="modern-card" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="openReferrals()">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--green-text); font-size: 18px;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: bold; color: var(--text-title);">Реферальная программа</div>
-                        <div class="text-sm text-muted">Зарабатывайте 15% с друзей</div>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right text-muted"></i>
-            </div>
-        </div>
-
-        <!-- ЭКРАН: РЕФЕРАЛЫ (Скрытый) -->
-        <div id="screen-referrals" class="screen">
-            <button class="btn-secondary" style="width: auto; margin-bottom: 20px; padding: 8px 16px;" onclick="closeReferrals()">
-                <i class="fas fa-arrow-left"></i> Назад
+            <button class="btn-primary" onclick="copyRefLink()">
+                <i class="fas fa-copy"></i> Скопировать ссылку
             </button>
-            
-            <h2 style="margin-bottom: 20px;">Реферальная система</h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-                <div class="modern-card" style="margin: 0; padding: 16px;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <i class="fas fa-wallet" style="color: var(--green-text);"></i>
-                        <span class="text-muted text-sm">Заработок</span>
-                    </div>
-                    <div style="color: var(--green-text); font-weight: bold; font-size: 18px;">+0.00 ₽</div>
-                </div>
-                <div class="modern-card" style="margin: 0; padding: 16px;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <i class="fas fa-user-plus" style="color: var(--accent-light);"></i>
-                        <span class="text-muted text-sm">Рефералы</span>
-                    </div>
-                    <div style="font-weight: bold; font-size: 18px; color: var(--text-title);">0 чел.</div>
-                </div>
-            </div>
+            <p class="text-muted text-sm" style="margin-top: 16px; line-height: 1.4;">Отправьте ссылку другу. После его первой оплаты вы автоматически получите 15% на свой баланс.</p>
+        </div>
+    </div>
 
-            <div class="modern-card">
-                <h3 style="font-size: 15px; margin-bottom: 12px;">Ваша ссылка для приглашения</h3>
-                <input type="text" class="input-field" id="refLinkInput" readonly style="margin-bottom: 12px; color: var(--text-muted); font-size: 13px;">
-                <button class="btn-primary" onclick="copyRefLink()">
-                    <i class="fas fa-copy"></i> Скопировать ссылку
-                </button>
-                <p class="text-muted text-sm" style="margin-top: 16px; line-height: 1.5; text-align: center;">Отправьте ссылку другу. После его первой оплаты вы автоматически получите 15% на свой баланс.</p>
+    <!-- ЭКРАН 4: ПОДДЕРЖКА -->
+    <div id="screen-support" class="screen">
+        <h2>Поддержка</h2>
+        
+        <div id="adminPanel" style="display: none; margin-bottom: 16px;">
+            <div class="modern-card" style="border-color: #FFAA00;">
+                <h3 style="color: #FFAA00;">Админ-панель</h3>
+                <div id="adminTicketsList"></div>
             </div>
         </div>
 
-        <!-- ЭКРАН 4: ПОДДЕРЖКА -->
-        <div id="screen-support" class="screen">
-            <h2>Служба поддержки</h2>
-            
-            <div id="adminPanel" style="display: none; margin-bottom: 16px;">
-                <div class="modern-card" style="border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05);">
-                    <h3 style="color: var(--yellow-accent); margin-bottom: 12px;"><i class="fas fa-shield-alt"></i> Админ-панель</h3>
-                    <div id="adminTicketsList"></div>
-                </div>
-            </div>
-
-            <div class="modern-card">
-                <p class="text-muted text-sm" style="margin-bottom: 12px;">Опишите проблему, и мы решим её в кратчайшие сроки.</p>
-                <textarea id="ticketMsg" class="input-field" rows="3" placeholder="Ваше сообщение..." style="resize: none; font-family: inherit; margin-bottom: 12px;"></textarea>
-                <button class="btn-secondary" onclick="sendTicket()">
-                    <i class="fas fa-paper-plane"></i> Отправить тикет
-                </button>
-            </div>
-
-            <h3 style="font-size: 16px; margin: 24px 0 12px 0;">Ваши обращения</h3>
-            <div id="ticketsList">
-                <p class="text-muted text-sm">У вас пока нет активных тикетов.</p>
-            </div>
+        <div class="modern-card">
+            <p class="text-muted text-sm" style="margin-bottom: 12px;">Опишите вашу проблему, и мы поможем.</p>
+            <textarea id="ticketMsg" class="input-field" rows="3" placeholder="Сообщение..." style="resize: none; font-family: inherit; margin-bottom: 12px;"></textarea>
+            <button class="btn-primary" onclick="sendTicket()">Отправить</button>
         </div>
 
+        <h3>Ваши обращения</h3>
+        <div id="ticketsList">
+            <p class="text-muted text-sm">У вас пока нет активных тикетов.</p>
+        </div>
     </div>
 
     <!-- Нижняя навигация -->
@@ -388,19 +381,17 @@
         let timerInterval;
 
         window.onload = async () => {
-            const user = tg.initDataUnsafe?.user;
-            if (user) {
-                // Имя пользователя подставляется в главный заголовок без отступов и шапок
-                document.getElementById('userNameTitle').textContent = `Привет, ${user.first_name}!`;
-                document.getElementById('refLinkInput').value = `https://t.me/kybic_vpn_bot?start=${user.id}`;
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (userId) {
+                document.getElementById('refLinkInput').value = `https://t.me/kybic_vpn_bot?start=${userId}`;
                 
-                if(ADMIN_IDS.includes(user.id)) {
+                if(ADMIN_IDS.includes(userId)) {
                     document.getElementById('adminPanel').style.display = 'block';
                     loadAdminTickets();
                 }
 
-                await loadUserData(user.id);
-                await loadTickets(user.id);
+                await loadUserData(userId);
+                await loadTickets(userId);
             }
         };
 
@@ -411,7 +402,6 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
 
-            // Возвращаем нижнее меню при переключении табов
             document.getElementById('mainNav').style.display = 'flex';
         }
 
@@ -433,19 +423,19 @@
                 const data = await res.json();
                 updateDashboardUI(data);
             } catch (err) {
-                document.getElementById('profileStatus').innerHTML = '<i class="fas fa-circle" style="color: var(--text-muted); font-size: 10px;"></i> Ошибка';
-                document.getElementById('profileStatus').style.color = "var(--text-muted)";
+                document.getElementById('profileStatus').textContent = 'Ошибка';
+                document.getElementById('profileStatus').className = 'status-badge status-inactive';
             }
         }
 
         function updateDashboardUI(data) {
             const statusBadge = document.getElementById('profileStatus');
             if(data.status === 'ACTIVE') {
-                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 10px;"></i> Активен';
-                statusBadge.style.color = "var(--green-text)";
+                statusBadge.textContent = "● Активен";
+                statusBadge.className = "status-badge status-active";
             } else {
-                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 10px;"></i> Неактивен';
-                statusBadge.style.color = "var(--text-muted)";
+                statusBadge.textContent = "● Неактивен";
+                statusBadge.className = "status-badge status-inactive";
             }
 
             const usedGb = (data.used_traffic / 1073741824).toFixed(2);
@@ -456,7 +446,7 @@
             let progress = (data.used_traffic / data.data_limit) * 100;
             if(progress > 100) progress = 100;
             document.getElementById('trafficProgress').style.width = `${progress}%`;
-            if(progress > 90) document.getElementById('trafficProgress').style.backgroundColor = "var(--yellow-accent)";
+            if(progress > 90) document.getElementById('trafficProgress').style.backgroundColor = "var(--red-text)";
 
             const activeDevices = data.devices ? data.devices.length : 0;
             document.getElementById('deviceUsage').textContent = `${activeDevices} / ${data.device_limit}`;
@@ -492,7 +482,6 @@
         async function resetDevices() {
             const userId = tg.initDataUnsafe?.user?.id;
             if(!userId) return;
-            tg.HapticFeedback.impactOccurred('medium');
             try {
                 const res = await fetch(`${API_BASE}/reset?tg_id=${userId}`, { method: 'POST' });
                 if(res.ok) {
@@ -503,7 +492,6 @@
         }
 
         function selectAmount(amount) {
-            tg.HapticFeedback.impactOccurred('light');
             document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('customAmount').value = amount;
@@ -516,12 +504,10 @@
         async function processTopUp() {
             const val = parseInt(document.getElementById('customAmount').value);
             if (!val || val < 50) { tg.showAlert("Минимальная сумма пополнения - 50 ₽"); return; }
-            tg.HapticFeedback.impactOccurred('heavy');
             await createPayment(val, 'Пополнение баланса');
         }
 
         async function buyTariff(price, name) {
-            tg.HapticFeedback.impactOccurred('heavy');
             await createPayment(price, name);
         }
 
@@ -547,7 +533,6 @@
         }
 
         function copyRefLink() {
-            tg.HapticFeedback.impactOccurred('light');
             const input = document.getElementById('refLinkInput');
             input.select();
             document.execCommand("copy");
@@ -566,16 +551,18 @@
                         return;
                     }
                     tickets.forEach(t => {
-                        let statusColor = t.status === 'open' ? 'var(--text-muted)' : (t.status === 'review' ? 'var(--yellow-accent)' : 'var(--green-text)');
-                        let statusText = t.status === 'open' ? 'Открыт' : (t.status === 'review' ? 'В работе' : 'Закрыт');
+                        let statusHtml = '';
+                        if(t.status === 'open') statusHtml = '<span class="status-badge status-inactive">Открыт</span>';
+                        else if(t.status === 'review') statusHtml = '<span class="status-badge status-review">В работе</span>';
+                        else statusHtml = '<span class="status-badge status-active">Закрыт</span>';
 
                         list.innerHTML += `
-                            <div class="modern-card" style="padding: 14px;">
+                            <div class="modern-card">
                                 <div class="flex-between" style="margin-bottom: 8px;">
-                                    <b style="font-size: 14px;">Тикет #${t.id}</b>
-                                    <span style="color: ${statusColor}; font-size: 12px; font-weight: bold;">${statusText}</span>
+                                    <b>Тикет #${t.id}</b>
+                                    ${statusHtml}
                                 </div>
-                                <p class="text-muted text-sm" style="margin:0;">${t.message}</p>
+                                <p class="text-muted text-sm">${t.message}</p>
                             </div>
                         `;
                     });
@@ -587,7 +574,6 @@
             const userId = tg.initDataUnsafe?.user?.id;
             const msg = document.getElementById('ticketMsg').value.trim();
             if(!msg || !userId) return;
-            tg.HapticFeedback.impactOccurred('medium');
             try {
                 const res = await fetch(`${API_BASE}/tickets`, {
                     method: 'POST',
@@ -612,12 +598,12 @@
                     tickets.forEach(t => {
                         if(t.status === 'closed') return;
                         list.innerHTML += `
-                            <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--card-border);">
-                                <b style="font-size: 14px; color: var(--text-title);">#${t.id} (ID: ${t.user_id})</b>
-                                <p style="font-size:13px; margin: 6px 0 10px 0; color: var(--text-main);">${t.message}</p>
+                            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                                <b>#${t.id} (User: ${t.user_id})</b>
+                                <p style="font-size:13px; margin: 4px 0 8px 0;">${t.message}</p>
                                 <div style="display:flex; gap: 8px;">
-                                    <button class="btn-secondary" style="padding: 6px; font-size: 12px; border-color: var(--yellow-accent); color: var(--yellow-accent);" onclick="changeTicketStatus(${t.id}, 'review')">В работу</button>
-                                    <button class="btn-secondary" style="padding: 6px; font-size: 12px; border-color: var(--green-text); color: var(--green-text);" onclick="changeTicketStatus(${t.id}, 'closed')">Закрыть</button>
+                                    <button class="btn-primary" style="padding: 6px; font-size: 12px; background: #FFAA00;" onclick="changeTicketStatus(${t.id}, 'review')">В работу</button>
+                                    <button class="btn-primary" style="padding: 6px; font-size: 12px; background: var(--green-text);" onclick="changeTicketStatus(${t.id}, 'closed')">Закрыть</button>
                                 </div>
                             </div>
                         `;
