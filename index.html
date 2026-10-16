@@ -266,14 +266,15 @@ body {
     </div>
 
     <!-- Блок бонусов -->
-    <div class="card" onclick="alert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-        <div style="font-size: 32px;">🎁</div>
-        <div style="flex: 1;">
-            <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 3px;">Ежедневные бонусы!</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
-        </div>
-        <div style="color: var(--text-muted); font-size: 18px;">›</div>
+<div class="card" onclick="showToast('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+    <!-- содержимое тоже самое -->
+    <div style="font-size: 32px;">🎁</div>
+    <div style="flex: 1;">
+        <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 3px;">Ежедневные бонусы!</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
     </div>
+    <div style="color: var(--text-muted); font-size: 18px;">›</div>
+</div>
 
     <!-- Новости -->
     <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700; text-transform: uppercase;">📰 Новости и обновления</div>
