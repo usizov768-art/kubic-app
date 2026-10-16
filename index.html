@@ -2,1029 +2,711 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Кубик VPN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kubic VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем профессиональные иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-    --bg-main: #0A0D14; /* Глубокий темный фон */
-    --card-bg: #11151F; /* Фон карточек */
-    --text-main: #FFFFFF;
-    --text-muted: #8E96A3; /* Серый текст */
-    --accent-blue: #2936FF; /* Ярко-синий как на скрине */
-    --accent-blue-hover: #1E28CC;
-    --border-color: rgba(255, 255, 255, 0.05);
-    --green-text: #00E676; /* Для плюсового баланса */
-}
-
-body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 16px;
-}
-
-        body::before, body::after {
-            content: ''; position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; pointer-events: none;
+            --bg-main: #0B0E14;
+            --bg-gradient: linear-gradient(180deg, #121827 0%, #0B0E14 100%);
+            --card-bg: #151A27;
+            --card-border: rgba(255, 255, 255, 0.06);
+            --text-title: #FFFFFF;
+            --text-main: #D1D5DB; /* Светло-серый, не режет глаза */
+            --text-muted: #8B949E;
+            --accent-blue: #2A5BFF;
+            --accent-blue-hover: #1E40D9;
+            --accent-light: #3B82F6;
+            --green-text: #10B981;
+            --yellow-accent: #F59E0B;
+            --nav-bg: rgba(15, 20, 31, 0.95);
         }
-        body::before { width: 320px; height: 300px; background: rgba(99, 102, 241, 0.25); top: -50px; left: -100px; animation: float 10s infinite alternate; }
-        body::after { width: 380px; height: 380px; background: rgba(56, 189, 248, 0.15); bottom: -80px; right: -120px; animation: float 12s infinite alternate-reverse; }
 
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 40px); } }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-main);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0 0 80px 0;
+            min-height: 100vh;
+        }
+
+        /* --- ШАПКА КАК НА СКРИНШОТЕ --- */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--card-border);
+        }
+        
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-block i {
+            font-size: 24px;
+            color: #38BDF8;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+        }
+        .logo-text {
+            font-weight: 900;
+            font-size: 14px;
+            line-height: 1.1;
+            color: var(--text-title);
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--yellow-accent);
+            font-size: 16px;
+        }
+        .lang-badge {
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-container { padding: 20px; }
+
+        h2, h3, h4 { color: var(--text-title); margin-top: 0; }
+        
+        /* Блок приветствия */
+        .greeting-block {
+            margin-bottom: 24px;
+        }
+        .greeting-title {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+        .sub-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(42, 91, 255, 0.15);
+            border: 1px solid rgba(42, 91, 255, 0.3);
+            color: #60A5FA;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Карточки */
+        .modern-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .text-muted { color: var(--text-muted); font-size: 14px; }
+        .text-sm { font-size: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* Поля и кнопки */
+        .input-field {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--text-title);
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-field:focus { border-color: var(--accent-light); }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .btn-secondary {
+            background-color: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Грид пополнения */
+        .amount-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .amount-btn {
+            background-color: rgba(0,0,0,0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            color: var(--text-title);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .amount-btn.active {
+            border-color: var(--accent-light);
+            background-color: rgba(42, 91, 255, 0.1);
+        }
+
+        /* Навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            z-index: 1000;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-item i { font-size: 20px; transition: 0.2s; }
+        .nav-item.active { color: var(--accent-light); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Шапка */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 100; background: rgba(9, 11, 20, 0.65); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--glass-border); }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
-        .logo-icon { width: 34px; height: 34px; background: var(--glass-bg); border: 1px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 0 15px var(--primary-glow); }
-        
-        .header-right { display: flex; align-items: center; gap: 8px; position: relative; }
-        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .icon-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
-        
-        .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 0 12px; height: 36px; display: flex; align-items: center; gap: 6px; color: var(--text-main); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .lang-dropdown { position: absolute; top: 45px; right: 40px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--glass-border); border-radius: 14px; padding: 8px 0; width: 140px; backdrop-filter: var(--glass-blur); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 101; opacity: 0; transform: translateY(-10px); transition: all 0.2s; }
-        .lang-dropdown.show { display: flex; opacity: 1; transform: translateY(0); }
-        .lang-item { padding: 10px 16px; font-size: 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-main); }
-
-        /* ПОЛНОЭКРАННОЕ МЕНЮ */
-        .fullscreen-menu {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(9, 11, 20, 0.96); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            z-index: 99; display: flex; flex-direction: column; padding-top: 80px;
-            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-20px);
-        }
-        .fullscreen-menu.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .menu-user-info { padding: 0 30px 20px 30px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; }
-        .menu-user-info .greeting { font-size: 24px; font-weight: 800; color: var(--text-main); }
-        .menu-user-info .username { font-size: 14px; color: var(--primary); font-weight: 600; }
-        .menu-items { display: flex; flex-direction: column; padding: 10px 20px; overflow-y: auto; padding-bottom: 120px; }
-        .menu-items a { display: flex; align-items: center; gap: 16px; padding: 16px 15px; color: var(--text-main); font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 14px; transition: 0.2s; cursor: pointer; }
-        .menu-items a:active { background: rgba(255,255,255,0.05); transform: scale(0.98); }
-        .menu-items a svg { width: 22px; height: 22px; stroke: #94A3B8; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-
-        .container { padding: 0 20px; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-content.active { display: block; }
-
-        .welcome-title { font-size: 24px; font-weight: 800; margin-top: 20px; margin-bottom: 16px; letter-spacing: -0.5px; }
-
-        .card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 8px 32px rgba(0,0,0,0.25); transition: all 0.3s ease; }
-        .glass-box { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-
-        .btn-blue-bright {
-            background: #1D4ED8; color: white; border: none; padding: 14px; width: 100%; border-radius: 14px;
-            font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-blue-bright:active { transform: scale(0.97); }
-
-        .btn-magic { background: linear-gradient(45deg, #4F46E5, #38BDF8, #7C3AED, #38BDF8); background-size: 300% 300%; animation: gradientBG 4s ease infinite; color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 20px var(--accent-glow); transition: 0.2s; }
-        .btn-magic:active { transform: scale(0.96); }
-        .btn-dark { background: rgba(30, 27, 75, 0.6); border: 1px solid rgba(99, 102, 241, 0.3); color: #C7D2FE; padding: 15px; width: 100%; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; margin-bottom: 16px; }
-        .btn-dark:active { transform: scale(0.97); background: rgba(46, 16, 101, 0.8); }
-
-        .tariff-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 22px; margin-bottom: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .tariff-card:hover, .tariff-card.hover-effect { border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25), 0 0 15px rgba(56, 189, 248, 0.2); transform: translateY(-3px); }
-        .tariff-price { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; }
-        .tariff-price span { font-size: 26px; color: var(--primary); font-weight: 800; }
-        .tariff-features { font-size: 13px; color: #CBD5E1; line-height: 1.6; margin-bottom: 18px; }
-        .tariff-features div { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; position: relative; cursor: pointer; backdrop-filter: var(--glass-blur); }
-        .stat-card h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
-        .stat-card .val { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .arrow-right { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 14px; }
-
-        .progress-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #38BDF8); border-radius: 3px; box-shadow: 0 0 10px var(--primary-glow); transition: width 0.5s ease; }
-
-        .input-box { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none; }
-
-        .bottom-nav-wrapper {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px;
-            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; display: flex; justify-content: space-between; padding: 6px; z-index: 100;
-        }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 500; padding: 10px 0; border-radius: 18px; cursor: pointer; transition: all 0.3s ease; }
-        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-        .nav-item.active { background: rgba(49, 46, 129, 0.6); color: #818CF8; }
-
-        /* ТИКЕТЫ */
-        .ticket-item {
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 16px; padding: 14px 18px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .ticket-item:active { background: rgba(99, 102, 241, 0.1); }
-        .badge-status { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
-        .badge-open { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border: 1px solid rgba(37, 99, 235, 0.4); }
-        .badge-answered { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
-
-        .chat-msg { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; max-width: 85%; }
-        .chat-msg.user-msg { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); margin-right: auto; }
-        .chat-msg.admin-msg { background: rgba(37, 99, 235, 0.25); border: 1px solid rgba(37, 99, 235, 0.4); margin-left: auto; color: #F8FAFC; }
     </style>
 </head>
 <body>
 
-<!-- Шапка -->
-<header class="header">
-    <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
-    <div class="header-right">
-        <button class="icon-btn" onclick="tgAlert('Уведомлений нет')">🔔</button>
-        <button class="lang-btn" onclick="toggleLang(event)">🇷🇺 RU ⌄</button>
-        <div class="lang-dropdown" id="langDrop">
-            <div class="lang-item active-lang">🇷🇺 Русский</div>
-            <div class="lang-item" onclick="tgAlert('Скоро')">🇬🇧 English</div>
+    <!-- Общая шапка (показывается всегда) -->
+    <div class="top-header">
+        <div class="logo-block">
+            <i class="fas fa-cube"></i>
+            <div class="logo-text">КУБИК<br>ВПН</div>
         </div>
-        <button class="icon-btn" id="menuBtn" onclick="toggleMenu()" style="border: none; background: transparent; box-shadow: none;">
-            <svg id="menuIcon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>
-            </svg>
-        </button>
-    </div>
-</header>
-
-<!-- Полноэкранное меню -->
-<div class="fullscreen-menu" id="fullMenu">
-    <div class="menu-user-info">
-        <div class="greeting" id="menuName">Привет!</div>
-        <div class="username" id="menuUsername">@username</div>
-    </div>
-    <div class="menu-items">
-        <a onclick="closeMenuAndSwitch('tab-home', 0)">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Главная
-        </a>
-        <a onclick="closeMenuAndSwitch('tab-sub', 1)">
-            <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
-            Подписка
-        </a>
-        <a onclick="closeMenuAndSwitch('tab-balance', 2)">
-            <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-            Баланс
-        </a>
-        <a onclick="closeMenuAndSwitch('tab-support', 3)">
-            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            Поддержка
-        </a>
-        <a onclick="copyRefLink()">
-            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            Рефералы
-        </a>
-        <a onclick="openInfoDocs()">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            Информация
-        </a>
-    </div>
-</div>
-
-<div class="container" onclick="closeDropdowns(event)">
-
-    <!-- ==================== 1. ГЛАВНАЯ ==================== -->
-    <div id="tab-home" class="tab-content active">
-        <h1 class="welcome-title" id="userName">Привет!</h1>
-        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">Ваша подписка: <span style="color: #38BDF8; background: rgba(56,189,248,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 600;" id="badgeStatus">Проверяем...</span></div>
-
-        <div id="home-inactive">
-            <div class="card" style="text-align: center; padding: 35px 20px;">
-                <div style="font-size: 50px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">🧊</div>
-                <h3 style="margin-bottom: 8px; font-size: 18px;">Подписка не подключена</h3>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.5;">
-                    Получите 3 дня бесплатного доступа с лимитом 100 ГБ и высокой скоростью соединения!
-                </p>
-                <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-                <button class="btn-dark" style="margin-top: 15px;" onclick="openTariffsPage()">+ Посмотреть тарифы и купить подписку</button>
-            </div>
+        <div class="header-actions">
+            <div class="action-icon"><i class="fas fa-bell"></i></div>
+            <div class="lang-badge">RU <i class="fas fa-chevron-down" style="font-size: 10px;"></i></div>
+            <i class="fas fa-ellipsis-v" style="color: var(--text-muted); padding: 0 8px;"></i>
         </div>
+    </div>
 
-        <div id="home-active" style="display: none;">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <div>
-                        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                            <span style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--primary); color: var(--primary); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700;">АКТИВНО</span>
-                        </div>
-                        <div style="font-size: 18px; font-weight: 700;">Расход трафика</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="trafficPercent">0<span>%</span></div>
-                        <div style="font-size: 11px; color: var(--text-muted);" id="trafficText">0 МБ / 100 ГБ</div>
-                    </div>
-                </div>
-
-                <div class="progress-bar"><div class="progress-fill" id="trafficFill" style="width: 2%;"></div></div>
-                
-                <div class="glass-box" style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; background: rgba(56,189,248,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">🖥</div>
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;">Подключить устройство</div>
-                            <div style="font-size: 11px; color: var(--text-muted);" id="homeDeviceCount">0 из 1 подключено</div>
-                        </div>
-                    </div>
-                    <div style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 8px #10B981;"></div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ТАРИФ</div>
-                        <div style="font-weight: 600; font-size: 13px;">Кубик Лайт 🧊</div>
-                    </div>
-                    <div class="glass-box" style="margin-bottom: 0;">
-                        <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">📅 ОСТАЛОСЬ</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #FBBF24;" id="homeDaysLeft">3 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span></div>
-                    </div>
-                </div>
-            </div>
+    <div class="content-container">
+        
+        <!-- ЭКРАН 1: ГЛАВНАЯ -->
+        <div id="screen-home" class="screen active">
             
-            <button class="btn-dark" onclick="openTariffsPage()">+ Продлить / Сменить тариф</button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav-wrapper .nav-item')[2])">
-                <div class="arrow-right">›</div>
-                <h4>Баланс</h4>
-                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
+            <div class="greeting-block">
+                <div class="greeting-title" id="userNameTitle">Привет, Пользователь!</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="text-muted text-sm">Ваша подписка:</span>
+                    <div class="sub-badge"><i class="fas fa-star"></i> Кубик Пользователь</div>
+                </div>
             </div>
-            <div class="stat-card" onclick="copyRefLink()">
-                <div class="arrow-right">›</div>
-                <h4>Рефералы</h4>
-                <div class="val"><span style="font-size: 20px;">👥</span> <span id="homeRefCount">0</span></div>
-                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Пригласить друга</div>
-            </div>
-        </div>
 
-        <div class="card" onclick="tgAlert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-            <div style="font-size: 32px;">🎁</div>
-            <div style="flex: 1;">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Ежедневные бонусы!</div>
-                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
-            </div>
-            <div style="color: var(--text-muted);">›</div>
-        </div>
-
-        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
-        <div class="card">
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <span style="color: #10B981; border: 1px solid #10B981; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;">● VLESS И ГЕРМАНИЯ</span>
-            </div>
-            <div style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Запуск высокоскоростного сервера 🚀</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                Германия с каналом 5 Гбит/с уже доступна. Защита данных и минимальная задержка обеспечены!
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== 2. ПОДПИСКА / ПОДКЛЮЧЕНИЕ ==================== -->
-    <div id="tab-sub" class="tab-content">
-        <h1 class="welcome-title">Подключение</h1>
-
-        <div id="sub-inactive">
-            <div class="card" style="text-align: center; padding: 45px 20px;">
-                <div style="font-size: 45px; margin-bottom: 16px;">🔌</div>
-                <h2 style="margin-bottom: 10px; font-size: 20px;">У вас нет подписки</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Активируйте бесплатный период или купите подписку для получения ссылки.</p>
-                <button class="btn-magic" onclick="requestTrialInApp()">🚀 Активировать 3 дня бесплатно</button>
-            </div>
-        </div>
-
-        <div id="sub-active" style="display: none;">
-            <div class="card">
-                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша VLESS Ссылка</h2>
+            <div class="modern-card">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <span class="text-muted">Статус соединения:</span>
+                    <span id="profileStatus" style="color: var(--green-text); font-weight: bold; font-size: 14px;"><i class="fas fa-circle" style="font-size: 10px;"></i> Активен</span>
+                </div>
                 
+                <h3 style="font-size: 28px; margin-bottom: 4px;" id="timerDisplay">00 дн 00:00:00</h3>
+                <p class="text-muted text-sm" style="margin-bottom: 20px;">Осталось времени</p>
+
+                <div class="flex-between text-sm" style="margin-bottom: 8px;">
+                    <span style="color: var(--text-main);">Использовано: <b id="usedTraffic" style="color: var(--text-title);">0 ГБ</b></span>
+                    <span style="color: var(--text-muted);">Лимит: <b id="totalTraffic">0 ГБ</b></span>
+                </div>
+                
+                <!-- Прогресс бар -->
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin-bottom: 20px;">
+                    <div id="trafficProgress" style="height: 100%; width: 0%; background: var(--accent-light); border-radius: 10px;"></div>
+                </div>
+
+                <div class="flex-between text-sm">
+                    <span style="color: var(--text-main);">Устройства: <b id="deviceUsage" style="color: var(--text-title);">0 / 0</b></span>
+                    <button class="btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px; margin: 0;" onclick="resetDevices()">
+                        <i class="fas fa-sync-alt" style="color: var(--text-muted);"></i> Сброс
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 2: ПОДПИСКА -->
+        <div id="screen-subscription" class="screen">
+            <h2 style="margin-bottom: 8px;">Выбор тарифа</h2>
+            <p class="text-muted text-sm" style="margin-bottom: 20px;">Продлите подписку для бесперебойной защиты данных.</p>
+
+            <div class="modern-card">
+                <div class="flex-between" style="margin-bottom: 12px;">
+                    <b style="font-size: 16px;">Standard</b>
+                    <b style="color: var(--green-text); font-size: 16px;">99 ₽ / мес</b>
+                </div>
+                <p class="text-muted text-sm" style="margin-bottom: 16px; line-height: 1.4;"><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> 150 ГБ трафика<br><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> 2 устройства<br><i class="fas fa-check" style="color: var(--green-text); margin-right: 4px;"></i> Стабильное шифрование</p>
+                <button class="btn-secondary" onclick="buyTariff(99, 'Standard')">Выбрать Standard</button>
+            </div>
+
+            <div class="modern-card" style="border: 1px solid rgba(42, 91, 255, 0.4); background: rgba(42, 91, 255, 0.05);">
+                <div class="flex-between" style="margin-bottom: 12px;">
+                    <b style="font-size: 16px; color: var(--accent-light);">Pro (Максимальный)</b>
+                    <b style="color: var(--accent-light); font-size: 16px;">179 ₽ / мес</b>
+                </div>
+                <p class="text-muted text-sm" style="margin-bottom: 16px; line-height: 1.4;"><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> 300 ГБ трафика<br><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> 3 устройства<br><i class="fas fa-check" style="color: var(--accent-light); margin-right: 4px;"></i> Приоритетный канал</p>
+                <button class="btn-primary" onclick="buyTariff(179, 'Pro')">Выбрать Pro</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 3: БАЛАНС -->
+        <div id="screen-balance" class="screen">
+            <h2>Кошелек</h2>
+            
+            <div class="modern-card" style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 16px; font-size: 15px; color: var(--text-muted);">Пополнение баланса</h3>
                 <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-                    <input type="text" id="vlessInput" class="input-box" readonly value="Загрузка ссылки...">
-                    <button class="icon-btn" onclick="copyVlessInput()" style="background: var(--primary); color: #000; border: none; padding: 0 16px; font-size: 18px; font-weight: bold; height: auto;">📋</button>
+                    <button class="btn-primary" style="flex: 1; padding: 10px;">СБП</button>
+                    <button class="btn-secondary" style="flex: 1; padding: 10px;">Крипто</button>
                 </div>
 
-                <div class="glass-box" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); margin-bottom: 20px;">
-                    <div style="color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 6px;">📅 ОСТАЛОСЬ ВРЕМЕНИ</div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div style="font-size: 24px; font-weight: 700; color: #FBBF24;" id="timerDisplay">-- : -- : --</div>
-                        <div style="font-size: 11px; color: var(--text-muted);" id="expireDateText">--.--.----</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="number" class="input-field" id="customAmount" placeholder="Сумма в ₽" oninput="syncAmount()">
+                    <button class="btn-primary" style="width: auto; padding: 14px 20px;" onclick="processTopUp()">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="amount-grid">
+                    <div class="amount-btn" onclick="selectAmount(100)">100 ₽</div>
+                    <div class="amount-btn" onclick="selectAmount(300)">300 ₽</div>
+                    <div class="amount-btn" onclick="selectAmount(500)">500 ₽</div>
+                    <div class="amount-btn" onclick="selectAmount(1000)">1000 ₽</div>
+                </div>
+            </div>
+
+            <!-- Кнопка перехода в Рефералы -->
+            <div class="modern-card" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="openReferrals()">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--green-text); font-size: 18px;">
+                        <i class="fas fa-users"></i>
                     </div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
-                    <span style="font-weight: 600;">ТРАФИК</span>
-                    <span id="subTrafficVal" style="color: var(--text-main);">0 МБ / 100 ГБ</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" id="subProgressFill" style="width: 2%;"></div></div>
-            </div>
-
-            <div class="card" id="devicesCard">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="font-size: 16px;">Мои устройства</h3>
-                    <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Удалить все</span>
-                </div>
-                <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Нет подключенных устройств</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== 3. БАЛАНС ==================== -->
-    <div id="tab-balance" class="tab-content">
-        <h1 class="welcome-title">Баланс</h1>
-        <div class="card" style="text-align: center; padding: 25px 20px;">
-            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Текущий баланс</div>
-            <h1 style="font-size: 38px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">0.00 ₽</h1>
-            <button class="btn-magic" onclick="openTariffsPage()">➕ Пополнить баланс</button>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; margin-bottom: 14px;">Активация промокода</h3>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" class="input-box" placeholder="Введите промокод">
-                <button class="btn-blue-bright" style="width: auto; padding: 0 20px;" onclick="tgAlert('Промокод не найден')">Применить</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== 4. ТАРИФЫ ==================== -->
-    <div id="tab-tariffs" class="tab-content">
-        <h1 class="welcome-title">Оформить подписку</h1>
-        
-        <div class="glass-box" style="display: flex; align-items: center; gap: 15px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
-            <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
-            <div>
-                <div style="color: #10B981; font-weight: 700; font-size: 14px;">Ваша группа: Кубный пользователь</div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Персональные скидки применены к ценам</div>
-            </div>
-        </div>
-
-        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
-            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Тест 🧊</h2>
-            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Попробуйте «Кубик» ВПН бесплатно перед покупкой. Тестовый тариф предоставляется за подписку на Telegram-канал на 3 дня.
-            </p>
-            <div class="tariff-features">
-                <div><span style="color: var(--primary);">⬇</span> <b>100 ГБ</b> трафика на 3 дня</div>
-                <div><span style="color: var(--primary);">🖥</span> <b>1 устройство</b></div>
-                <div><span style="color: var(--text-muted);">↻</span> Без обязательств</div>
-            </div>
-            <div class="tariff-price">бесплатно</div>
-            <button class="btn-magic" onclick="requestTrialInApp()">Активировать 3 дня</button>
-        </div>
-
-        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
-            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Стандарт 🧊</h2>
-            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Идеально подходит для повседневного серфинга, просмотра видео в 4K и работы на двух устройствах одновременно.
-            </p>
-            <div class="tariff-features">
-                <div><span style="color: var(--primary);">⬇</span> <b>150 ГБ</b> быстрого трафика</div>
-                <div><span style="color: var(--primary);">🖥</span> <b>2 устройства</b> одновременно</div>
-                <div><span style="color: var(--primary);">🇩🇪</span> Локация: Германия</div>
-                <div><span style="color: var(--text-muted);">↻</span> Сброс трафика ежемесячно</div>
-            </div>
-            <div class="tariff-price">от <span>99.00 ₽</span> / мес</div>
-            <!-- СВЯЗАНО С ROLLYPAY -->
-            <button class="btn-magic" onclick="buySubscription('standard')">Купить за 99 ₽</button>
-        </div>
-
-        <div class="tariff-card" onmouseover="this.classList.add('hover-effect')" onmouseout="this.classList.remove('hover-effect')">
-            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Кубик Про 🔥</h2>
-            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                Получите максимальный доступ без ограничений. Защитите смартфоны, компьютеры и планшеты всей семьи.
-            </p>
-            <div class="tariff-features">
-                <div><span style="color: var(--primary);">⬇</span> <b style="color: #FBBF24;">300 ГБ</b> (Максимум)</div>
-                <div><span style="color: var(--primary);">🖥</span> <b style="color: #FBBF24;">3 устройства</b> одновременно</div>
-                <div><span style="color: var(--primary);">🌍</span> Все доступные локации</div>
-            </div>
-            <div class="tariff-price">от <span>179.00 ₽</span> / мес</div>
-            <!-- СВЯЗАНО С ROLLYPAY -->
-            <button class="btn-magic" style="background: linear-gradient(45deg, #F59E0B, #EF4444, #EC4899);" onclick="buySubscription('pro')">Купить PRO за 179 ₽</button>
-        </div>
-    </div>
-
-    <!-- ==================== 5. ПОДДЕРЖКА ==================== -->
-    <div id="tab-support" class="tab-content">
-        <h1 class="welcome-title">Поддержка</h1>
-        
-        <button class="btn-blue-bright" style="margin-bottom: 16px;" onclick="showCreateTicketModal()">
-            <span style="font-size: 18px;">+</span> Новый тикет
-        </button>
-
-        <div class="card" id="createTicketCard" style="display: none; border-color: rgba(37, 99, 235, 0.5);">
-            <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">Создать обращение</h2>
-            
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Тема</div>
-            <input type="text" id="ticketTitleInput" class="input-box" placeholder="Кратко опишите проблему..." style="margin-bottom: 14px;">
-            
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Сообщение</div>
-            <textarea id="ticketMsgInput" class="input-box" rows="4" placeholder="Подробно опишите вашу проблему..." style="resize: none; margin-bottom: 16px;"></textarea>
-
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-blue-bright" onclick="submitNewTicket()">✈️ Отправить</button>
-                <button class="btn-dark" style="margin: 0;" onclick="hideCreateTicketModal()">Отмена</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; margin-bottom: 14px;" id="ticketsHeaderTitle">Ваши обращения</h3>
-            <div id="ticketsListContainer">
-                <div style="text-align: center; padding: 20px; color: var(--text-muted);">Загрузка обращений...</div>
-            </div>
-        </div>
-
-        <div class="card" id="activeChatCard">
-            <div style="text-align: center; padding: 25px 10px; color: var(--text-muted);" id="chatEmptyState">
-                <div style="font-size: 40px; margin-bottom: 10px; opacity: 0.6;">💬</div>
-                <div>Выберите обращение или создайте новое</div>
-            </div>
-
-            <div id="chatBoxContent" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border);">
                     <div>
-                        <h3 style="font-size: 16px; font-weight: 700;" id="chatTitle">Тема</h3>
-                        <div style="font-size: 11px; color: var(--text-muted);" id="chatMeta">Создано --.--.----</div>
+                        <div style="font-weight: bold; color: var(--text-title);">Реферальная программа</div>
+                        <div class="text-sm text-muted">Зарабатывайте 15% с друзей</div>
                     </div>
-                    <span class="badge-status badge-open" id="chatStatusBadge">Открыт</span>
                 </div>
+                <i class="fas fa-chevron-right text-muted"></i>
+            </div>
+        </div>
 
-                <div id="chatMessagesList" style="max-height: 250px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px;"></div>
-
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="chatReplyInput" class="input-box" placeholder="Введите ваш ответ...">
-                    <button class="icon-btn" onclick="sendTicketReply()" style="background: #1D4ED8; border: none; width: 44px; height: 44px; font-size: 18px;">✈️</button>
+        <!-- ЭКРАН: РЕФЕРАЛЫ (Скрытый экран, открывается по кнопке из Баланса) -->
+        <div id="screen-referrals" class="screen">
+            <button class="btn-secondary" style="width: auto; margin-bottom: 20px; padding: 8px 16px;" onclick="closeReferrals()">
+                <i class="fas fa-arrow-left"></i> Назад
+            </button>
+            
+            <h2 style="margin-bottom: 20px;">Реферальная система</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <div class="modern-card" style="margin: 0; padding: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <i class="fas fa-wallet" style="color: var(--green-text);"></i>
+                        <span class="text-muted text-sm">Заработок</span>
+                    </div>
+                    <div style="color: var(--green-text); font-weight: bold; font-size: 18px;">+0.00 ₽</div>
+                </div>
+                <div class="modern-card" style="margin: 0; padding: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <i class="fas fa-user-plus" style="color: var(--accent-light);"></i>
+                        <span class="text-muted text-sm">Рефералы</span>
+                    </div>
+                    <div style="font-weight: bold; font-size: 18px; color: var(--text-title);">0 чел.</div>
                 </div>
             </div>
+
+            <div class="modern-card">
+                <h3 style="font-size: 15px; margin-bottom: 12px;">Ваша ссылка для приглашения</h3>
+                <input type="text" class="input-field" id="refLinkInput" readonly style="margin-bottom: 12px; color: var(--text-muted); font-size: 13px;">
+                <button class="btn-primary" onclick="copyRefLink()">
+                    <i class="fas fa-copy"></i> Скопировать ссылку
+                </button>
+                <p class="text-muted text-sm" style="margin-top: 16px; line-height: 1.5; text-align: center;">Отправьте ссылку другу. После его первой оплаты вы автоматически получите 15% на свой баланс.</p>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 4: ПОДДЕРЖКА -->
+        <div id="screen-support" class="screen">
+            <h2>Служба поддержки</h2>
+            
+            <div id="adminPanel" style="display: none; margin-bottom: 16px;">
+                <div class="modern-card" style="border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05);">
+                    <h3 style="color: var(--yellow-accent); margin-bottom: 12px;"><i class="fas fa-shield-alt"></i> Админ-панель</h3>
+                    <div id="adminTicketsList"></div>
+                </div>
+            </div>
+
+            <div class="modern-card">
+                <p class="text-muted text-sm" style="margin-bottom: 12px;">Опишите проблему, и мы решим её в кратчайшие сроки.</p>
+                <textarea id="ticketMsg" class="input-field" rows="3" placeholder="Ваше сообщение..." style="resize: none; font-family: inherit; margin-bottom: 12px;"></textarea>
+                <button class="btn-secondary" onclick="sendTicket()">
+                    <i class="fas fa-paper-plane"></i> Отправить тикет
+                </button>
+            </div>
+
+            <h3 style="font-size: 16px; margin: 24px 0 12px 0;">Ваши обращения</h3>
+            <div id="ticketsList">
+                <p class="text-muted text-sm">У вас пока нет активных тикетов.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav" id="mainNav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('subscription', this)">
+            <i class="fas fa-star"></i>
+            <span>Подписка</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('balance', this)">
+            <i class="fas fa-wallet"></i>
+            <span>Баланс</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('support', this)">
+            <i class="fas fa-life-ring"></i>
+            <span>Поддержка</span>
         </div>
     </div>
 
-</div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
 
-<!-- Плавающее нижнее меню -->
-<div class="bottom-nav-wrapper">
-    <div class="nav-item active" onclick="switchTab('tab-home', this)">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Главная</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-sub', this)">
-        <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"></path></svg>
-        <span>Подписка</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-balance', this)">
-        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-        <span>Баланс</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('tab-support', this)">
-        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        <span>Поддержка</span>
-    </div>
-</div>
+        const API_BASE = "https://panel.kybic.ru:2053/api/bot";
+        const ADMIN_IDS = [7058964435, 6470903092]; 
 
-<script>
-    let tg = window.Telegram?.WebApp;
-    
-    if (tg) {
-        try {
-            tg.ready();
-            tg.expand();
-            tg.setHeaderColor('#090B14');
-            tg.setBackgroundColor('#090B14');
-        } catch(e) {}
-    }
+        let expireTimestamp = 0;
+        let timerInterval;
 
-    const API_URL = "https://panel.kybic.ru:2053/api/bot";
-    let currentUser = tg?.initDataUnsafe?.user;
-    let userSubUrl = "";
-    let userRefLink = "";
-    let expireTimestamp = 0;
-    let timerInterval = null;
-    let refreshInterval = null;
-
-    let selectedTicketId = null;
-    let isUserAdmin = false;
-
-    function tgAlert(msg) { 
-        try {
-            if (tg && tg.showAlert) tg.showAlert(msg);
-            else alert(msg);
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
-        } catch(e) { alert(msg); }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        if (currentUser) {
-            const uName = document.getElementById('userName');
-            if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
-            
-            const mName = document.getElementById('menuName');
-            if (mName) mName.innerText = currentUser.first_name || "Пользователь";
-            
-            const mUser = document.getElementById('menuUsername');
-            if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
-            
-            userRefLink = `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`;
-
-            checkUserStatus();
-            loadTickets();
-        } else {
-            const uName = document.getElementById('userName');
-            if (uName) uName.innerText = "Привет, Гость!";
-        }
-    });
-
-    /* ФУНКЦИЯ ОПЛАТЫ ROLLYPAY */
-    async function buySubscription(planType) {
-        if (!currentUser) {
-            tgAlert("Откройте приложение через Telegram!");
-            return;
-        }
-        
-        try {
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-            tgAlert("⏳ Формируем счет на оплату...");
-
-            const res = await fetch(`${API_URL}/create_payment`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    plan: planType
-                })
-            });
-            
-            const data = await res.json();
-            
-            if (data.success && data.pay_url) {
-                if (tg && tg.openLink) {
-                    tg.openLink(data.pay_url);
-                } else {
-                    window.open(data.pay_url, '_blank');
+        window.onload = async () => {
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                // Вставляем имя пользователя в заголовок
+                document.getElementById('userNameTitle').textContent = `Привет, ${user.first_name}!`;
+                document.getElementById('refLinkInput').value = `https://t.me/kybic_vpn_bot?start=${user.id}`;
+                
+                if(ADMIN_IDS.includes(user.id)) {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadAdminTickets();
                 }
-            } else {
-                tgAlert("❌ Ошибка формирования счета");
-            }
-        } catch (e) {
-            tgAlert("❌ Ошибка соединения: " + e.message);
-        }
-    }
 
-    function copyRefLink() {
-        if (!userRefLink) {
-            userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
-        }
-        try { navigator.clipboard.writeText(userRefLink); } catch(e){}
-        tgAlert("🔗 Реферальная ссылка скопирована!");
-    }
-
-    let isMenuOpen = false;
-    const icon3Dots = '<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
-    const iconCross = '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
-
-    function toggleMenu() {
-        isMenuOpen = !isMenuOpen;
-        const menu = document.getElementById('fullMenu');
-        const icon = document.getElementById('menuIcon');
-        if (menu && icon) {
-            if (isMenuOpen) {
-                menu.classList.add('open');
-                icon.innerHTML = iconCross;
-            } else {
-                menu.classList.remove('open');
-                icon.innerHTML = icon3Dots;
-            }
-        }
-    }
-
-    function toggleLang(e) {
-        if(e) e.stopPropagation();
-        const drop = document.getElementById('langDrop');
-        if (drop) drop.classList.toggle('show');
-    }
-
-    function closeDropdowns(e) {
-        if (!e.target.closest('.lang-btn')) {
-            const drop = document.getElementById('langDrop');
-            if (drop) drop.classList.remove('show');
-        }
-    }
-
-    function closeMenuAndSwitch(tabId, navIndex) {
-        if (isMenuOpen) toggleMenu();
-        const navItems = document.querySelectorAll('.bottom-nav-wrapper .nav-item');
-        if (navIndex !== null && navItems[navIndex]) {
-            switchTab(tabId, navItems[navIndex]);
-        } else {
-            switchTab(tabId, null);
-        }
-    }
-
-    function openTariffsPage() {
-        if (isMenuOpen) toggleMenu();
-        switchTab('tab-tariffs', null);
-    }
-
-    function openInfoDocs() {
-        if (isMenuOpen) toggleMenu();
-        if (tg && tg.showPopup) {
-            try {
-                tg.showPopup({
-                    title: "Юридическая информация",
-                    message: "КУБИК VPN 🧊\nВерсия: 1.0.0\n\nВыберите документ:",
-                    buttons: [
-                        { id: "policy", type: "default", text: "Политика конфиденциальности" },
-                        { id: "offer", type: "default", text: "Пользовательское соглашение" },
-                        { id: "close", type: "cancel", text: "Закрыть" }
-                    ]
-                }, function(buttonId) {
-                    if (buttonId === "policy") {
-                        window.open("https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99", "_blank");
-                    } else if (buttonId === "offer") {
-                        window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
-                    }
-                });
-                return;
-            } catch(e) { console.log(e); }
-        }
-        const choice = confirm("Юридическая информация КУБИК VPN:\n\nОК - Политика конфиденциальности\nОтмена - Пользовательское соглашение");
-        if (choice) window.open("https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99", "_blank");
-        else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
-    }
-
-    /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
-    function showCreateTicketModal() { 
-        const card = document.getElementById('createTicketCard');
-        if (card) card.style.display = 'block'; 
-    }
-    function hideCreateTicketModal() {
-        const card = document.getElementById('createTicketCard');
-        if (card) card.style.display = 'none';
-        const tInput = document.getElementById('ticketTitleInput');
-        if (tInput) tInput.value = '';
-        const mInput = document.getElementById('ticketMsgInput');
-        if (mInput) mInput.value = '';
-    }
-
-    async function loadTickets() {
-        if (!currentUser) return;
-        try {
-            const res = await fetch(`${API_URL}/get_tickets?user_id=${currentUser.id}`);
-            const data = await res.json();
-            
-            isUserAdmin = data.is_admin || false;
-            const titleEl = document.getElementById('ticketsHeaderTitle');
-            if (titleEl) titleEl.innerText = isUserAdmin ? "Другие обращения" : "Ваши обращения";
-
-            const container = document.getElementById('ticketsListContainer');
-            if (!container) return;
-
-            if (!data.tickets || data.tickets.length === 0) {
-                container.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-                    <div style="font-size: 36px; margin-bottom: 8px;">💬</div>
-                    <div>Нет обращений</div>
-                </div>`;
-                return;
-            }
-
-            let html = "";
-            data.tickets.forEach(t => {
-                const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
-                let badgeClass = 'badge-open';
-                let badgeText = 'Открыт';
-                if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
-
-                const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
-
-                html += `
-                <div class="ticket-item" onclick="selectTicket(${t.id}, '${t.title.replace(/'/g, "\\'")}', '${t.status}', '${dateStr}')">
-                    <div>
-                        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">${userPrefix}${t.title}</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">${dateStr}</div>
-                    </div>
-                    <span class="badge-status ${badgeClass}">${badgeText}</span>
-                </div>`;
-            });
-            container.innerHTML = html;
-        } catch (e) { console.log(e); }
-    }
-
-    async function selectTicket(ticketId, title, status, dateStr) {
-        selectedTicketId = ticketId;
-        const emptyState = document.getElementById('chatEmptyState');
-        if (emptyState) emptyState.style.display = 'none';
-        
-        const boxContent = document.getElementById('chatBoxContent');
-        if (boxContent) boxContent.style.display = 'block';
-
-        const cTitle = document.getElementById('chatTitle');
-        if (cTitle) cTitle.innerText = title;
-        
-        const cMeta = document.getElementById('chatMeta');
-        if (cMeta) cMeta.innerText = "Создано: " + dateStr;
-
-        updateChatBadge(status);
-        await loadTicketMessages(ticketId);
-    }
-
-    function updateChatBadge(status) {
-        const badge = document.getElementById('chatStatusBadge');
-        if (!badge) return;
-        let badgeClass = 'badge-open';
-        let badgeText = 'Открыт';
-        if (status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
-
-        badge.innerText = badgeText;
-        badge.className = 'badge-status ' + badgeClass;
-    }
-
-    async function loadTicketMessages(ticketId) {
-        try {
-            const res = await fetch(`${API_URL}/get_messages?ticket_id=${ticketId}`);
-            const data = await res.json();
-            
-            const list = document.getElementById('chatMessagesList');
-            if (!list) return;
-            let html = "";
-            
-            if (data.messages) {
-                data.messages.forEach(m => {
-                    const timeStr = new Date(m.created_at * 1000).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                    const isMe = (m.sender_type === 'user' && !isUserAdmin) || (m.sender_type === 'admin' && isUserAdmin);
-                    const msgClass = isMe ? 'admin-msg' : 'user-msg';
-                    const senderLabel = isMe ? 'Вы' : m.sender_name;
-
-                    html += `
-                    <div class="chat-msg ${msgClass}">
-                        <div style="font-size: 10px; opacity: 0.7; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px;">
-                            <b>${senderLabel}</b>
-                            <span>${timeStr}</span>
-                        </div>
-                        <div>${m.message}</div>
-                    </div>`;
-                });
-            }
-            list.innerHTML = html;
-            list.scrollTop = list.scrollHeight;
-        } catch (e) { console.log(e); }
-    }
-
-    async function submitNewTicket() {
-        const titleInput = document.getElementById('ticketTitleInput');
-        const msgInput = document.getElementById('ticketMsgInput');
-        const title = titleInput ? titleInput.value.trim() : "";
-        const message = msgInput ? msgInput.value.trim() : "";
-        
-        if (!title || !message) {
-            tgAlert("Заполните тему и сообщение!");
-            return;
-        }
-
-        const uid = currentUser ? currentUser.id : 7058964435;
-        const fname = currentUser ? currentUser.first_name : "Пользователь";
-
-        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
-        
-        try {
-            const res = await fetch(`${API_URL}/create_ticket`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: uid, first_name: fname, title: title, message: message })
-            });
-            const data = await res.json();
-            if (data.success) {
-                tgAlert("✅ Обращение успешно создано!");
-                hideCreateTicketModal();
-                await loadTickets();
-                if (data.ticket_id) {
-                    selectTicket(data.ticket_id, title, 'open', new Date().toLocaleDateString('ru-RU'));
-                }
-            } else {
-                tgAlert("❌ Не удалось создать обращение");
-            }
-        } catch (e) { tgAlert("❌ Ошибка отправки: " + e.message); }
-    }
-
-    async function sendTicketReply() {
-        if (!selectedTicketId || !currentUser) return;
-        const inp = document.getElementById('chatReplyInput');
-        if (!inp) return;
-        const message = inp.value.trim();
-        if (!message) return;
-
-        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); } catch(e){}
-        inp.value = "";
-
-        try {
-            const res = await fetch(`${API_URL}/reply_ticket`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ticket_id: selectedTicketId,
-                    user_id: currentUser.id,
-                    sender_name: currentUser.first_name,
-                    message: message
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                await loadTicketMessages(selectedTicketId);
-                loadTickets();
-            }
-        } catch (e) {}
-    }
-
-    /* ПОДПИСКА И СТАТУС */
-    async function checkUserStatus() {
-        if (!currentUser) return;
-        try {
-            const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
-            const data = await res.json();
-            if (data && data.active) showActiveState(data);
-        } catch (e) { console.log(e); }
-    }
-
-    async function requestTrialInApp() {
-        if (!currentUser) return;
-        try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
-        
-        try {
-            const res = await fetch(`${API_URL}/activate`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
-            });
-            const data = await res.json();
-            if (data.error === "not_subscribed") {
-                tgAlert("❌ Сначала подпишитесь на наш канал @kubic_vpn!");
-                return;
-            }
-            if (data.success || data.active) {
-                tgAlert("🎉 Пробный период 3 дня активирован!");
-                showActiveState(data);
-            } else tgAlert("❌ Ошибка активации");
-        } catch (e) { tgAlert("Ошибка: " + e.message); }
-    }
-
-    function resetUserDevices() {
-        if (!currentUser) return;
-        const doReset = async () => {
-            try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
-            try {
-                const res = await fetch(`${API_URL}/reset_devices`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user_id: currentUser.id })
-                });
-                const data = await res.json();
-                if (data.success || data.active) {
-                    tgAlert("✅ Устройства сброшены! Скопируйте новую ссылку.");
-                    showActiveState(data);
-                }
-            } catch (e) {
-                tgAlert("Ошибка соединения с сервером");
+                await loadUserData(user.id);
+                await loadTickets(user.id);
             }
         };
 
-        if (tg && tg.showConfirm) {
-            tg.showConfirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?", function(confirmed) {
-                if (confirmed) doReset();
-            });
-        } else {
-            if (confirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?")) {
-                doReset();
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${tabId}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(el) el.classList.add('active');
+
+            // Показываем нижнее меню (если возвращаемся из рефералов)
+            document.getElementById('mainNav').style.display = 'flex';
+        }
+
+        // Открыть скрытый экран рефералов
+        function openReferrals() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-referrals').classList.add('active');
+            document.getElementById('mainNav').style.display = 'none'; // прячем меню
+        }
+
+        // Закрыть экран рефералов и вернуться в Баланс
+        function closeReferrals() {
+            const balanceTab = document.querySelector('.nav-item:nth-child(3)');
+            switchTab('balance', balanceTab);
+        }
+
+        async function loadUserData(userId) {
+            try {
+                const res = await fetch(`${API_BASE}/user?tg_id=${userId}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                updateDashboardUI(data);
+            } catch (err) {
+                document.getElementById('profileStatus').innerHTML = '<i class="fas fa-circle" style="color: var(--text-muted); font-size: 10px;"></i> Ошибка';
+                document.getElementById('profileStatus').style.color = "var(--text-muted)";
             }
         }
-    }
 
-    function showActiveState(data) {
-        const hInact = document.getElementById('home-inactive');
-        if (hInact) hInact.style.display = 'none';
-        
-        const hAct = document.getElementById('home-active');
-        if (hAct) hAct.style.display = 'block';
-        
-        const sInact = document.getElementById('sub-inactive');
-        if (sInact) sInact.style.display = 'none';
-        
-        const sAct = document.getElementById('sub-active');
-        if (sAct) sAct.style.display = 'block';
+        function updateDashboardUI(data) {
+            const statusBadge = document.getElementById('profileStatus');
+            if(data.status === 'ACTIVE') {
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 10px;"></i> Активен';
+                statusBadge.style.color = "var(--green-text)";
+            } else {
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 10px;"></i> Неактивен';
+                statusBadge.style.color = "var(--text-muted)";
+            }
 
-        const badge = document.getElementById('badgeStatus');
-        if (badge) {
-            badge.innerText = '★ Кубик Пользователь';
-            badge.style.color = '#38BDF8';
-            badge.style.background = 'rgba(56,189,248,0.15)';
+            const usedGb = (data.used_traffic / 1073741824).toFixed(2);
+            const limitGb = (data.data_limit / 1073741824).toFixed(0);
+            document.getElementById('usedTraffic').textContent = `${usedGb} ГБ`;
+            document.getElementById('totalTraffic').textContent = `${limitGb} ГБ`;
+
+            let progress = (data.used_traffic / data.data_limit) * 100;
+            if(progress > 100) progress = 100;
+            document.getElementById('trafficProgress').style.width = `${progress}%`;
+            if(progress > 90) document.getElementById('trafficProgress').style.backgroundColor = "var(--yellow-accent)";
+
+            const activeDevices = data.devices ? data.devices.length : 0;
+            document.getElementById('deviceUsage').textContent = `${activeDevices} / ${data.device_limit}`;
+
+            if(data.expire) {
+                expireTimestamp = data.expire;
+                if(timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(updateTimer, 1000);
+                updateTimer();
+            } else {
+                document.getElementById('timerDisplay').textContent = "Бессрочно";
+            }
         }
 
-        if (data.sub_url) {
-            userSubUrl = data.sub_url;
-            const vInp = document.getElementById('vlessInput');
-            if (vInp) vInp.value = data.sub_url;
-        }
-
-        const usedBytes = data.used_traffic || 0;
-        const limitBytes = data.data_limit || (100 * 1024 * 1024 * 1024);
-        
-        let usedStr = (usedBytes / (1024 * 1024 * 1024)).toFixed(2) + " ГБ";
-        if (usedBytes < 1024*1024*1024) usedStr = (usedBytes / (1024*1024)).toFixed(0) + " МБ";
-        let limitStr = (limitBytes / (1024 * 1024 * 1024)).toFixed(0) + " ГБ";
-        let pct = Math.min((usedBytes / limitBytes) * 100, 100).toFixed(0);
-
-        const tPct = document.getElementById('trafficPercent');
-        if (tPct) tPct.innerHTML = `${pct}<span>%</span>`;
-        
-        const tText = document.getElementById('trafficText');
-        if (tText) tText.innerText = `${usedStr} / ${limitStr}`;
-        
-        const tFill = document.getElementById('trafficFill');
-        if (tFill) tFill.style.width = Math.max(pct, 2) + '%';
-        
-        const sTrafficVal = document.getElementById('subTrafficVal');
-        if (sTrafficVal) sTrafficVal.innerText = `${usedStr} / ${limitStr}`;
-        
-        const sFill = document.getElementById('subProgressFill');
-        if (sFill) sFill.style.width = Math.max(pct, 2) + '%';
-
-        const devices = data.devices || [];
-        const devLimit = data.device_limit || 1;
-        
-        const hDevCount = document.getElementById('homeDeviceCount');
-        if (hDevCount) hDevCount.innerText = `${devices.length} из ${devLimit} подключено`;
-        
-        let devHtml = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="font-size: 16px;">Мои устройства</h3>
-            <span style="font-size: 12px; color: #EF4444; cursor: pointer; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;" onclick="resetUserDevices()">Удалить все</span>
-        </div>`;
-        
-        if (devices.length === 0) {
-            devHtml += `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 10px 0;">Нет подключенных устройств</p>`;
-        } else {
-            devices.forEach(d => {
-                let statusColor = d.is_online ? '#10B981' : '#F59E0B';
-                let dotShadow = d.is_online ? `box-shadow: 0 0 8px ${statusColor};` : '';
-                devHtml += `<div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <span style="font-size: 20px;">📱</span>
-                        <div><div style="font-size: 13px; font-weight: 600;">${d.name}</div><div style="font-size: 10px; color: ${statusColor};">${d.status_text || 'В сети'}</div></div>
-                    </div>
-                    <div style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; ${dotShadow}"></div>
-                </div>`;
-            });
-        }
-        
-        const devCard = document.getElementById('devicesCard');
-        if (devCard) devCard.innerHTML = devHtml;
-
-        if (data.expire) {
-            expireTimestamp = data.expire;
-            const expText = document.getElementById('expireDateText');
-            if (expText) expText.innerText = `Действует до: ` + new Date(data.expire * 1000).toLocaleDateString('ru-RU');
-            if(!timerInterval) startLiveTimer();
-        }
-
-        if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => checkUserStatus(), 30000);
-    }
-
-    function startLiveTimer() {
-        timerInterval = setInterval(() => {
-            const diff = expireTimestamp - Math.floor(Date.now() / 1000);
+        function updateTimer() {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = expireTimestamp - now;
+            
             if (diff <= 0) {
-                const tDisp = document.getElementById('timerDisplay');
-                if (tDisp) tDisp.innerText = "Истекло";
-                
-                const hDays = document.getElementById('homeDaysLeft');
-                if (hDays) hDays.innerHTML = `0 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-                
+                document.getElementById('timerDisplay').textContent = "Истекла";
                 clearInterval(timerInterval);
                 return;
             }
-            const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400)/3600), m = Math.floor((diff % 3600)/60), s = diff % 60;
-            const pad = n => n.toString().padStart(2, '0');
-            
-            const tDisp = document.getElementById('timerDisplay');
-            if (tDisp) tDisp.innerText = `${d} дн. ${pad(h)} : ${pad(m)} : ${pad(s)}`;
-            
-            const hDays = document.getElementById('homeDaysLeft');
-            if (hDays) hDays.innerHTML = `${d} <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">дн.</span>`;
-        }, 1000);
-    }
 
-    function copyVlessInput() {
-        if (!userSubUrl) return;
-        try { navigator.clipboard.writeText(userSubUrl); } catch(e){}
-        tgAlert("🔗 Ссылка скопирована!");
-    }
-
-    function switchTab(tabId, el) {
-        const targetTab = document.getElementById(tabId);
-        if (!targetTab) return;
-        
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        targetTab.classList.add('active');
-        
-        document.querySelectorAll('.bottom-nav-wrapper .nav-item').forEach(n => n.classList.remove('active'));
-        if (el) {
-            el.classList.add('active');
+            const d = Math.floor(diff / 86400);
+            const h = Math.floor((diff % 86400) / 3600).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const s = Math.floor(diff % 60).toString().padStart(2, '0');
+            
+            document.getElementById('timerDisplay').textContent = `${d} дн ${h}:${m}:${s}`;
         }
-        window.scrollTo(0, 0);
-    }
-</script>
+
+        async function resetDevices() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if(!userId) return;
+            tg.HapticFeedback.impactOccurred('medium');
+            try {
+                const res = await fetch(`${API_BASE}/reset?tg_id=${userId}`, { method: 'POST' });
+                if(res.ok) {
+                    tg.showAlert("Устройства успешно сброшены!");
+                    loadUserData(userId);
+                }
+            } catch (e) {}
+        }
+
+        function selectAmount(amount) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('customAmount').value = amount;
+        }
+
+        function syncAmount() {
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        async function processTopUp() {
+            const val = parseInt(document.getElementById('customAmount').value);
+            if (!val || val < 50) { tg.showAlert("Минимальная сумма пополнения - 50 ₽"); return; }
+            tg.HapticFeedback.impactOccurred('heavy');
+            await createPayment(val, 'Пополнение баланса');
+        }
+
+        async function buyTariff(price, name) {
+            tg.HapticFeedback.impactOccurred('heavy');
+            await createPayment(price, name);
+        }
+
+        async function createPayment(amount, description) {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if(!userId) return;
+            try {
+                tg.MainButton.showProgress();
+                const res = await fetch(`${API_BASE}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tg_id: userId, amount: amount, tariff: description })
+                });
+                const data = await res.json();
+                tg.MainButton.hideProgress();
+
+                if (data.payment_url) {
+                    tg.openLink(data.payment_url);
+                }
+            } catch (err) {
+                tg.MainButton.hideProgress();
+            }
+        }
+
+        function copyRefLink() {
+            tg.HapticFeedback.impactOccurred('light');
+            const input = document.getElementById('refLinkInput');
+            input.select();
+            document.execCommand("copy");
+            tg.showAlert("Ссылка скопирована!");
+        }
+
+        async function loadTickets(userId) {
+            try {
+                const res = await fetch(`${API_BASE}/tickets?tg_id=${userId}`);
+                if(res.ok) {
+                    const tickets = await res.json();
+                    const list = document.getElementById('ticketsList');
+                    list.innerHTML = "";
+                    if(tickets.length === 0) {
+                        list.innerHTML = '<p class="text-muted text-sm">У вас пока нет активных обращений.</p>';
+                        return;
+                    }
+                    tickets.forEach(t => {
+                        let statusColor = t.status === 'open' ? 'var(--text-muted)' : (t.status === 'review' ? 'var(--yellow-accent)' : 'var(--green-text)');
+                        let statusText = t.status === 'open' ? 'Открыт' : (t.status === 'review' ? 'В работе' : 'Закрыт');
+
+                        list.innerHTML += `
+                            <div class="modern-card" style="padding: 14px;">
+                                <div class="flex-between" style="margin-bottom: 8px;">
+                                    <b style="font-size: 14px;">Тикет #${t.id}</b>
+                                    <span style="color: ${statusColor}; font-size: 12px; font-weight: bold;">${statusText}</span>
+                                </div>
+                                <p class="text-muted text-sm" style="margin:0;">${t.message}</p>
+                            </div>
+                        `;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        async function sendTicket() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            const msg = document.getElementById('ticketMsg').value.trim();
+            if(!msg || !userId) return;
+            tg.HapticFeedback.impactOccurred('medium');
+            try {
+                const res = await fetch(`${API_BASE}/tickets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tg_id: userId, message: msg })
+                });
+                if(res.ok) {
+                    tg.showAlert("Обращение отправлено!");
+                    document.getElementById('ticketMsg').value = '';
+                    loadTickets(userId);
+                }
+            } catch(e) {}
+        }
+
+        async function loadAdminTickets() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/tickets?admin_id=${tg.initDataUnsafe?.user?.id}`);
+                if(res.ok) {
+                    const tickets = await res.json();
+                    const list = document.getElementById('adminTicketsList');
+                    list.innerHTML = "";
+                    tickets.forEach(t => {
+                        if(t.status === 'closed') return;
+                        list.innerHTML += `
+                            <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--card-border);">
+                                <b style="font-size: 14px; color: var(--text-title);">#${t.id} (ID: ${t.user_id})</b>
+                                <p style="font-size:13px; margin: 6px 0 10px 0; color: var(--text-main);">${t.message}</p>
+                                <div style="display:flex; gap: 8px;">
+                                    <button class="btn-secondary" style="padding: 6px; font-size: 12px; border-color: var(--yellow-accent); color: var(--yellow-accent);" onclick="changeTicketStatus(${t.id}, 'review')">В работу</button>
+                                    <button class="btn-secondary" style="padding: 6px; font-size: 12px; border-color: var(--green-text); color: var(--green-text);" onclick="changeTicketStatus(${t.id}, 'closed')">Закрыть</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function changeTicketStatus(ticketId, status) {
+            try {
+                const res = await fetch(`${API_BASE}/tickets/${ticketId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id: tg.initDataUnsafe?.user?.id, status: status })
+                });
+                if(res.ok) {
+                    loadAdminTickets();
+                    loadTickets(tg.initDataUnsafe?.user?.id);
+                }
+            } catch(e) {}
+        }
+    </script>
 </body>
 </html>
