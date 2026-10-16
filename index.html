@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kubic VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключаем профессиональные иконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -14,7 +13,7 @@
             --card-bg: #151A27;
             --card-border: rgba(255, 255, 255, 0.06);
             --text-title: #FFFFFF;
-            --text-main: #D1D5DB; /* Светло-серый, не режет глаза */
+            --text-main: #D1D5DB; 
             --text-muted: #8B949E;
             --accent-blue: #2A5BFF;
             --accent-blue-hover: #1E40D9;
@@ -40,63 +39,10 @@
             min-height: 100vh;
         }
 
-        /* --- ШАПКА КАК НА СКРИНШОТЕ --- */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid var(--card-border);
+        /* Главный контейнер (без всяких шапок сверху) */
+        .content-container { 
+            padding: 24px 20px 20px 20px; 
         }
-        
-        .logo-block {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-block i {
-            font-size: 24px;
-            color: #38BDF8;
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
-        }
-        .logo-text {
-            font-weight: 900;
-            font-size: 14px;
-            line-height: 1.1;
-            color: var(--text-title);
-            letter-spacing: 0.5px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .action-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--yellow-accent);
-            font-size: 16px;
-        }
-        .lang-badge {
-            background: rgba(255,255,255,0.05);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            color: var(--text-title);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .content-container { padding: 20px; }
 
         h2, h3, h4 { color: var(--text-title); margin-top: 0; }
         
@@ -109,6 +55,7 @@
             font-weight: 800;
             line-height: 1.2;
             margin-bottom: 12px;
+            color: var(--text-title);
         }
         .sub-badge {
             display: inline-flex;
@@ -241,26 +188,13 @@
 </head>
 <body>
 
-    <!-- Общая шапка (показывается всегда) -->
-    <div class="top-header">
-        <div class="logo-block">
-            <i class="fas fa-cube"></i>
-            <div class="logo-text">КУБИК<br>ВПН</div>
-        </div>
-        <div class="header-actions">
-            <div class="action-icon"><i class="fas fa-bell"></i></div>
-            <div class="lang-badge">RU <i class="fas fa-chevron-down" style="font-size: 10px;"></i></div>
-            <i class="fas fa-ellipsis-v" style="color: var(--text-muted); padding: 0 8px;"></i>
-        </div>
-    </div>
-
     <div class="content-container">
         
         <!-- ЭКРАН 1: ГЛАВНАЯ -->
         <div id="screen-home" class="screen active">
             
             <div class="greeting-block">
-                <div class="greeting-title" id="userNameTitle">Привет, Пользователь!</div>
+                <div class="greeting-title" id="userNameTitle">Привет!</div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="text-muted text-sm">Ваша подписка:</span>
                     <div class="sub-badge"><i class="fas fa-star"></i> Кубик Пользователь</div>
@@ -360,7 +294,7 @@
             </div>
         </div>
 
-        <!-- ЭКРАН: РЕФЕРАЛЫ (Скрытый экран, открывается по кнопке из Баланса) -->
+        <!-- ЭКРАН: РЕФЕРАЛЫ (Скрытый) -->
         <div id="screen-referrals" class="screen">
             <button class="btn-secondary" style="width: auto; margin-bottom: 20px; padding: 8px 16px;" onclick="closeReferrals()">
                 <i class="fas fa-arrow-left"></i> Назад
@@ -456,7 +390,7 @@
         window.onload = async () => {
             const user = tg.initDataUnsafe?.user;
             if (user) {
-                // Вставляем имя пользователя в заголовок
+                // Имя пользователя подставляется в главный заголовок без отступов и шапок
                 document.getElementById('userNameTitle').textContent = `Привет, ${user.first_name}!`;
                 document.getElementById('refLinkInput').value = `https://t.me/kybic_vpn_bot?start=${user.id}`;
                 
@@ -477,18 +411,16 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
 
-            // Показываем нижнее меню (если возвращаемся из рефералов)
+            // Возвращаем нижнее меню при переключении табов
             document.getElementById('mainNav').style.display = 'flex';
         }
 
-        // Открыть скрытый экран рефералов
         function openReferrals() {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-referrals').classList.add('active');
-            document.getElementById('mainNav').style.display = 'none'; // прячем меню
+            document.getElementById('mainNav').style.display = 'none';
         }
 
-        // Закрыть экран рефералов и вернуться в Баланс
         function closeReferrals() {
             const balanceTab = document.querySelector('.nav-item:nth-child(3)');
             switchTab('balance', balanceTab);
