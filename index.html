@@ -490,6 +490,17 @@ body {
 </div>
 
 <script>
+
+    // Переопределяем стандартный alert на красивый Telegram-овский
+window.alert = function(message) {
+    window.Telegram.WebApp.showAlert(message);
+};
+
+// Если используете подтверждения (да/нет), переопределяем и confirm
+window.confirm = function(message) {
+    return window.Telegram.WebApp.showConfirm(message);
+};
+    
     let tg = window.Telegram?.WebApp;
 
     if (tg) {
