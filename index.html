@@ -242,41 +242,55 @@ body {
                 </div>
             </div>
 
-            <button class="btn-dark" onclick="openTariffsPage()">+ Продлить / Сменить тариф</button>
+            Вот адаптированный фрагмент под твою темную палитру (фон `#0A0D14`, карточки `#11151F`, акцент `#2936FF`):
+
+```html
+        <button class="btn-primary" style="background: rgba(41, 54, 255, 0.15); border: 1px solid rgba(41, 54, 255, 0.4); color: #FFFFFF; margin-top: 12px;" onclick="openTariffsPage()">
+            + Продлить / Сменить тариф
+        </button>
+    </div>
+
+    <!-- Грид со статистикой (Баланс и Рефералы) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div class="card" style="margin-bottom: 0; padding: 16px; position: relative; cursor: pointer;" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav .nav-item')[2])">
+            <div style="position: absolute; top: 14px; right: 14px; color: var(--text-muted); font-size: 16px;">›</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Баланс</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                <span>💳</span> 0.00 ₽
+            </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav-wrapper .nav-item')[2])">
-                <div class="arrow-right">›</div>
-                <h4>Баланс</h4>
-                <div class="val"><span style="font-size: 20px;">💳</span> 0.00 ₽</div>
+        <div class="card" style="margin-bottom: 0; padding: 16px; position: relative; cursor: pointer;" onclick="copyRefLink()">
+            <div style="position: absolute; top: 14px; right: 14px; color: var(--text-muted); font-size: 16px;">›</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Рефералы</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 8px;">
+                <span>👥</span> <span id="homeRefCount">0</span>
             </div>
-            <div class="stat-card" onclick="copyRefLink()">
-                <div class="arrow-right">›</div>
-                <h4>Рефералы</h4>
-                <div class="val"><span style="font-size: 20px;">👥</span> <span id="homeRefCount">0</span></div>
-                <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Пригласить друга</div>
-            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Пригласить друга</div>
         </div>
+    </div>
 
-        <div class="card" onclick="tgAlert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-            <div style="font-size: 32px;">🎁</div>
-            <div style="flex: 1;">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 3px;">Ежедневные бонусы!</div>
-                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
-            </div>
-            <div style="color: var(--text-muted);">›</div>
+    <!-- Блок бонусов -->
+    <div class="card" onclick="alert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+        <div style="font-size: 32px;">🎁</div>
+        <div style="flex: 1;">
+            <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 3px;">Ежедневные бонусы!</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
         </div>
+        <div style="color: var(--text-muted); font-size: 18px;">›</div>
+    </div>
 
-        <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700;">📰 НОВОСТИ И ОБНОВЛЕНИЯ</div>
-        <div class="card">
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <span style="color: #10B981; border: 1px solid #10B981; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;">● VLESS И ГЕРМАНИЯ</span>
-            </div>
-            <div style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Запуск высокоскоростного сервера 🚀</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                Германия с каналом 5 Гбит/с уже доступна. Защита данных и минимальная задержка обеспечены!
-            </div>
+    <!-- Новости -->
+    <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin: 20px 0 10px 0; font-weight: 700; text-transform: uppercase;">📰 Новости и обновления</div>
+    
+    <div class="card">
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <span style="color: var(--green-text); background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.2); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700;">● VLESS И ГЕРМАНИЯ</span>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Запуск высокоскоростного сервера 🚀</div>
+        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+            Германия с каналом 5 Гбит/с уже доступна. Защита данных и минимальная задержка обеспечены!
+        </div>
         </div>
     </div>
 
