@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Кубик VPN</title>
+    <title>Кубик</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -14,7 +14,13 @@
     --accent-blue: #2936FF; /* Ярко-синий как на скрине */
     --accent-blue-hover: #1E28CC;
     --border-color: rgba(255, 255, 255, 0.05);
-    --green-text: #00E676; /* Для плюсового баланса */
+    --green-text: #00E676;
+            --glass-bg: rgba(255,255,255,0.04);
+            --glass-border: rgba(255,255,255,0.08);
+            --glass-blur: 16px;
+            --primary: #2936FF;
+            --primary-glow: rgba(41,54,255,0.28);
+            --accent-glow: rgba(0,230,118,0.18); /* Для плюсового баланса */
 }
 
 body {
@@ -133,7 +139,7 @@ body {
 
     <!-- Шапка -->
     <header class="header">
-        <div class="logo-wrap"><div class="logo-icon">🧊</div> КУБИК ВПН</div>
+        <div class="logo-wrap"><div class="logo-icon">🧊</div> Кубик</div>
         <div class="header-right">
             <button class="icon-btn" onclick="alert('Уведомлений нет')">🔔</button>
             <button class="lang-btn" onclick="toggleLang(event)">🇷🇺 RU ⌄</button>
@@ -245,8 +251,7 @@ body {
         <button class="btn-dark" onclick="openTariffsPage()">+ Продлить / Сменить тариф</button>
         </div>
 
-    <!-- Грид со статистикой (Баланс и Рефералы) -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+    <!-- Грид со статистикой (Баланс и Рефералы) --><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
         <div class="card" style="margin-bottom: 0; padding: 16px; position: relative; cursor: pointer;" onclick="switchTab('tab-balance', document.querySelectorAll('.bottom-nav .nav-item')[2])">
             <div style="position: absolute; top: 14px; right: 14px; color: var(--text-muted); font-size: 16px;">›</div>
             <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Баланс</div>
@@ -316,7 +321,7 @@ body {
 
         <div id="sub-active" style="display: none;">
             <div class="card">
-                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша VLESS Ссылка</h2>
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Ваша Ссылка доступа</h2>
 
                 <div style="display: flex; gap: 8px; margin-bottom: 20px;">
                     <input type="text" id="vlessInput" class="input-box" readonly value="Загрузка ссылки...">
@@ -502,245 +507,55 @@ body {
 </div>
 
 <script>
+// Telegram WebApp setup and authenticated API helper
+let tg = window.Telegram?.WebApp;
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#090B14'); tg.setBackgroundColor('#090B14'); } catch(e) {} }
+const API_URL = "https://panel.kybic.ru:2053/api/bot";
+let currentUser = tg?.initDataUnsafe?.user, userSubUrl = "", userRefLink = "", expireTimestamp = 0, timerInterval = null, refreshInterval = null;
+let selectedTicketId = null, isUserAdmin = false;
+async function apiFetch(url, options = {}) {
+    const headers = new Headers(options.headers || {});
+    headers.set('X-Telegram-Init-Data', tg?.initData || '');
+    if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+    return fetch(url, { ...options, headers });
+}
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function tgAlert(msg) { try { if (tg?.showAlert) tg.showAlert(String(msg)); else window.alert(String(msg)); if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); } catch(e) { console.log(e); } }
+document.addEventListener("DOMContentLoaded", function() {
+    if (currentUser) {
+        const u=document.getElementById('userName'); if(u) u.innerText="Привет, "+(currentUser.first_name||"Пользователь")+"!";
+        const mn=document.getElementById('menuName'); if(mn) mn.innerText=currentUser.first_name||"Пользователь";
+        const mu=document.getElementById('menuUsername'); if(mu) mu.innerText=currentUser.username?"@"+currentUser.username:"Пользователь";
+        userRefLink=`https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`; checkUserStatus(); loadTickets();
+    } else { const u=document.getElementById('userName'); if(u) u.innerText="Привет, Гость!"; }
+});
+async function buySubscription(planType) {
+    if (!currentUser) { tgAlert("Откройте приложение через Telegram!"); return; }
+    try { if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+        const res=await apiFetch(`${API_URL}/create_payment`,{method:'POST',body:JSON.stringify({plan:planType})}); const data=await res.json();
+        if(res.ok&&data.success&&data.pay_url) { if(tg?.openLink) tg.openLink(data.pay_url); else window.open(data.pay_url,'_blank','noopener'); }
+        else tgAlert(data.error==='payments_not_configured'?"Оплата временно недоступна.":"Не удалось сформировать счёт.");
+    } catch(e) { tgAlert("Ошибка соединения с сервером."); }
+}
+function copyRefLink() {
+    if(!userRefLink) userRefLink=currentUser?`https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`:'https://t.me/kybic_vpn_bot';
+    navigator.clipboard.writeText(userRefLink).then(()=>tgAlert("Реферальная ссылка скопирована!"))
+        .catch(()=>tgAlert("Не удалось скопировать ссылку: "+userRefLink));
+}
+let isMenuOpen=false;
+const icon3Dots='<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
+const iconCross='<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
+function toggleMenu(){isMenuOpen=!isMenuOpen;const m=document.getElementById('fullMenu'),i=document.getElementById('menuIcon');if(m&&i){m.classList.toggle('open',isMenuOpen);i.innerHTML=isMenuOpen?iconCross:icon3Dots;}}
+function toggleLang(e){if(e)e.stopPropagation();document.getElementById('langDrop')?.classList.toggle('show');}
+function closeDropdowns(e){if(!e.target.closest('.lang-btn'))document.getElementById('langDrop')?.classList.remove('show');}
+function closeMenuAndSwitch(tabId,navIndex){if(isMenuOpen)toggleMenu();const n=document.querySelectorAll('.bottom-nav-wrapper .nav-item');switchTab(tabId,navIndex!==null?n[navIndex]:null);}
+function openTariffsPage(){if(isMenuOpen)toggleMenu();switchTab('tab-tariffs',null);}
+function openInfoDocs(){if(isMenuOpen)toggleMenu();if(tg?.showPopup){try{tg.showPopup({title:"Юридическая информация",message:"КУБИК\nВерсия: 1.0.0\n\nВыберите документ:",buttons:[{id:"policy",type:"default",text:"Политика конфиденциальности"},{id:"offer",type:"default",text:"Пользовательское соглашение"},{id:"close",type:"cancel",text:"Закрыть"}]},id=>{if(id==="policy")tg.openLink("https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99");if(id==="offer")tg.openLink("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15");});return;}catch(e){console.log(e);}}const c=window.confirm("Юридическая информация КУБИК:\n\nОК — Политика конфиденциальности\nОтмена — Пользовательское соглашение");window.open(c?"https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99":"https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15","_blank","noopener");}
+function showCreateTicketModal(){const c=document.getElementById('createTicketCard');if(c)c.style.display='block';}
+function hideCreateTicketModal(){const c=document.getElementById('createTicketCard'),t=document.getElementById('ticketTitleInput'),m=document.getElementById('ticketMsgInput');if(c)c.style.display='none';if(t)t.value='';if(m)m.value='';}
+async function loadTickets(){if(!currentUser)return;try{const r=await apiFetch(`${API_URL}/get_tickets?user_id=${currentUser.id}`);if(!r.ok)throw Error('ticket load failed');const d=await r.json();isUserAdmin=!!d.is_admin;const h=document.getElementById('ticketsHeaderTitle');if(h)h.innerText=isUserAdmin?"Другие обращения":"Ваши обращения";const c=document.getElementById('ticketsListContainer');if(!c)return;if(!d.tickets?.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted)"><div style="font-size:36px;margin-bottom:8px">💬</div><div>Нет обращений</div></div>';return;}c.innerHTML=d.tickets.map(t=>{const date=new Date(Number(t.updated_at)*1000).toLocaleDateString('ru-RU'),title=escapeHtml(t.title),status=escapeHtml(t.status),name=escapeHtml(t.first_name||'Пользователь'),answered=t.status==='answered';return `<div class="ticket-item" data-ticket-id="${Number(t.id)}" data-ticket-title="${title}" data-ticket-status="${status}" data-ticket-date="${escapeHtml(date)}"><div><div style="font-weight:700;font-size:14px;margin-bottom:2px">${isUserAdmin?`(${name}) `:''}${title}</div><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(date)}</div></div><span class="badge-status ${answered?'badge-answered':'badge-open'}">${answered?'Отвечен':status==='closed'?'Закрыт':'Открыт'}</span></div>`;}).join('');c.querySelectorAll('.ticket-item').forEach(el=>el.addEventListener('click',()=>selectTicket(Number(el.dataset.ticketId),el.dataset.ticketTitle,el.dataset.ticketStatus,el.dataset.ticketDate)));}catch(e){console.log(e);}}
 
-    // Переопределяем стандартный alert на красивый Telegram-овский
-window.alert = function(message) {
-    window.Telegram.WebApp.showAlert(message);
-};
-
-// Если используете подтверждения (да/нет), переопределяем и confirm
-window.confirm = function(message) {
-    return window.Telegram.WebApp.showConfirm(message);
-};
-    
-    let tg = window.Telegram?.WebApp;
-
-    if (tg) {
-        try {
-            tg.ready();
-            tg.expand();
-            tg.setHeaderColor('#090B14');
-            tg.setBackgroundColor('#090B14');
-        } catch(e) {}
-    }
-
-    const API_URL = "https://panel.kybic.ru:2053/api/bot";
-    let currentUser = tg?.initDataUnsafe?.user;
-    let userSubUrl = "";
-    let userRefLink = "";
-    let expireTimestamp = 0;
-    let timerInterval = null;
-    let refreshInterval = null;
-
-    let selectedTicketId = null;
-    let isUserAdmin = false;
-
-    function tgAlert(msg) { 
-        try {
-            if (tg && tg.showAlert) tg.showAlert(msg);
-            else alert(msg);
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
-        } catch(e) { alert(msg); }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        if (currentUser) {
-            const uName = document.getElementById('userName');
-            if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
-
-            const mName = document.getElementById('menuName');
-            if (mName) mName.innerText = currentUser.first_name || "Пользователь";
-
-            const mUser = document.getElementById('menuUsername');
-            if (mUser) mUser.innerText = currentUser.username ? "@" + currentUser.username : "Пользователь";
-
-            userRefLink = `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}`;
-
-            checkUserStatus();
-            loadTickets();
-        } else {
-            const uName = document.getElementById('userName');
-            if (uName) uName.innerText = "Привет, Гость!";
-        }
-    });
-
-    /* ФУНКЦИЯ ОПЛАТЫ ROLLYPAY */
-    async function buySubscription(planType) {
-        if (!currentUser) {
-            tgAlert("Откройте приложение через Telegram!");
-            return;
-        }
-
-        try {
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-            tgAlert("⏳ Формируем счет на оплату...");
-
-            const res = await fetch(`${API_URL}/create_payment`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    plan: planType
-                })
-            });
-
-            const data = await res.json();
-
-            if (data.success && data.pay_url) {
-                if (tg && tg.openLink) {
-                    tg.openLink(data.pay_url);
-                } else {
-                    window.open(data.pay_url, '_blank');
-                }
-            } else {
-                tgAlert("❌ Ошибка формирования счета");
-            }
-        } catch (e) {
-            tgAlert("❌ Ошибка соединения: " + e.message);
-        }
-    }
-
-    function copyRefLink() {
-        if (!userRefLink) {
-            userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
-        }
-        try { navigator.clipboard.writeText(userRefLink); } catch(e){}
-        tgAlert("🔗 Реферальная ссылка скопирована!");
-    }
-
-    let isMenuOpen = false;
-    const icon3Dots = '<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
-    const iconCross = '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
-
-    function toggleMenu() {
-        isMenuOpen = !isMenuOpen;
-        const menu = document.getElementById('fullMenu');
-        const icon = document.getElementById('menuIcon');
-        if (menu && icon) {
-            if (isMenuOpen) {
-                menu.classList.add('open');
-                icon.innerHTML = iconCross;
-            } else {
-                menu.classList.remove('open');
-                icon.innerHTML = icon3Dots;
-            }
-        }
-    }
-
-    function toggleLang(e) {
-        if(e) e.stopPropagation();
-        const drop = document.getElementById('langDrop');
-        if (drop) drop.classList.toggle('show');
-    }
-
-    function closeDropdowns(e) {
-        if (!e.target.closest('.lang-btn')) {
-            const drop = document.getElementById('langDrop');
-            if (drop) drop.classList.remove('show');
-        }
-    }
-
-    function closeMenuAndSwitch(tabId, navIndex) {
-        if (isMenuOpen) toggleMenu();
-        const navItems = document.querySelectorAll('.bottom-nav-wrapper .nav-item');
-        if (navIndex !== null && navItems[navIndex]) {
-            switchTab(tabId, navItems[navIndex]);
-        } else {
-            switchTab(tabId, null);
-        }
-    }
-
-    function openTariffsPage() {
-        if (isMenuOpen) toggleMenu();
-        switchTab('tab-tariffs', null);
-    }
-
-    function openInfoDocs() {
-        if (isMenuOpen) toggleMenu();
-        if (tg && tg.showPopup) {
-            try {
-                tg.showPopup({
-                    title: "Юридическая информация",
-                    message: "КУБИК VPN 🧊\nВерсия: 1.0.0\n\nВыберите документ:",
-                    buttons: [
-                        { id: "policy", type: "default", text: "Политика конфиденциальности" },
-                        { id: "offer", type: "default", text: "Пользовательское соглашение" },
-                        { id: "close", type: "cancel", text: "Закрыть" }
-                    ]
-                }, function(buttonId) {
-                    if (buttonId === "policy") {
-                        window.open("https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99", "_blank");
-                    } else if (buttonId === "offer") {
-                        window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
-                    }
-                });
-                return;
-            } catch(e) { console.log(e); }
-        }
-        const choice = confirm("Юридическая информация КУБИК VPN:\n\nОК - Политика конфиденциальности\nОтмена - Пользовательское соглашение");
-        if (choice) window.open("https://telegra.ph/POLITIKA-KONFIDENCIALNOSTI-08-12-99", "_blank");
-        else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
-    }
-
-    /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
-    function showCreateTicketModal() { 
-        const card = document.getElementById('createTicketCard');
-        if (card) card.style.display = 'block'; 
-    }
-    function hideCreateTicketModal() {
-        const card = document.getElementById('createTicketCard');
-        if (card) card.style.display = 'none';
-        const tInput = document.getElementById('ticketTitleInput');
-        if (tInput) tInput.value = '';
-        const mInput = document.getElementById('ticketMsgInput');
-        if (mInput) mInput.value = '';
-    }
-
-    async function loadTickets() {
-        if (!currentUser) return;
-        try {
-            const res = await fetch(`${API_URL}/get_tickets?user_id=${currentUser.id}`);
-            const data = await res.json();
-
-            isUserAdmin = data.is_admin || false;
-            const titleEl = document.getElementById('ticketsHeaderTitle');
-            if (titleEl) titleEl.innerText = isUserAdmin ? "Другие обращения" : "Ваши обращения";
-
-            const container = document.getElementById('ticketsListContainer');
-            if (!container) return;
-
-            if (!data.tickets || data.tickets.length === 0) {
-                container.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-                    <div style="font-size: 36px; margin-bottom: 8px;">💬</div>
-                    <div>Нет обращений</div>
-                </div>`;
-                return;
-            }
-
-            let html = "";
-            data.tickets.forEach(t => {
-                const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
-                let badgeClass = 'badge-open';
-                let badgeText = 'Открыт';
-                if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
-
-                const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
-
-                html += `
-                <div class="ticket-item" onclick="selectTicket(${t.id}, '${t.title.replace(/'/g, "\\'")}', '${t.status}', '${dateStr}')">
-                    <div>
-                        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">${userPrefix}${t.title}</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">${dateStr}</div>
-                    </div>
-                    <span class="badge-status ${badgeClass}">${badgeText}</span>
-                </div>`;
-            });
-            container.innerHTML = html;
-        } catch (e) { console.log(e); }
-    }
-
-    async function selectTicket(ticketId, title, status, dateStr) {
+async function selectTicket(ticketId, title, status, dateStr) {
         selectedTicketId = ticketId;
         const emptyState = document.getElementById('chatEmptyState');
         if (emptyState) emptyState.style.display = 'none';
@@ -771,7 +586,7 @@ window.confirm = function(message) {
 
     async function loadTicketMessages(ticketId) {
         try {
-            const res = await fetch(`${API_URL}/get_messages?ticket_id=${ticketId}`);
+            const res = await apiFetch(`${API_URL}/get_messages?ticket_id=${ticketId}`);
             const data = await res.json();
 
             const list = document.getElementById('chatMessagesList');
@@ -788,10 +603,10 @@ window.confirm = function(message) {
                     html += `
                     <div class="chat-msg ${msgClass}">
                         <div style="font-size: 10px; opacity: 0.7; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px;">
-                            <b>${senderLabel}</b>
+                            <b>${escapeHtml(senderLabel)}</b>
                             <span>${timeStr}</span>
                         </div>
-                        <div>${m.message}</div>
+                        <div>${escapeHtml(m.message)}</div>
                     </div>`;
                 });
             }
@@ -811,13 +626,14 @@ window.confirm = function(message) {
             return;
         }
 
-        const uid = currentUser ? currentUser.id : 7058964435;
-        const fname = currentUser ? currentUser.first_name : "Пользователь";
+        if (!currentUser) { tgAlert("Откройте приложение через Telegram!"); return; }
+        const uid = currentUser.id;
+        const fname = currentUser.first_name || "Пользователь";
 
         try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
 
         try {
-            const res = await fetch(`${API_URL}/create_ticket`, {
+            const res = await apiFetch(`${API_URL}/create_ticket`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: uid, first_name: fname, title: title, message: message })
             });
@@ -846,7 +662,7 @@ window.confirm = function(message) {
         inp.value = "";
 
         try {
-            const res = await fetch(`${API_URL}/reply_ticket`, {
+            const res = await apiFetch(`${API_URL}/reply_ticket`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ticket_id: selectedTicketId,
@@ -867,7 +683,7 @@ window.confirm = function(message) {
     async function checkUserStatus() {
         if (!currentUser) return;
         try {
-            const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
+            const res = await apiFetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
             if (data && data.active) showActiveState(data);
         } catch (e) { console.log(e); }
@@ -878,7 +694,7 @@ window.confirm = function(message) {
         try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
 
         try {
-            const res = await fetch(`${API_URL}/activate`, {
+            const res = await apiFetch(`${API_URL}/activate`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: currentUser.id, first_name: currentUser.first_name })
             });
@@ -899,7 +715,7 @@ window.confirm = function(message) {
         const doReset = async () => {
             try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
             try {
-                const res = await fetch(`${API_URL}/reset_devices`, {
+                const res = await apiFetch(`${API_URL}/reset_devices`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_id: currentUser.id })
                 });
@@ -914,13 +730,9 @@ window.confirm = function(message) {
         };
 
         if (tg && tg.showConfirm) {
-            tg.showConfirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?", function(confirmed) {
-                if (confirmed) doReset();
-            });
-        } else {
-            if (confirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?")) {
-                doReset();
-            }
+            tg.showConfirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?", confirmed => { if (confirmed) doReset(); });
+        } else if (window.confirm("Подписка отключится на всех старых устройствах, и будет сгенерирована новая ссылка. Продолжить?")) {
+            doReset();
         }
     }
 
@@ -993,7 +805,7 @@ window.confirm = function(message) {
                 devHtml += `<div class="glass-box" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <span style="font-size: 20px;">📱</span>
-                        <div><div style="font-size: 13px; font-weight: 600;">${d.name}</div><div style="font-size: 10px; color: ${statusColor};">${d.status_text || 'В сети'}</div></div>
+                        <div><div style="font-size: 13px; font-weight: 600;">${escapeHtml(d.name)}</div><div style="font-size: 10px; color: ${statusColor};">${escapeHtml(d.status_text || 'В сети')}</div></div>
                     </div>
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; ${dotShadow}"></div>
                 </div>`;
