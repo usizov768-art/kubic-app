@@ -6,15 +6,31 @@
     <title>Кубик VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-main: #0A0D14; /* Глубокий темный фон */
-    --card-bg: #11151F; /* Фон карточек */
+:root {
+    --bg-main: #0A0D14;
+    --card-bg: #11151F;
     --text-main: #FFFFFF;
-    --text-muted: #8E96A3; /* Серый текст */
-    --accent-blue: #2936FF; /* Ярко-синий как на скрине */
+    --text-muted: #8E96A3;
+    --accent-blue: #2936FF;
     --accent-blue-hover: #1E28CC;
     --border-color: rgba(255, 255, 255, 0.05);
-    --green-text: #00E676; /* Для плюсового баланса */
+    --green-text: #00E676;
+
+    /* Доп. оттенок для градиентов/свечения на основе accent-blue */
+    --accent-blue-light: #4C5BFF;
+
+    /* Алиасы для совместимости со старыми классами (чтобы не переписывать всё с нуля) */
+    --primary: var(--accent-blue);
+    --primary-glow: rgba(41, 54, 255, 0.35);
+    --accent-glow: rgba(41, 54, 255, 0.4);
+    --glass-bg: var(--card-bg);
+    --glass-border: var(--border-color);
+    --glass-blur: blur(20px);
+
+    /* Статусные (не брендовые) — для онлайн/офлайн/предупреждений */
+    --warning: #FBBF24;
+    --success: #10B981;
+    --danger: #EF4444;
 }
 
 body {
