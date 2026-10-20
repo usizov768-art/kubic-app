@@ -22,7 +22,7 @@ body {
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 16px;
 }
 
         body::before, body::after {
@@ -154,6 +154,9 @@ body {
     <div class="menu-user-info">
         <div class="greeting" id="menuName">Привет!</div>
         <div class="username" id="menuUsername">@username</div>
+        <div style="margin-top: 10px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted);">
+            👥 Рефералов: <span id="menuRefCount" style="color: var(--accent-blue); font-weight: 700;">0</span>
+        </div>
     </div>
     <div class="menu-items">
         <a onclick="closeMenuAndSwitch('tab-home', 0)">
@@ -503,7 +506,7 @@ body {
 
 <script>
 
-    // Переопределяем стандартный alert на красивый Telegram-овский
+// Переопределяем стандартный alert на красивый Telegram-овский
 window.alert = function(message) {
     window.Telegram.WebApp.showAlert(message);
 };
@@ -543,7 +546,7 @@ window.confirm = function(message) {
         } catch(e) { alert(msg); }
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
         if (currentUser) {
             const uName = document.getElementById('userName');
             if (uName) uName.innerText = "Привет, " + (currentUser.first_name || "Пользователь") + "!";
@@ -608,7 +611,7 @@ window.confirm = function(message) {
         tgAlert("🔗 Реферальная ссылка скопирована!");
     }
 
-    let isMenuOpen = false;
+let isMenuOpen = false;
     const icon3Dots = '<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
     const iconCross = '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
 
@@ -640,7 +643,7 @@ window.confirm = function(message) {
         }
     }
 
-    function closeMenuAndSwitch(tabId, navIndex) {
+function closeMenuAndSwitch(tabId, navIndex) {
         if (isMenuOpen) toggleMenu();
         const navItems = document.querySelectorAll('.bottom-nav-wrapper .nav-item');
         if (navIndex !== null && navItems[navIndex]) {
@@ -682,7 +685,7 @@ window.confirm = function(message) {
         else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
     }
 
-    /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
+/* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
     function showCreateTicketModal() { 
         const card = document.getElementById('createTicketCard');
         if (card) card.style.display = 'block'; 
@@ -740,7 +743,7 @@ window.confirm = function(message) {
         } catch (e) { console.log(e); }
     }
 
-    async function selectTicket(ticketId, title, status, dateStr) {
+async function selectTicket(ticketId, title, status, dateStr) {
         selectedTicketId = ticketId;
         const emptyState = document.getElementById('chatEmptyState');
         if (emptyState) emptyState.style.display = 'none';
@@ -800,7 +803,7 @@ window.confirm = function(message) {
         } catch (e) { console.log(e); }
     }
 
-    async function submitNewTicket() {
+async function submitNewTicket() {
         const titleInput = document.getElementById('ticketTitleInput');
         const msgInput = document.getElementById('ticketMsgInput');
         const title = titleInput ? titleInput.value.trim() : "";
@@ -869,8 +872,21 @@ window.confirm = function(message) {
         try {
             const res = await fetch(`${API_URL}/status?user_id=${currentUser.id}`);
             const data = await res.json();
-            if (data && data.active) showActiveState(data);
+            if (data) {
+                updateReferralStats(data);
+                if (data.active) showActiveState(data);
+            }
         } catch (e) { console.log(e); }
+    }
+
+    function updateReferralStats(data) {
+        const refCount = data.ref_count || 0;
+
+        const homeRef = document.getElementById('homeRefCount');
+        if (homeRef) homeRef.innerText = refCount;
+
+        const menuRef = document.getElementById('menuRefCount');
+        if (menuRef) menuRef.innerText = refCount;
     }
 
     async function requestTrialInApp() {
@@ -894,7 +910,7 @@ window.confirm = function(message) {
         } catch (e) { tgAlert("Ошибка: " + e.message); }
     }
 
-    function resetUserDevices() {
+function resetUserDevices() {
         if (!currentUser) return;
         const doReset = async () => {
             try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy'); } catch(e){}
@@ -1014,7 +1030,7 @@ window.confirm = function(message) {
         refreshInterval = setInterval(() => checkUserStatus(), 30000);
     }
 
-    function startLiveTimer() {
+function startLiveTimer() {
         timerInterval = setInterval(() => {
             const diff = expireTimestamp - Math.floor(Date.now() / 1000);
             if (diff <= 0) {
