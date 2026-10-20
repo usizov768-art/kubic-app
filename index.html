@@ -22,7 +22,7 @@ body {
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 0px;
+    padding: 16px;
 }
 
         body::before, body::after {
@@ -123,6 +123,8 @@ body {
         .badge-status { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
         .badge-open { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border: 1px solid rgba(37, 99, 235, 0.4); }
         .badge-answered { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-review { background: rgba(251, 191, 36, 0.15); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.35); }
+        .badge-closed { background: rgba(142, 150, 163, 0.15); color: var(--text-muted); border: 1px solid rgba(142, 150, 163, 0.3); }
 
         .chat-msg { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; max-width: 85%; }
         .chat-msg.user-msg { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); margin-right: auto; }
@@ -264,16 +266,16 @@ body {
             <div style="font-size: 18px; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 8px;">
                 <span>👥</span> <span id="homeRefCount">0</span>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Пригласить друга</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="refProgressText">Пригласить друга</div>
         </div>
     </div>
 
     <!-- Блок бонусов -->
-    <div class="card" onclick="alert('🎁 Раздел бонусов скоро откроется!')" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+    <div class="card" id="bonusCard" onclick="handleBonusCardClick()" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
         <div style="font-size: 32px;">🎁</div>
         <div style="flex: 1;">
-            <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 3px;">Ежедневные бонусы!</div>
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;">Заходите каждый день и получайте дополнительные гигабайты трафика.</div>
+            <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 3px;" id="bonusTitle">Бонус за рефералов</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;" id="bonusSubtitle">Пригласи 3 друзей и получи случайный бонус!</div>
         </div>
         <div style="color: var(--text-muted); font-size: 18px;">›</div>
     </div>
@@ -472,6 +474,11 @@ body {
                     <span class="badge-status badge-open" id="chatStatusBadge">Открыт</span>
                 </div>
 
+                <div id="adminTicketActions" style="display: none; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn-dark" style="margin: 0; flex: 1; padding: 10px; font-size: 12px;" onclick="changeTicketStatus('in_review')">🟡 В работу</button>
+                    <button class="btn-dark" style="margin: 0; flex: 1; padding: 10px; font-size: 12px; color: #F87171; border-color: rgba(239,68,68,0.3);" onclick="changeTicketStatus('closed')">🔒 Закрыть</button>
+                </div>
+
                 <div id="chatMessagesList" style="max-height: 250px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px;"></div>
 
                 <div style="display: flex; gap: 8px;">
@@ -534,9 +541,12 @@ window.confirm = function(message) {
     let expireTimestamp = 0;
     let timerInterval = null;
     let refreshInterval = null;
+    let bonusCountdownInterval = null;
 
     let selectedTicketId = null;
     let isUserAdmin = false;
+
+    let bonusState = { available: false, nextAt: 0, refCount: 0 };
 
     function tgAlert(msg) { 
         try {
@@ -685,6 +695,77 @@ function closeMenuAndSwitch(tabId, navIndex) {
         else window.open("https://telegra.ph/PUBLICHNAYA-OFERTA-08-12-15", "_blank");
     }
 
+/* --- БОНУСЫ ЗА РЕФЕРАЛОВ --- */
+    function pluralFriends(n) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return "друга";
+        return "друзей";
+    }
+
+    function updateReferralProgressText(refCount) {
+        const el = document.getElementById('refProgressText');
+        if (!el) return;
+        const remain = 3 - (refCount % 3);
+        el.innerText = remain === 3 ? "Пригласить друга" : `Ещё ${remain} ${pluralFriends(remain)} до бонуса`;
+    }
+
+    function updateBonusCard() {
+        const titleEl = document.getElementById('bonusTitle');
+        const subEl = document.getElementById('bonusSubtitle');
+        if (!titleEl || !subEl) return;
+
+        const now = Math.floor(Date.now() / 1000);
+
+        if (bonusState.available) {
+            titleEl.innerText = "🎁 Бонус готов!";
+            subEl.innerText = "Нажмите, чтобы получить случайный подарок";
+        } else if (bonusState.nextAt > now) {
+            const diff = bonusState.nextAt - now;
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            titleEl.innerText = "Бонус за рефералов";
+            subEl.innerText = `Следующий бонус будет доступен через ${h} ч ${m} мин`;
+        } else {
+            const remain = 3 - (bonusState.refCount % 3);
+            titleEl.innerText = "Бонус за рефералов";
+            subEl.innerText = remain === 3
+                ? "Пригласи 3 друзей и получи случайный бонус!"
+                : `Пригласи ещё ${remain} ${pluralFriends(remain)} и получи бонус!`;
+        }
+    }
+
+    function handleBonusCardClick() {
+        if (bonusState.available) {
+            claimBonus();
+        } else {
+            tgAlert("🎁 Приглашайте друзей по реферальной ссылке, чтобы открыть бонус!");
+        }
+    }
+
+    async function claimBonus() {
+        if (!currentUser) return;
+        try {
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+            const res = await fetch(`${API_URL}/claim_bonus`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: currentUser.id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                tgAlert(`🎉 Ваш бонус: ${data.bonus_label}!`);
+                showActiveState(data);
+                checkUserStatus();
+            } else if (data.error === "no_subscription") {
+                tgAlert("❌ Сначала активируйте подписку, чтобы получать бонусы!");
+            } else {
+                tgAlert("❌ Бонус недоступен. Попробуйте позже.");
+            }
+        } catch (e) {
+            tgAlert("❌ Ошибка получения бонуса");
+        }
+    }
+
 /* --- ТИКЕТЫ ПОДДЕРЖКИ --- */
     function showCreateTicketModal() { 
         const card = document.getElementById('createTicketCard');
@@ -697,6 +778,13 @@ function closeMenuAndSwitch(tabId, navIndex) {
         if (tInput) tInput.value = '';
         const mInput = document.getElementById('ticketMsgInput');
         if (mInput) mInput.value = '';
+    }
+
+    function getBadgeInfo(status) {
+        if (status === 'answered') return { cls: 'badge-answered', text: 'Отвечен' };
+        if (status === 'in_review') return { cls: 'badge-review', text: 'На рассмотрении' };
+        if (status === 'closed') return { cls: 'badge-closed', text: 'Закрыт' };
+        return { cls: 'badge-open', text: 'Открыт' };
     }
 
     async function loadTickets() {
@@ -724,9 +812,7 @@ function closeMenuAndSwitch(tabId, navIndex) {
             let html = "";
             data.tickets.forEach(t => {
                 const dateStr = new Date(t.updated_at * 1000).toLocaleDateString('ru-RU');
-                let badgeClass = 'badge-open';
-                let badgeText = 'Открыт';
-                if (t.status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+                const badge = getBadgeInfo(t.status);
 
                 const userPrefix = isUserAdmin ? `(${t.first_name}) ` : '';
 
@@ -736,7 +822,7 @@ function closeMenuAndSwitch(tabId, navIndex) {
                         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">${userPrefix}${t.title}</div>
                         <div style="font-size: 11px; color: var(--text-muted);">${dateStr}</div>
                     </div>
-                    <span class="badge-status ${badgeClass}">${badgeText}</span>
+                    <span class="badge-status ${badge.cls}">${badge.text}</span>
                 </div>`;
             });
             container.innerHTML = html;
@@ -757,19 +843,47 @@ async function selectTicket(ticketId, title, status, dateStr) {
         const cMeta = document.getElementById('chatMeta');
         if (cMeta) cMeta.innerText = "Создано: " + dateStr;
 
+        const adminActions = document.getElementById('adminTicketActions');
+        if (adminActions) adminActions.style.display = isUserAdmin ? 'flex' : 'none';
+
         updateChatBadge(status);
         await loadTicketMessages(ticketId);
     }
 
     function updateChatBadge(status) {
-        const badge = document.getElementById('chatStatusBadge');
-        if (!badge) return;
-        let badgeClass = 'badge-open';
-        let badgeText = 'Открыт';
-        if (status === 'answered') { badgeClass = 'badge-answered'; badgeText = 'Отвечен'; }
+        const badgeEl = document.getElementById('chatStatusBadge');
+        if (!badgeEl) return;
+        const badge = getBadgeInfo(status);
+        badgeEl.innerText = badge.text;
+        badgeEl.className = 'badge-status ' + badge.cls;
+    }
 
-        badge.innerText = badgeText;
-        badge.className = 'badge-status ' + badgeClass;
+    async function changeTicketStatus(status) {
+        if (!selectedTicketId || !currentUser) return;
+        try {
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            const res = await fetch(`${API_URL}/change_ticket_status`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ticket_id: selectedTicketId, user_id: currentUser.id, status: status })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (status === 'closed') {
+                    tgAlert("🔒 Тикет закрыт");
+                    selectedTicketId = null;
+                    const boxContent = document.getElementById('chatBoxContent');
+                    if (boxContent) boxContent.style.display = 'none';
+                    const emptyState = document.getElementById('chatEmptyState');
+                    if (emptyState) emptyState.style.display = 'block';
+                } else {
+                    tgAlert("🟡 Тикет переведён в работу");
+                    updateChatBadge(status);
+                }
+                loadTickets();
+            } else {
+                tgAlert("❌ Не удалось изменить статус");
+            }
+        } catch (e) { tgAlert("❌ Ошибка смены статуса"); }
     }
 
     async function loadTicketMessages(ticketId) {
@@ -887,6 +1001,17 @@ async function submitNewTicket() {
 
         const menuRef = document.getElementById('menuRefCount');
         if (menuRef) menuRef.innerText = refCount;
+
+        bonusState.refCount = refCount;
+        bonusState.available = data.bonus_available || false;
+        bonusState.nextAt = data.bonus_next_at || 0;
+
+        updateReferralProgressText(refCount);
+        updateBonusCard();
+
+        if (!bonusCountdownInterval) {
+            bonusCountdownInterval = setInterval(updateBonusCard, 60000);
+        }
     }
 
     async function requestTrialInApp() {
