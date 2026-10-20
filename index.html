@@ -362,14 +362,13 @@ body {
             <button class="btn-magic" onclick="openTariffsPage()">➕ Пополнить баланс</button>
         </div>
 
-        <div class="card">
-            <h3 style="font-size: 16px; margin-bottom: 14px;">Активация промокода</h3>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" class="input-box" placeholder="Введите промокод">
-                <button class="btn-blue-bright" style="width: auto; padding: 0 20px;" onclick="tgAlert('Промокод не найден')">Применить</button>
-            </div>
-        </div>
+<div class="card">
+    <h3 style="font-size: 16px; margin-bottom: 14px;">Активация промокода</h3>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" class="input-box" id="promoInput" placeholder="Введите промокод">
+        <button class="btn-blue-bright" style="width: auto; padding: 0 20px;" onclick="checkPromo()">Применить</button>
     </div>
+</div>
 
     <!-- ==================== 4. ТАРИФЫ ==================== -->
     <div id="tab-tariffs" class="tab-content">
@@ -577,41 +576,73 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    /* ФУНКЦИЯ ОПЛАТЫ ROLLYPAY */
-    async function buySubscription(planType) {
-        if (!currentUser) {
-            tgAlert("Откройте приложение через Telegram!");
-            return;
+let appliedPromoCode = null;
+
+async function checkPromo() {
+    const input = document.getElementById('promoInput');
+    const code = input.value.trim();
+    if (!code) { tgAlert("Введите промокод"); return; }
+    if (!currentUser) { tgAlert("Откройте приложение через Telegram!"); return; }
+
+    try {
+        const res = await fetch(`${API_URL}/check_promo`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: currentUser.id, code: code })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            appliedPromoCode = code.toUpperCase();
+            const label = data.discount_type === 'percent' ? `-${data.discount_value}%` : `-${data.discount_value}₽`;
+            tgAlert(`✅ Промокод применён! Скидка ${label} будет учтена при оплате любого тарифа.`);
+        } else {
+            appliedPromoCode = null;
+            let msg = "Промокод не найден";
+            if (data.error === "exhausted") msg = "Промокод исчерпан";
+            if (data.error === "already_used") msg = "Вы уже использовали этот промокод";
+            tgAlert("❌ " + msg);
         }
-
-        try {
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-            tgAlert("⏳ Формируем счет на оплату...");
-
-            const res = await fetch(`${API_URL}/create_payment`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    plan: planType
-                })
-            });
-
-            const data = await res.json();
-
-            if (data.success && data.pay_url) {
-                if (tg && tg.openLink) {
-                    tg.openLink(data.pay_url);
-                } else {
-                    window.open(data.pay_url, '_blank');
-                }
-            } else {
-                tgAlert("❌ Ошибка формирования счета");
-            }
-        } catch (e) {
-            tgAlert("❌ Ошибка соединения: " + e.message);
-        }
+    } catch (e) {
+        tgAlert("❌ Ошибка соединения: " + e.message);
     }
+}
+
+async function buySubscription(planType) {
+    if (!currentUser) {
+        tgAlert("Откройте приложение через Telegram!");
+        return;
+    }
+
+    try {
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+        tgAlert("⏳ Формируем счет на оплату...");
+
+        const res = await fetch(`${API_URL}/create_payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                plan: planType,
+                promo_code: appliedPromoCode || null
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.pay_url) {
+            if (tg && tg.openLink) {
+                tg.openLink(data.pay_url);
+            } else {
+                window.open(data.pay_url, '_blank');
+            }
+        } else {
+            tgAlert("❌ Ошибка формирования счета");
+        }
+    } catch (e) {
+        tgAlert("❌ Ошибка соединения: " + e.message);
+    }
+}
 
 function copyRefLink() {
     if (!userRefLink) {
