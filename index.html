@@ -613,13 +613,25 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function copyRefLink() {
-        if (!userRefLink) {
-            userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
-        }
-        try { navigator.clipboard.writeText(userRefLink); } catch(e){}
-        tgAlert("🔗 Реферальная ссылка скопирована!");
+function copyRefLink() {
+    if (!userRefLink) {
+        userRefLink = currentUser ? `https://t.me/kybic_vpn_bot?start=ref_${currentUser.id}` : 'https://t.me/kybic_vpn_bot';
     }
+
+    const shareText = "🎲 Залетай в Кубик VPN — забирай свой доступ по моей ссылке!";
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(userRefLink)}&text=${encodeURIComponent(shareText)}`;
+
+    try {
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openTelegramLink === 'function') {
+            window.Telegram.WebApp.openTelegramLink(shareUrl);
+            return;
+        }
+    } catch(e) {}
+
+    // Фоллбек, если открыто не в Telegram (например, тест в обычном браузере)
+    try { navigator.clipboard.writeText(userRefLink); } catch(e){}
+    tgAlert("🔗 Реферальная ссылка скопирована!");
+}
 
 let isMenuOpen = false;
     const icon3Dots = '<circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>';
